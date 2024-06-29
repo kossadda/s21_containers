@@ -16,46 +16,109 @@
 #include <iostream>
 #include <utility>
 
-// namespace container {
+namespace container {
+
+#include "iterator.h"
 
 template <class T>
 class vector {
- private:
  public:
+  using value_type = T;
+  using pointer = T *;
+  using reference = T &;
+  using const_reference = const T &;
+  using size_type = size_t;
+
+  class iterator {
+   public:
+    using iterator_reference = iterator &;
+    using const_iterator_reference = const iterator &;
+
+
+   private:
+    T *m_ptr;
+    size_t m_index;
+
+   public:
+    iterator() noexcept : m_ptr{}, m_index{} {};
+    explicit iterator(pointer ptr) : m_ptr{ptr}, m_index{} {};
+    explicit iterator(const iterator &other) : m_ptr{other.getPtr()}, m_index{other} {};
+
+    pointer getCurrent() const noexcept { return m_ptr + m_index; };
+    pointer getPtr() const noexcept { return m_ptr; };
+    size_type getIndex() const noexcept { return m_index; };
+
+    const_reference operator*() const;
+    void operator=(const_iterator_reference other) noexcept;
+    void operator=(pointer ptr) noexcept;
+  };
+
+ private:
   size_t m_size;
   size_t m_capacity;
   T *arr;
 
-  T *Alloc();
-  void Remove() noexcept;
+  T *alloc();
+  void remove() noexcept;
 
  public:
-  using value_type = T;
-  using reference = T &;
-  using const_reference = const T &;
-  using iterator = T *;
-  using const_iterator = const T *;
-  using size_type = size_t;
-
   vector() noexcept;
   ~vector() noexcept;
   vector(const size_type n);
   vector(const std::initializer_list<value_type> &items);
   vector(const vector &v);
   vector(vector &&v);
-  vector operator=(vector &&v);
 
   size_type size() const noexcept { return m_size; };
   size_type max_size() const noexcept { return m_capacity; };
+  iterator begin() const noexcept;
+
+  vector operator=(vector &&v);
 };
 
 template <typename T>
-T *vector<T>::Alloc() {
+const T &vector<T>::iterator::operator*() const {
+  if (!m_ptr) {
+    throw std::invalid_argument("Trying to dereference an empty iterator");
+  }
+
+  return *m_ptr;
+}
+
+template <typename T>
+class vector<T>::iterator vector<T>::begin() const noexcept {
+  return iterator{arr};
+}
+
+template <typename T>
+void vector<T>::iterator::operator=(const_iterator_reference other) noexcept {
+  m_ptr = other.getPtr();
+  m_index = other.getIndex();
+}
+
+template <typename T>
+void vector<T>::iterator::operator=(pointer ptr) noexcept {
+  m_ptr = ptr;
+  m_index = 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+template <typename T>
+T *vector<T>::alloc() {
   return new T[m_capacity]{};
 }
 
 template <typename T>
-void vector<T>::Remove() noexcept {
+void vector<T>::remove() noexcept {
   delete[] arr;
   arr = nullptr;
   m_size = m_capacity = 0;
@@ -66,15 +129,15 @@ vector<T>::vector() noexcept : m_size{}, m_capacity{}, arr{} {}
 
 template <typename T>
 vector<T>::~vector() noexcept {
-  Remove();
+  remove();
 }
 
 template <typename T>
-vector<T>::vector(size_type n) : m_size{n}, m_capacity{n}, arr{Alloc()} {}
+vector<T>::vector(size_type n) : m_size{n}, m_capacity{n}, arr{alloc()} {}
 
 template <typename T>
 vector<T>::vector(std::initializer_list<value_type> const &item)
-    : m_size{item.size()}, m_capacity{item.size()}, arr{Alloc()} {
+    : m_size{item.size()}, m_capacity{item.size()}, arr{alloc()} {
   std::copy(item.begin(), item.begin() + m_size, arr);
 }
 
@@ -86,6 +149,6 @@ vector<T>::vector(std::initializer_list<value_type> const &item)
 //   std::copy()
 // }
 
-// }  // namespace container
+}  // namespace container
 
 #endif  // _VECTOR_H_

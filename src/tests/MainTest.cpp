@@ -31,15 +31,15 @@ int main(int argc, char** argv) {
  * @return std::string - outputting a matrix as a string
  */
 // std::string Print(S21Matrix& m, int mode) {
-  // std::ostringstream os;
+// std::ostringstream os;
 
-  // os << ((!mode) ? "  Actual: " : "Expected: ");
-  // for (int i = 0; i < m.GetRows(); i++) {
-  //   for (int j = 0; j < m.GetCols(); j++) {
-  //     os << m(i, j) << " ";
-  //   }
-  // }
-  // os << std::endl;
+// os << ((!mode) ? "  Actual: " : "Expected: ");
+// for (int i = 0; i < m.GetRows(); i++) {
+//   for (int j = 0; j < m.GetCols(); j++) {
+//     os << m(i, j) << " ";
+//   }
+// }
+// os << std::endl;
 
-  // return os.str();
+// return os.str();
 // }
