@@ -14,18 +14,16 @@
 
 int main()
 {
-  // std::vector<int> k{5};
-  // container::vector<int> arr{5, 2, 4};
-  int arr[] = {1, 2, 3, 4};
+  container::vector<int> arr{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-  container::vector<int>::iterator m;
+  container::vector<int>::iterator b;
+  // b = arr.begin();
+  // b += 10;
 
-  m = arr;
+  // container::vector<int>::iterator e;
+  // e = arr.end();
 
-  std::cout << "\nRESULT: " << *m << "\n\n";
+  std::cout << "\nRESULT: " << 1 << "\n\n";
   
-
-
-
   return 0;
 }

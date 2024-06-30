@@ -1,5 +1,5 @@
 /**
- * @file MainTest.cpp
+ * @file mainTest.cpp
  * @author kossadda (https://github.com/kossadda)
  * @brief Main module that runs testing
  * @version 1.0
@@ -9,7 +9,7 @@
  *
  */
 
-#include "./MainTest.h"
+#include "./mainTest.h"
 
 /**
  * @brief Main running testing
