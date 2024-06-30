@@ -62,11 +62,23 @@ TEST(iterator, dereferenceIterator) {
   EXPECT_TRUE(*it == new_value);
 }
 
+TEST(iterator, exceptDereferenceIterator) {
+  iter it;
+
+  EXPECT_THROW(*it = 5, std::invalid_argument);
+}
+
 TEST(iterator, constDereferenceIterator) {
   int arr[] = {1, 2, 3, 4, 5};
   iter it{arr};
 
   EXPECT_TRUE(*it == *arr);
+}
+
+TEST(iterator, exceptConstDereferenceIterator) {
+  iter it;
+
+  EXPECT_THROW(*it, std::invalid_argument);
 }
 
 TEST(iterator, prefixIncrement) {

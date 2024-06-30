@@ -17,8 +17,19 @@
 #include <iostream>
 #include <utility>
 
+/// @brief Namespace for working with containers
 namespace container {
 
+/**
+ * @brief A dynamic array container template class.
+ * 
+ * @details
+ * This template class `vector` provides a dynamic array similar to `std::vector`
+ * in the C++ Standard Library. It manages a dynamic array of elements of type `T`,
+ * supporting various operations including iteration, element access, and size management.
+ * 
+ * @tparam T the type of elements stored in the vector.
+ */
 template <class T>
 class vector {
  public:
@@ -34,11 +45,11 @@ class vector {
     using const_iterator_reference = const iterator &;
 
    private:
-    T *m_ptr = nullptr;
-    int m_index = 0;
+    T *ptr_ = nullptr;
+    int index_ = 0;
 
    public:
-    iterator() noexcept {};
+    iterator() noexcept;
     explicit iterator(const pointer ptr);
     iterator(const_iterator_reference other);
 
@@ -48,9 +59,9 @@ class vector {
     iterator_reference operator++() noexcept;
     iterator operator--(int) noexcept;
     iterator operator++(int) noexcept;
+    iterator operator+(const int shift) const noexcept;
     iterator operator-(const int shift) const noexcept;
     size_type operator-(const_iterator_reference other) const noexcept;
-    iterator operator+(const int shift) const noexcept;
     void operator-=(const int shift) noexcept;
     void operator+=(const int shift) noexcept;
     bool operator==(iterator other) const noexcept;
@@ -60,9 +71,9 @@ class vector {
   };
 
  private:
-  size_t m_size = 0;
-  size_t m_capacity = 0;
-  T *arr = nullptr;
+  size_t size_ = 0;
+  size_t capacity_ = 0;
+  T *arr_ = nullptr;
 
   T *alloc();
   void remove() noexcept;
@@ -75,153 +86,263 @@ class vector {
   vector(const vector &v);
   vector(vector &&v);
 
-  size_type size() const noexcept { return m_size; };
-  size_type max_size() const noexcept { return m_capacity; };
+  size_type size() const noexcept { return size_; };
+  size_type max_size() const noexcept { return capacity_; };
   iterator begin() const noexcept;
   iterator end() const noexcept;
 
   vector operator=(vector &&v);
 };
 
+/**
+ * @brief Default constructor for vector iterator.
+ *
+ * @details
+ * Creates an empty iterator object containing a null pointer.
+ */
 template <typename T>
-vector<T>::iterator::iterator(const pointer ptr) : m_ptr{ptr} {};
+vector<T>::iterator::iterator() noexcept = default;
 
+/**
+ * @brief Constructor with a pointer.
+ *
+ * @details
+ * Takes a pointer to value_type as input and converts it to an object of type iterator.
+ * 
+ * @param[in] ptr pointer to the element.
+ */
+template <typename T>
+vector<T>::iterator::iterator(const pointer ptr) : ptr_{ptr} {}
+
+/**
+ * @brief Copy constructor from const_iterator_reference.
+ *
+ * @param[in] other the const_iterator_reference to copy from.
+ */
 template <typename T>
 vector<T>::iterator::iterator(const_iterator_reference other)
-    : m_ptr{other.m_ptr}, m_index{other.m_index} {};
+    : ptr_{other.ptr_}, index_{other.index_} {}
 
+/**
+ * @brief Dereference operator for constant access.
+ *
+ * @return const_reference - reference to the value pointed by the iterator.
+ * @throws std::invalid_argument - if the iterator is empty.
+ */
 template <typename T>
 const T &vector<T>::iterator::operator*() const {
-  if (!m_ptr)
+  if (!ptr_)
     throw std::invalid_argument("Trying to dereference an empty iterator");
 
-  return *m_ptr;
+  return *ptr_;
 }
 
+/**
+ * @brief Dereference operator for non-constant access.
+ *
+ * @return reference - reference to the value pointed by the iterator.
+ * @throws std::invalid_argument - if the iterator is empty.
+ */
 template <typename T>
 T &vector<T>::iterator::operator*() {
-  if (!m_ptr)
+  if (!ptr_)
     throw std::invalid_argument("Trying to dereference an empty iterator");
 
-  return *m_ptr;
+  return *ptr_;
 }
 
+/**
+ * @brief Assignment operator from const_iterator_reference.
+ *
+ * @param[in] other the const_iterator_reference to assign from.
+ */
 template <typename T>
 void vector<T>::iterator::operator=(const_iterator_reference other) noexcept {
-  m_ptr = other.m_ptr;
-  m_index = other.m_index;
+  ptr_ = other.ptr_;
+  index_ = other.index_;
 }
 
+/**
+ * @brief Assignment operator from a pointer.
+ *
+ * @param[in] ptr pointer to the element.
+ */
 template <typename T>
 void vector<T>::iterator::operator=(pointer ptr) noexcept {
-  m_ptr = ptr;
-  m_index = 0;
+  ptr_ = ptr;
+  index_ = 0;
 }
 
+/**
+ * @brief Pre-decrement operator.
+ *
+ * @return reference - reference to the updated iterator.
+ */
 template <typename T>
 class vector<T>::iterator &vector<T>::iterator::operator--() noexcept {
-  m_ptr--;
-  m_index--;
+  ptr_--;
+  index_--;
 
   return *this;
 }
 
+/**
+ * @brief Post-decrement operator.
+ *
+ * @return iterator - copy of the iterator before the decrement.
+ */
 template <typename T>
 class vector<T>::iterator vector<T>::iterator::operator--(int) noexcept {
   iterator copy{*this};
-  m_ptr--;
-  m_index--;
+  ptr_--;
+  index_--;
 
   return copy;
 }
 
+/**
+ * @brief Pre-increment operator.
+ *
+ * @return reference - reference to the updated iterator.
+ */
 template <typename T>
 class vector<T>::iterator &vector<T>::iterator::operator++() noexcept {
-  m_ptr++;
-  m_index++;
+  ptr_++;
+  index_++;
 
   return *this;
 }
 
+/**
+ * @brief Post-increment operator.
+ *
+ * @return iterator - copy of the iterator before the increment.
+ */
 template <typename T>
 class vector<T>::iterator vector<T>::iterator::operator++(int) noexcept {
   iterator copy{*this};
-  m_ptr++;
-  m_index++;
+  ptr_++;
+  index_++;
 
   return copy;
 }
 
+/**
+ * @brief Subtraction operator for shifting the iterator by a given number of
+ * positions.
+ *
+ * @param[in] shift number of positions to shift.
+ * @return iterator - new iterator shifted by the specified positions.
+ */
 template <typename T>
 class vector<T>::iterator vector<T>::iterator::operator-(
     const int shift) const noexcept {
   iterator copy(*this);
-  copy.m_index -= shift;
-  copy.m_ptr -= shift;
+  copy.index_ -= shift;
+  copy.ptr_ -= shift;
 
   return copy;
 }
 
+/**
+ * @brief Difference operator to calculate the distance between two iterators.
+ *
+ * @param[in] other the other iterator to calculate the distance from.
+ * @return size_type - distance between the iterators.
+ */
 template <typename T>
 size_t vector<T>::iterator::operator-(
     const_iterator_reference other) const noexcept {
-  return (m_ptr > other.m_ptr) ? m_ptr - other.m_ptr : other.m_ptr - m_ptr;
+  return (ptr_ > other.ptr_) ? ptr_ - other.ptr_ : other.ptr_ - ptr_;
 }
 
+/**
+ * @brief Addition operator for shifting the iterator by a given number of
+ * positions.
+ *
+ * @param[in] shift number of positions to shift.
+ * @return iterator - new iterator shifted by the specified positions.
+ */
 template <typename T>
 class vector<T>::iterator vector<T>::iterator::operator+(
     const int shift) const noexcept {
   iterator copy(*this);
-  copy.m_index += shift;
-  copy.m_ptr += shift;
+  copy.index_ += shift;
+  copy.ptr_ += shift;
 
   return copy;
 }
 
+/**
+ * @brief Subtraction assignment operator to shift the iterator by a given
+ * number of positions.
+ *
+ * @param[in] shift number of positions to shift.
+ */
 template <typename T>
 void vector<T>::iterator::operator-=(const int shift) noexcept {
-  m_index -= shift;
-  m_ptr -= shift;
+  index_ -= shift;
+  ptr_ -= shift;
 }
 
+/**
+ * @brief Addition assignment operator to shift the iterator by a given number
+ * of positions.
+ *
+ * @param[in] shift number of positions to shift.
+ */
 template <typename T>
 void vector<T>::iterator::operator+=(const int shift) noexcept {
-  m_index += shift;
-  m_ptr += shift;
+  index_ += shift;
+  ptr_ += shift;
 }
 
+/**
+ * @brief Equality comparison operator.
+ *
+ * @param[in] other the other iterator to compare with.
+ * @return true - if the iterators are equal.
+ * @return false - if the iterators are not equal.
+ */
 template <typename T>
 bool vector<T>::iterator::operator==(iterator other) const noexcept {
-  return m_ptr == other.m_ptr;
+  return ptr_ == other.ptr_;
 }
 
+/**
+ * @brief Inequality comparison operator.
+ *
+ * @param[in] other the other iterator to compare with.
+ * @return true - if the iterators are not equal.
+ * @return false - if the iterators are equal.
+ */
 template <typename T>
 bool vector<T>::iterator::operator!=(iterator other) const noexcept {
-  return m_ptr != other.m_ptr;
+  return ptr_ != other.ptr_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 T *vector<T>::alloc() {
-  return new T[m_capacity]{};
+  return new T[capacity_]{};
 }
 
 template <typename T>
 void vector<T>::remove() noexcept {
-  delete[] arr;
-  arr = nullptr;
-  m_size = m_capacity = 0;
+  delete[] arr_;
+  arr_ = nullptr;
+  size_ = capacity_ = 0;
 }
 
 template <typename T>
 class vector<T>::iterator vector<T>::begin() const noexcept {
-  return iterator{arr};
+  return iterator{arr_};
 }
 
 template <typename T>
 class vector<T>::iterator vector<T>::end() const noexcept {
-  return iterator{arr + m_size};
+  return iterator{arr_ + size_};
 }
 
 template <typename T>
@@ -234,21 +355,13 @@ vector<T>::~vector() noexcept {
 }
 
 template <typename T>
-vector<T>::vector(size_type n) : m_size{n}, m_capacity{n}, arr{alloc()} {}
+vector<T>::vector(size_type n) : size_{n}, capacity_{n}, arr_{alloc()} {}
 
 template <typename T>
 vector<T>::vector(std::initializer_list<value_type> const &item)
-    : m_size{item.size()}, m_capacity{item.size()}, arr{alloc()} {
-  std::copy(item.begin(), item.begin() + m_size, arr);
+    : size_{item.size()}, capacity_{item.size()}, arr_{alloc()} {
+  std::copy(item.begin(), item.begin() + size_, arr_);
 }
-
-// template <typename T>
-// vector<T>::vector(vector &&v) : m_size{v.size()}, m_capacity{v.max_size()} {
-//   delete[] arr;
-//   Alloc();
-
-//   std::copy()
-// }
 
 }  // namespace container
 
