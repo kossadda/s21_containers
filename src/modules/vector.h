@@ -34,39 +34,35 @@ class vector {
     using const_iterator_reference = const iterator &;
 
    private:
-    T *m_ptr;
-    int m_index;
+    T *m_ptr = nullptr;
+    int m_index = 0;
 
    public:
-    iterator() noexcept : m_ptr{}, m_index{} {};
-    explicit iterator(const pointer ptr) : m_ptr{ptr}, m_index{} {};
-    iterator(const_iterator_reference other)
-        : m_ptr{other.m_ptr}, m_index{other.m_index} {};
+    iterator() noexcept {};
+    explicit iterator(const pointer ptr);
+    iterator(const_iterator_reference other);
 
-    // pointer getCurrent() const noexcept { return m_ptr + m_index; };
-    // pointer getPtr() const noexcept { return m_ptr; };
-    // int getIndex() const noexcept { return m_index; };
-
-    const_reference operator*() const;
-    reference operator*();
     void operator=(const_iterator_reference other) noexcept;
     void operator=(pointer ptr) noexcept;
-    iterator_reference operator--();
-    iterator_reference operator++();
-    iterator operator--(int);
-    iterator operator++(int);
+    iterator_reference operator--() noexcept;
+    iterator_reference operator++() noexcept;
+    iterator operator--(int) noexcept;
+    iterator operator++(int) noexcept;
     iterator operator-(const int shift) const noexcept;
+    size_type operator-(const_iterator_reference other) const noexcept;
     iterator operator+(const int shift) const noexcept;
     void operator-=(const int shift) noexcept;
     void operator+=(const int shift) noexcept;
     bool operator==(iterator other) const noexcept;
     bool operator!=(iterator other) const noexcept;
+    const_reference operator*() const;
+    reference operator*();
   };
 
  private:
-  size_t m_size;
-  size_t m_capacity;
-  T *arr;
+  size_t m_size = 0;
+  size_t m_capacity = 0;
+  T *arr = nullptr;
 
   T *alloc();
   void remove() noexcept;
@@ -86,6 +82,13 @@ class vector {
 
   vector operator=(vector &&v);
 };
+
+template <typename T>
+vector<T>::iterator::iterator(const pointer ptr) : m_ptr{ptr} {};
+
+template <typename T>
+vector<T>::iterator::iterator(const_iterator_reference other)
+    : m_ptr{other.m_ptr}, m_index{other.m_index} {};
 
 template <typename T>
 const T &vector<T>::iterator::operator*() const {
@@ -116,7 +119,7 @@ void vector<T>::iterator::operator=(pointer ptr) noexcept {
 }
 
 template <typename T>
-class vector<T>::iterator &vector<T>::iterator::operator--() {
+class vector<T>::iterator &vector<T>::iterator::operator--() noexcept {
   m_ptr--;
   m_index--;
 
@@ -124,7 +127,7 @@ class vector<T>::iterator &vector<T>::iterator::operator--() {
 }
 
 template <typename T>
-class vector<T>::iterator vector<T>::iterator::operator--(int) {
+class vector<T>::iterator vector<T>::iterator::operator--(int) noexcept {
   iterator copy{*this};
   m_ptr--;
   m_index--;
@@ -133,7 +136,7 @@ class vector<T>::iterator vector<T>::iterator::operator--(int) {
 }
 
 template <typename T>
-class vector<T>::iterator &vector<T>::iterator::operator++() {
+class vector<T>::iterator &vector<T>::iterator::operator++() noexcept {
   m_ptr++;
   m_index++;
 
@@ -141,7 +144,7 @@ class vector<T>::iterator &vector<T>::iterator::operator++() {
 }
 
 template <typename T>
-class vector<T>::iterator vector<T>::iterator::operator++(int) {
+class vector<T>::iterator vector<T>::iterator::operator++(int) noexcept {
   iterator copy{*this};
   m_ptr++;
   m_index++;
@@ -157,6 +160,12 @@ class vector<T>::iterator vector<T>::iterator::operator-(
   copy.m_ptr -= shift;
 
   return copy;
+}
+
+template <typename T>
+size_t vector<T>::iterator::operator-(
+    const_iterator_reference other) const noexcept {
+  return (m_ptr > other.m_ptr) ? m_ptr - other.m_ptr : other.m_ptr - m_ptr;
 }
 
 template <typename T>
@@ -216,7 +225,7 @@ class vector<T>::iterator vector<T>::end() const noexcept {
 }
 
 template <typename T>
-vector<T>::vector() noexcept : m_size{}, m_capacity{}, arr{} {
+vector<T>::vector() noexcept {
 }
 
 template <typename T>
