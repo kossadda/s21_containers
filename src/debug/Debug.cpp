@@ -9,21 +9,28 @@
  * 
  */
 
+
 #include "./../s21_containers.h"
 #include <vector>
 
+using iterator = containers::vector<int>::iterator;
+using vector = containers::vector<int>;
+
 int main()
 {
-  container::vector<int> arr{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  std::vector<int> v1{5, 6, 7, 8};
 
-  container::vector<int>::iterator b;
-  // b = arr.begin();
-  // b += 10;
+  std::cout << "\v1: " << v1[2] << "\n\n";
 
-  // container::vector<int>::iterator e;
-  // e = arr.end();
 
-  std::cout << "\nRESULT: " << 1 << "\n\n";
+  // int arr1[] = {1, 2, 3, 4};
+  // int arr2[] = {5, 6, 7, 8};
+
+  // vector v1{1, 2, 3, 4, 5};
+  // iterator
+
+  // std::cout << "\nITERATOR1: " << *(++it1) << "\n\n";
+  // std::cout << "\nITERATOR2: " << *it2 << "\n\n";
   
   return 0;
 }
