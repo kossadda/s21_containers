@@ -12,7 +12,6 @@
 #ifndef _S21_CONTAINERS_H_
 #define _S21_CONTAINERS_H_
 
-#include "./modules/iterator.h"
 #include "./modules/vector.h"
 
 #endif  // _S21_CONTAINERS_H_

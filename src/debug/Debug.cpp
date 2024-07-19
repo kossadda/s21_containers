@@ -13,24 +13,26 @@
 #include "./../s21_containers.h"
 #include <vector>
 
-using iterator = containers::vector<int>::iterator;
-using vector = containers::vector<int>;
+using iterator = s21::vector<int>::iterator;
+using vector = s21::vector<int>;
 
 int main()
 {
-  std::vector<int> v1{5, 6, 7, 8};
+  std::vector<int> test{1, 2, 3, 4, 5};
 
-  std::cout << "\v1: " << v1[2] << "\n\n";
+  test.clear();
+  test.reserve(0);
 
+  std::cout << "size:" << test.size() << std::endl;
+  std::cout << "capacity:" << test.capacity() << std::endl;
 
-  // int arr1[] = {1, 2, 3, 4};
-  // int arr2[] = {5, 6, 7, 8};
+  if(test.data() == nullptr) {
+    std::cout << "Pts is null" << std::endl;
+  }
 
-  // vector v1{1, 2, 3, 4, 5};
-  // iterator
+  // vector v1{5};
 
-  // std::cout << "\nITERATOR1: " << *(++it1) << "\n\n";
-  // std::cout << "\nITERATOR2: " << *it2 << "\n\n";
+  // std::cout << "size:" << v1.size() << std::endl;
   
   return 0;
 }
