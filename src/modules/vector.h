@@ -54,7 +54,7 @@ class vector {
 
  public:
   vector() noexcept = default;
-  explicit vector(size_type n);
+  explicit vector(size_type n, const_reference value = value_type{});
   vector(const std::initializer_list<value_type> &items);
   vector(const vector &v);
   vector(vector &&v) noexcept;
@@ -82,6 +82,7 @@ class vector {
 
   // Vector Modifiers
   void clear() noexcept;
+  iterator insert(iterator pos, const_reference value, size_type count = 1);
 };
 
 /**
@@ -122,6 +123,7 @@ class vector<value_type>::VectorIterator {
   bool operator!=(iterator other) const noexcept;
   const_reference operator*() const;
   reference operator*();
+  pointer ptr() const noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,8 +140,12 @@ class vector<value_type>::VectorIterator {
  * @param[in] n The number of elements to allocate.
  */
 template <typename value_type>
-vector<value_type>::vector(size_type n)
-    : size_{n}, capacity_{n}, arr_{allocateMemory()} {}
+vector<value_type>::vector(size_type n, const_reference value)
+    : size_{n}, capacity_{n}, arr_{allocateMemory()} {
+  if (size_) {
+    std::fill(arr_, arr_ + size_, value);
+  }
+}
 
 /**
  * @brief Constructs a vector from an initializer list.
@@ -231,7 +237,7 @@ typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
 
 /**
  * @brief Frees the memory allocated for the vector.
- * 
+ *
  * @tparam value_type the type of elements stored in the vector.
  */
 template <typename value_type>
@@ -361,7 +367,7 @@ template <typename value_type>
 typename vector<value_type>::reference vector<value_type>::at(
     size_type pos) const {
   if (pos >= size_)
-    throw std::out_of_range("vector::at(pos) - pos out of vector range");
+    throw std::out_of_range("vector::at() - pos out of vector range");
 
   return *(arr_ + pos);
 }
@@ -414,6 +420,60 @@ typename vector<value_type>::pointer vector<value_type>::data() const noexcept {
   return arr_;
 }
 
+/**
+ * @brief Removes all elements from the vector and sets its size to 0.
+ *
+ * @details
+ * This method sets the vector's size to 0. The vector's capacity remains
+ * unchanged, and the memory allocated for the elements is still available for
+ * reuse.
+ *
+ * @tparam value_type the type of elements stored in the vector.
+ */
+template <typename value_type>
+void vector<value_type>::clear() noexcept {
+  size_ = 0;
+}
+
+/**
+ * @brief Inserts multiple elements at the specified position in the vector.
+ *
+ * @details
+ * This function inserts `count` copies of `value` before the element at the specified
+ * iterator position `pos`.
+ * If the capacity of the vector is not sufficient to hold the new elements, the vector
+ * will be resized to twice its current capacity or the new size, whichever is larger.
+ * Existing elements are moved to make space for the new elements, and the size of the
+ * vector is updated accordingly.
+ *
+ * @param[in] pos Iterator position at which to insert the new elements.
+ * @param[in] value The value to insert.
+ * @param[in] count The number of copies of `value` to insert.
+ * @return iterator - an iterator pointing to the first of the newly inserted elements.
+ * @throws std::out_of_range if `pos` is not a valid iterator within the vector.
+ */
+template <typename value_type>
+typename vector<value_type>::iterator vector<value_type>::insert(
+    iterator pos, const_reference value, size_type count) {
+  if (pos.ptr() < arr_ || pos.ptr() > arr_ + size_) {
+    throw std::out_of_range("vector::insert() - pos is not at vectors range");
+  }
+
+  size_type ins_pos = pos - begin();
+  size_type new_size = size_ + count;
+
+  if (capacity_ < new_size) {
+    reserve((capacity_ * 2 >= new_size) ? capacity_ * 2 : new_size);
+  }
+
+  std::move_backward(arr_ + ins_pos, arr_ + size_, arr_ + size_ + count);
+  std::fill(arr_ + ins_pos, arr_ + ins_pos + count, value);
+
+  size_ = new_size;
+
+  return begin() + ins_pos;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                  ITERATORS                                 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -451,7 +511,8 @@ template <typename value_type>
 typename vector<value_type>::const_reference
 vector<value_type>::iterator::operator*() const {
   if (!ptr_)
-    throw std::invalid_argument("Trying to dereference an empty iterator");
+    throw std::invalid_argument(
+        "iterator::operator*() - trying to dereference an empty iterator");
 
   return *ptr_;
 }
@@ -467,7 +528,8 @@ template <typename value_type>
 typename vector<value_type>::reference
 vector<value_type>::iterator::operator*() {
   if (!ptr_)
-    throw std::invalid_argument("Trying to dereference an empty iterator");
+    throw std::invalid_argument(
+        "iterator::operator*() - trying to dereference an empty iterator");
 
   return *ptr_;
 }
@@ -647,6 +709,12 @@ bool vector<value_type>::iterator::operator==(iterator other) const noexcept {
 template <typename value_type>
 bool vector<value_type>::iterator::operator!=(iterator other) const noexcept {
   return ptr_ != other.ptr_;
+}
+
+template <typename value_type>
+typename vector<value_type>::pointer vector<value_type>::iterator::ptr()
+    const noexcept {
+  return ptr_;
 }
 
 }  // namespace s21

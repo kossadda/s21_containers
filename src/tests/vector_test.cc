@@ -1,5 +1,5 @@
 /**
- * @file vectorTest.cpp
+ * @file vector_test.cpp
  * @author kossadda (https://github.com/kossadda)
  * @brief Vector containers method testing module
  * @version 1.0
@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#include "./mainTest.h"
+#include "./main_test.h"
 
 using s21_vector = s21::vector<int>;
 using s21_iterator = s21::vector<int>::iterator;
@@ -236,11 +236,20 @@ TEST(vector, iteratorAccess) {
   EXPECT_TRUE(*(v.end() - 1) == 55);
 }
 
+TEST(vector, atThrows) {
+  s21_vector v({11, 22, 33, 44, 55});
+
+  EXPECT_THROW(v.at(7), std::out_of_range);
+}
+
 TEST(vector, emptyCheck) {
   s21_vector v;
 
   EXPECT_TRUE(v.empty());
-  //////////////////////////////////////////////////////////
+
+  v.insert(v.begin(), 1);
+
+  EXPECT_FALSE(v.empty());
 }
 
 TEST(vector, maxSizeCheck) {
@@ -272,6 +281,12 @@ TEST(vector, reserveMemory_2) {
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 }
 
+TEST(vector, reserveThrows) {
+  s21_vector s21_v{1, 2, 3, 4, 5};
+
+  EXPECT_THROW(s21_v.reserve(s21_v.max_size() + 1), std::length_error);
+}
+
 TEST(vector, shrinkToFit) {
   s21_vector s21_v{1, 2, 3};
   std_vector std_v{1, 2, 3};
@@ -296,3 +311,54 @@ TEST(vector, elementFrontBack) {
   EXPECT_TRUE(s21_v.front() == std_v.front());
   EXPECT_TRUE(s21_v.back() == std_v.back());
 }
+
+TEST(vector, clearElements) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  s21_v.clear();
+  std_v.clear();
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+}
+
+TEST(vector, insertOneElement) {
+  s21_vector::size_type count{};
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  s21_v.insert(s21_v.begin() + 2, 100);
+  std_v.insert(std_v.begin() + 2, 100);
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for(; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, insertMoreElements) {
+  s21_vector::size_type count{};
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  s21_v.insert(s21_v.begin() + 2, 111, 12);
+  std_v.insert(std_v.begin() + 2, 12, 111);
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for(; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, insertThrows) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+
+  EXPECT_THROW(s21_v.insert(s21_v.begin() - 1, 5), std::out_of_range);
+  EXPECT_THROW(s21_v.insert(s21_v.begin() + s21_v.size() + 1, 5), std::out_of_range);
+}
+

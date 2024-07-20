@@ -61,19 +61,19 @@ MAIN_H = $(shell find ./ -maxdepth 1 -name "*.h")
 
 #====================== LIST OF FILE AND DIRS IN MODULES ======================#
 MODULES_DIRS = $(shell find $(MODULES_DIR) -type d)
-MODULES_CPP = $(shell find $(MODULES_DIR) -type f -name "*.cpp")
+MODULES_CPP = $(shell find $(MODULES_DIR) -type f -name "*.cc")
 MODULES_H = $(shell find $(MODULES_DIR) -type f -name "*.h")
-MODULES_O = $(notdir $(MODULES_CPP:%.cpp=%.o))
+MODULES_O = $(notdir $(MODULES_CPP:%.cc=%.o))
 MODULES_OBJ_PATH = $(addprefix $(OBJ_DIR)/, $(MODULES_O))
 #==============================================================================#
 
 
 #==================== LIST OF FILE AND DIRS IN TEST MODULES ===================#
 TEST_DIRS = $(shell find $(TEST_DIR) -type d)
-TEST_CPP = $(shell find $(TEST_DIR) -type f -name "*.cpp")
+TEST_CPP = $(shell find $(TEST_DIR) -type f -name "*.cc")
 TEST_H = $(shell find $(TEST_DIR) -type f -name "*.h")
-TEST_O = $(notdir $(TEST_CPP:%.cpp=%.o))
-TEST_OBJ_PATH = $(OBJ_DIR)/*Test.o
+TEST_O = $(notdir $(TEST_CPP:%.cc=%.o))
+TEST_OBJ_PATH = $(OBJ_DIR)/*_test.o
 EXCLUDE = $(filter-out $(wildcard $(MODULES_DIR)/debug/*),$(MODULES_CPP))
 #==============================================================================#
 
@@ -86,7 +86,7 @@ ALL_FILES = $(CPP_FILES) $(H_FILES)
 
 
 #=============== CONFIGURING PATH TO SEARH FOR UNPREFIXED PATHS ===============#
-vpath %.cpp $(MODULES_DIRS) : $(TEST_DIRS)
+vpath %.cc $(MODULES_DIRS) : $(TEST_DIRS)
 vpath %.o $(OBJ_DIR)
 #==============================================================================#
 
@@ -151,17 +151,17 @@ $(REPORT_DIR):
 
 
 #============================== OBJECTIVE TARGETS =============================#
-%.o: %.cpp ${MODULES_H}
+%.o: %.cc ${MODULES_H}
 	$(CXX) $(CXXFLAGS) $(OPTIMIZE) -c -o $(addprefix ${OBJ_DIR}/, $@) $<
 
-%Test.o: %Test.cpp
+%_test.o: %_test.cc
 	$(CXX) $(CXXFLAGS) -c -o $(addprefix ${OBJ_DIR}/, $@) $<
 #==============================================================================#
 
 
 #=============================== CHECKS TARGETS ===============================#
 deb:
-	@$(CXX) -Wall -Wextra -pedantic -g -std=c++17 ./debug/Debug.cpp $(MODULES_CPP) -o test
+	@$(CXX) -Wall -Wextra -pedantic -g -std=c++17 ./debug/debug.cc $(MODULES_CPP) -o test
 	@valgrind $(VAL) ./test
 	
 clang_check:

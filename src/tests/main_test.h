@@ -1,5 +1,5 @@
 /**
- * @file mainTest.h
+ * @file main_test.h
  * @author kossadda (https://github.com/kossadda)
  * @brief Common header for all test modules
  * @version 1.0
