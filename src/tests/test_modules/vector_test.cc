@@ -412,7 +412,8 @@ TEST(vector, eraseThrows) {
   EXPECT_THROW(s21_v.erase(s21_v.begin() - 1), std::range_error);
   EXPECT_THROW(s21_v.erase(s21_v.begin() - s21_v.size() + 1), std::range_error);
   EXPECT_THROW(s21_v.erase(s21_v.begin(), s21_v.end() + 1), std::range_error);
-  EXPECT_THROW(s21_v.erase(s21_v.begin(), s21_v.end() - s21_v.size() - 1), std::range_error);
+  EXPECT_THROW(s21_v.erase(s21_v.begin(), s21_v.end() - s21_v.size() - 1),
+               std::range_error);
   EXPECT_THROW(s21_v.erase(s21_v.end(), s21_v.begin()), std::range_error);
 }
 

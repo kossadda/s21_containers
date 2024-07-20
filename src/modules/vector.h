@@ -25,10 +25,10 @@ namespace s21 {
  * @brief A dynamic array container template class.
  *
  * @details
- * This template class `vector` provides a dynamic array similar to
- * `std::vector` in the C++ Standard Library. It manages a dynamic array of
- * elements of type `T`, supporting various operations including iteration,
- * element access, and size management.
+ * This template class vector provides a dynamic array similar to
+ * std::vector in the C++ Standard Library. It manages a dynamic array of
+ * elements of type value_type, supporting various operations including
+ * iteration, element access, and size management.
  *
  * @tparam value_type The type of elements stored in the vector.
  */
@@ -92,11 +92,11 @@ class vector {
  *
  * @details
  * This class template provides a bidirectional iterator for a collection of
- * elements of type `T`. It supports various iterator operations, including
- * incrementing and decrementing the iterator, as well as arithmetic operations
- * to advance the iterator by a specific number of positions. Comparison
- * operators and dereference operators are also provided to interact with
- * the elements pointed to by the iterator.
+ * elements of type value_type. It supports various iterator operations,
+ * including incrementing and decrementing the iterator, as well as arithmetic
+ * operations to advance the iterator by a specific number of positions.
+ * Comparison operators and dereference operators are also provided to interact
+ * with the elements pointed to by the iterator.
  *
  * @tparam value_type The type of the elements to be iterated over.
  */
@@ -110,6 +110,7 @@ class vector<value_type>::VectorIterator {
   explicit VectorIterator(const pointer ptr);
   VectorIterator(const iterator &other);
 
+  operator pointer() const noexcept;
   void operator=(const iterator &other) noexcept;
   void operator=(pointer ptr) noexcept;
   iterator &operator--() noexcept;
@@ -125,9 +126,7 @@ class vector<value_type>::VectorIterator {
   bool operator!=(iterator other) const noexcept;
   const_reference operator*() const;
   reference operator*();
-  pointer ptr() const noexcept;
 };
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //                         VECTOR PRIVATE METHODS                             //
@@ -160,7 +159,6 @@ void vector<value_type>::freeMemory() noexcept {
   size_ = capacity_ = 0;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                            VECTOR CONSTRUCTORS                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,13 +168,13 @@ void vector<value_type>::freeMemory() noexcept {
  * initialized to a given value.
  *
  * @details
- * This constructor initializes the vector with `n` elements, each set to
- * `value`. It allocates memory for the elements, sets the size and capacity of
- * the vector to `n`, and fills the allocated memory with copies of `value`.
+ * This constructor initializes the vector with n elements, each set to
+ * value. It allocates memory for the elements, sets the size and capacity of
+ * the vector to n, and fills the allocated memory with copies of value.
  *
  * @param[in] n The number of elements to be created in the vector.
  * @param[in] value The value to initialize the elements with. Defaults to a
- * default-constructed `value_type` if not provided.
+ * default-constructed value_type if not provided.
  */
 template <typename value_type>
 vector<value_type>::vector(size_type n, const_reference value)
@@ -262,7 +260,6 @@ vector<value_type> &vector<value_type>::operator=(vector &&v) {
   return *this;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                              VECTOR ITERATORS                              //
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +286,6 @@ template <typename value_type>
 typename vector<value_type>::iterator vector<value_type>::end() const noexcept {
   return iterator{arr_ + size_};
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //                              VECTOR CAPACITY                               //
@@ -379,7 +375,6 @@ void vector<value_type>::shrink_to_fit() {
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                          VECTOR ELEMENT ACCESS                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +444,6 @@ typename vector<value_type>::pointer vector<value_type>::data() const noexcept {
   return arr_;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                             VECTOR MODYFIERS                               //
 ////////////////////////////////////////////////////////////////////////////////
@@ -473,8 +467,8 @@ void vector<value_type>::clear() noexcept {
  * @brief Inserts multiple elements at the specified position in the vector.
  *
  * @details
- * This function inserts `count` copies of `value` before the element at the
- * specified iterator position `pos`. If the capacity of the vector is not
+ * This function inserts count copies of value before the element at the
+ * specified iterator position pos. If the capacity of the vector is not
  * sufficient to hold the new elements, the vector will be resized to twice its
  * current capacity or the new size, whichever is larger. Existing elements are
  * moved to make space for the new elements, and the size of the vector is
@@ -483,7 +477,7 @@ void vector<value_type>::clear() noexcept {
  * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos Iterator position at which to insert the new elements.
  * @param[in] value The value to insert.
- * @param[in] count The number of copies of `value` to insert.
+ * @param[in] count The number of copies of value to insert.
  * @return iterator - an iterator pointing to the first of the newly inserted
  * elements.
  * @throw std::out_of_range - if pos is not a valid iterator within the vector.
@@ -491,7 +485,7 @@ void vector<value_type>::clear() noexcept {
 template <typename value_type>
 typename vector<value_type>::iterator vector<value_type>::insert(
     iterator pos, const_reference value, size_type count) {
-  if (pos.ptr() < arr_ || pos.ptr() > arr_ + size_) {
+  if (pos < arr_ || pos > arr_ + size_) {
     throw std::out_of_range("vector::insert() - pos is not at vectors range");
   }
 
@@ -514,8 +508,8 @@ typename vector<value_type>::iterator vector<value_type>::insert(
  * @brief Removes elements from the vector within the specified range.
  *
  * @details
- * This function removes elements in the range [pos, last_pos). If `last_pos` is
- * not provided, it removes the single element at the position `pos`.
+ * This function removes elements in the range [pos, last_pos). If last_pos is
+ * not provided, it removes the single element at the position pos.
  *
  * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos An iterator pointing to the first element to be removed.
@@ -527,41 +521,40 @@ typename vector<value_type>::iterator vector<value_type>::insert(
  */
 template <typename value_type>
 void vector<value_type>::erase(iterator pos, iterator last_pos) {
-  if (last_pos.ptr() == nullptr) {
+  if (last_pos == nullptr) {
     last_pos = pos + 1;
   }
 
-  if (pos.ptr() < arr_ || pos.ptr() > arr_ + capacity_ ||
-      last_pos.ptr() < arr_ || last_pos.ptr() > arr_ + capacity_ ||
-      last_pos.ptr() < pos.ptr()) {
+  if (pos < arr_ || pos > arr_ + capacity_ || last_pos < arr_ ||
+      last_pos > arr_ + capacity_ || last_pos < pos) {
     throw std::range_error("vector::erase() - invalid vector range");
   }
 
   size_type range = last_pos - pos;
 
   if (range) {
-    std::copy(pos.ptr() + range, arr_ + size_, pos.ptr());
+    std::copy(static_cast<pointer>(pos + range), arr_ + size_,
+              static_cast<pointer>(pos));
     size_ -= range;
   }
 }
 
 /**
  * @brief Adds a new element to the end of the vector.
- * 
+ *
  * @details
- * This method adds a new element to the end of the vector. If the current 
- * size of the vector equals its capacity, the method will first reserve 
- * additional space to accommodate the new element. The new element is 
- * constructed in place using placement new, avoiding the use of the 
+ * This method adds a new element to the end of the vector. If the current
+ * size of the vector equals its capacity, the method will first reserve
+ * additional space to accommodate the new element. The new element is
+ * constructed in place using placement new, avoiding the use of the
  * assignment operator.
- * 
+ *
  * @tparam value_type The type of elements stored in the vector.
  * @param[in] value The value to be added to the end of the vector.
  */
 template <typename value_type>
 void vector<value_type>::push_back(const_reference value) {
-  if(size_ == capacity_)
-    reserve((capacity_) ? capacity_ * 2 : 1);
+  if (size_ == capacity_) reserve((capacity_) ? capacity_ * 2 : 1);
 
   arr_[size_++] = value;
 }
@@ -593,10 +586,25 @@ template <typename value_type>
 vector<value_type>::iterator::VectorIterator(const iterator &other)
     : ptr_{other.ptr_} {}
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                             ITERATOR OPERATORS                             //
 ////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Converts the iterator to a raw pointer of type value_type*.
+ *
+ * This operator allows for implicit conversion of the iterator to a raw pointer
+ * of type pointer. It is useful for interfacing with APIs or functions that
+ * require a raw pointer, while the iterator provides a more convenient and
+ * type-safe way to access and traverse elements of the vector.
+ *
+ * @return pointer - a raw pointer to the underlying element of type value_type
+ * that the iterator points to.
+ */
+template <typename value_type>
+vector<value_type>::iterator::operator value_type *() const noexcept {
+  return ptr_;
+}
 
 /**
  * @brief Dereference operator for constant access.
@@ -806,18 +814,6 @@ bool vector<value_type>::iterator::operator==(iterator other) const noexcept {
 template <typename value_type>
 bool vector<value_type>::iterator::operator!=(iterator other) const noexcept {
   return ptr_ != other.ptr_;
-}
-
-/**
- * @brief Returns a pointer to the first element in the vector.
- *
- * @tparam value_type The type of elements stored in the vector.
- * @return pointer - a pointer to the first element.
- */
-template <typename value_type>
-typename vector<value_type>::pointer vector<value_type>::iterator::ptr()
-    const noexcept {
-  return ptr_;
 }
 
 }  // namespace s21
