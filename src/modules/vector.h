@@ -30,7 +30,7 @@ namespace s21 {
  * elements of type `T`, supporting various operations including iteration,
  * element access, and size management.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
 class vector {
@@ -83,6 +83,7 @@ class vector {
   // Vector Modifiers
   void clear() noexcept;
   iterator insert(iterator pos, const_reference value, size_type count = 1);
+  void erase(iterator pos, iterator last_pos = iterator{});
 };
 
 /**
@@ -96,7 +97,7 @@ class vector {
  * operators and dereference operators are also provided to interact with
  * the elements pointed to by the iterator.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  */
 template <typename value_type>
 class vector<value_type>::VectorIterator {
@@ -131,13 +132,17 @@ class vector<value_type>::VectorIterator {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief Constructs a vector with a specified size.
+ * @brief Constructs a vector with a specified number of elements, each
+ * initialized to a given value.
  *
  * @details
- * Allocates memory for the specified number of elements.
+ * This constructor initializes the vector with `n` elements, each set to
+ * `value`. It allocates memory for the elements, sets the size and capacity of
+ * the vector to `n`, and fills the allocated memory with copies of `value`.
  *
- * @tparam value_type the type of elements stored in the vector.
- * @param[in] n The number of elements to allocate.
+ * @param[in] n The number of elements to be created in the vector.
+ * @param[in] value The value to initialize the elements with. Defaults to a
+ * default-constructed `value_type` if not provided.
  */
 template <typename value_type>
 vector<value_type>::vector(size_type n, const_reference value)
@@ -153,7 +158,7 @@ vector<value_type>::vector(size_type n, const_reference value)
  * @details
  * Initializes the vector with the elements from the initializer list.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] items The initializer list containing elements.
  */
 template <typename value_type>
@@ -168,7 +173,7 @@ vector<value_type>::vector(const std::initializer_list<value_type> &items)
  * @details
  * Constructs a vector by copying another vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] v The vector to copy.
  */
 template <typename value_type>
@@ -183,7 +188,7 @@ vector<value_type>::vector(const vector &v)
  * @details
  * Constructs a vector by moving another vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[out] v The vector to move.
  */
 template <typename value_type>
@@ -198,7 +203,7 @@ vector<value_type>::vector(vector &&v) noexcept
  * @details
  * Destroys the vector and frees allocated memory.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
 vector<value_type>::~vector() noexcept {
@@ -211,7 +216,7 @@ vector<value_type>::~vector() noexcept {
  * @details
  * Assigns the contents of another vector to this vector using move semantics.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[out] v The vector to move.
  * @return vector& - reference to the assigned vector.
  */
@@ -226,9 +231,9 @@ vector<value_type> &vector<value_type>::operator=(vector &&v) {
 /**
  * @brief Allocates memory for the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return pointer A pointer to the allocated memory.
- * @throws std::bad_alloc - if the allocation failed.
+ * @throw std::bad_alloc - if the allocation failed.
  */
 template <typename value_type>
 typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
@@ -238,7 +243,7 @@ typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
 /**
  * @brief Frees the memory allocated for the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
 void vector<value_type>::freeMemory() noexcept {
@@ -253,7 +258,7 @@ void vector<value_type>::freeMemory() noexcept {
 /**
  * @brief Returns an iterator to the beginning of the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return iterator - an iterator to the beginning of the vector.
  */
 template <typename value_type>
@@ -265,7 +270,7 @@ typename vector<value_type>::iterator vector<value_type>::begin()
 /**
  * @brief Returns an iterator to the end of the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return iterator - an iterator to the end of the vector.
  */
 template <typename value_type>
@@ -276,7 +281,7 @@ typename vector<value_type>::iterator vector<value_type>::end() const noexcept {
 /**
  * @brief Checks if the vector is empty.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return true if the vector is empty, false otherwise.
  */
 template <typename value_type>
@@ -287,7 +292,7 @@ bool vector<value_type>::empty() const noexcept {
 /**
  * @brief Returns the number of elements in the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return size_type - the number of elements in the vector.
  */
 template <typename value_type>
@@ -299,7 +304,7 @@ typename vector<value_type>::size_type vector<value_type>::size()
 /**
  * @brief Returns the maximum number of elements the vector can hold.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return size_type - the maximum number of elements.
  */
 template <typename value_type>
@@ -311,9 +316,9 @@ typename vector<value_type>::size_type vector<value_type>::max_size()
 /**
  * @brief Reserves memory for the specified number of elements.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] size The number of elements to reserve memory for.
- * @throws std::length_error - if the reserve size greater than max_size().
+ * @throw std::length_error - if the reserve size greater than max_size().
  */
 template <typename value_type>
 void vector<value_type>::reserve(size_type size) {
@@ -332,7 +337,7 @@ void vector<value_type>::reserve(size_type size) {
 /**
  * @brief Returns the current capacity of the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return size_type - the current capacity.
  */
 template <typename value_type>
@@ -344,7 +349,7 @@ typename vector<value_type>::size_type vector<value_type>::capacity()
 /**
  * @brief Reduces the capacity of the vector to fit its size.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
 void vector<value_type>::shrink_to_fit() {
@@ -358,10 +363,10 @@ void vector<value_type>::shrink_to_fit() {
 /**
  * @brief Returns a reference to the element at the specified position.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos The position of the element.
  * @return reference - a reference to the element at the specified position.
- * @throws std::out_of_range - if element position out of vector range.
+ * @throw std::out_of_range - if element position out of vector range.
  */
 template <typename value_type>
 typename vector<value_type>::reference vector<value_type>::at(
@@ -375,7 +380,7 @@ typename vector<value_type>::reference vector<value_type>::at(
 /**
  * @brief Returns a reference to the element at the specified position.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos The position of the element.
  * @return reference - a reference to the element at the specified position.
  */
@@ -388,7 +393,7 @@ typename vector<value_type>::reference vector<value_type>::operator[](
 /**
  * @brief Returns a reference to the first element in the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return const_reference - a reference to the first element.
  */
 template <typename value_type>
@@ -400,7 +405,7 @@ typename vector<value_type>::const_reference vector<value_type>::front()
 /**
  * @brief Returns a reference to the last element in the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return const_reference - a reference to the last element.
  */
 template <typename value_type>
@@ -412,7 +417,7 @@ typename vector<value_type>::const_reference vector<value_type>::back()
 /**
  * @brief Returns a pointer to the first element in the vector.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  * @return pointer - a pointer to the first element.
  */
 template <typename value_type>
@@ -428,7 +433,7 @@ typename vector<value_type>::pointer vector<value_type>::data() const noexcept {
  * unchanged, and the memory allocated for the elements is still available for
  * reuse.
  *
- * @tparam value_type the type of elements stored in the vector.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
 void vector<value_type>::clear() noexcept {
@@ -439,18 +444,19 @@ void vector<value_type>::clear() noexcept {
  * @brief Inserts multiple elements at the specified position in the vector.
  *
  * @details
- * This function inserts `count` copies of `value` before the element at the specified
- * iterator position `pos`.
- * If the capacity of the vector is not sufficient to hold the new elements, the vector
- * will be resized to twice its current capacity or the new size, whichever is larger.
- * Existing elements are moved to make space for the new elements, and the size of the
- * vector is updated accordingly.
+ * This function inserts `count` copies of `value` before the element at the
+ * specified iterator position `pos`. If the capacity of the vector is not
+ * sufficient to hold the new elements, the vector will be resized to twice its
+ * current capacity or the new size, whichever is larger. Existing elements are
+ * moved to make space for the new elements, and the size of the vector is
+ * updated accordingly.
  *
  * @param[in] pos Iterator position at which to insert the new elements.
  * @param[in] value The value to insert.
  * @param[in] count The number of copies of `value` to insert.
- * @return iterator - an iterator pointing to the first of the newly inserted elements.
- * @throws std::out_of_range if `pos` is not a valid iterator within the vector.
+ * @return iterator - an iterator pointing to the first of the newly inserted
+ * elements.
+ * @throw std::out_of_range - if pos is not a valid iterator within the vector.
  */
 template <typename value_type>
 typename vector<value_type>::iterator vector<value_type>::insert(
@@ -474,6 +480,40 @@ typename vector<value_type>::iterator vector<value_type>::insert(
   return begin() + ins_pos;
 }
 
+/**
+ * @brief Removes elements from the vector within the specified range.
+ *
+ * @details
+ * This function removes elements in the range [pos, last_pos). If `last_pos` is
+ * not provided, it removes the single element at the position `pos`.
+ *
+ * @param[in] pos An iterator pointing to the first element to be removed.
+ * @param[in] last_pos An iterator pointing to one past the last element to be
+ * removed. Defaults to nullptr.
+ *
+ * @throw std::range_error - if pos or last_pos are out of the bounds of the
+ * vector or if last_pos is before pos.
+ */
+template <typename value_type>
+void vector<value_type>::erase(iterator pos, iterator last_pos) {
+  if (last_pos.ptr() == nullptr) {
+    last_pos = pos + 1;
+  }
+
+  if (pos.ptr() < arr_ || pos.ptr() > arr_ + capacity_ ||
+      last_pos.ptr() < arr_ || last_pos.ptr() > arr_ + capacity_ ||
+      last_pos.ptr() < pos.ptr()) {
+    throw std::range_error("vector::erase() - invalid vector range");
+  }
+
+  size_type range = last_pos - pos;
+
+  if (range) {
+    std::copy(pos.ptr() + range, arr_ + size_, pos.ptr());
+    size_ -= range;
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                  ITERATORS                                 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -485,8 +525,8 @@ typename vector<value_type>::iterator vector<value_type>::insert(
  * Takes a pointer to value_type as input and converts it to an object of type
  * iterator.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] ptr pointer to the element.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] ptr Pointer to the element.
  */
 template <typename value_type>
 vector<value_type>::iterator::VectorIterator(const pointer ptr) : ptr_{ptr} {}
@@ -494,8 +534,8 @@ vector<value_type>::iterator::VectorIterator(const pointer ptr) : ptr_{ptr} {}
 /**
  * @brief Copy constructor from other iterator.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] other the iterator to copy from.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The iterator to copy from.
  */
 template <typename value_type>
 vector<value_type>::iterator::VectorIterator(const iterator &other)
@@ -505,7 +545,7 @@ vector<value_type>::iterator::VectorIterator(const iterator &other)
  * @brief Dereference operator for constant access.
  *
  * @return const_reference - reference to the value pointed by the iterator.
- * @throws std::invalid_argument - if the iterator is empty.
+ * @throw std::invalid_argument - if the iterator is empty.
  */
 template <typename value_type>
 typename vector<value_type>::const_reference
@@ -520,9 +560,9 @@ vector<value_type>::iterator::operator*() const {
 /**
  * @brief Dereference operator for non-constant access.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the value pointed by the iterator.
- * @throws std::invalid_argument - if the iterator is empty.
+ * @throw std::invalid_argument - if the iterator is empty.
  */
 template <typename value_type>
 typename vector<value_type>::reference
@@ -537,8 +577,8 @@ vector<value_type>::iterator::operator*() {
 /**
  * @brief Assignment operator from other iterator.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] other the iterator to assign from.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The iterator to assign from.
  */
 template <typename value_type>
 void vector<value_type>::iterator::operator=(const iterator &other) noexcept {
@@ -548,8 +588,8 @@ void vector<value_type>::iterator::operator=(const iterator &other) noexcept {
 /**
  * @brief Assignment operator from a pointer.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] ptr pointer to the element.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] ptr Pointer to the element.
  */
 template <typename value_type>
 void vector<value_type>::iterator::operator=(pointer ptr) noexcept {
@@ -559,7 +599,7 @@ void vector<value_type>::iterator::operator=(pointer ptr) noexcept {
 /**
  * @brief Pre-decrement operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated iterator.
  */
 template <typename value_type>
@@ -573,7 +613,7 @@ vector<value_type>::iterator::operator--() noexcept {
 /**
  * @brief Post-decrement operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  * @return iterator - copy of the iterator before the decrement.
  */
 template <typename value_type>
@@ -588,7 +628,7 @@ vector<value_type>::iterator::operator--(int) noexcept {
 /**
  * @brief Pre-increment operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated iterator.
  */
 template <typename value_type>
@@ -602,7 +642,7 @@ vector<value_type>::iterator::operator++() noexcept {
 /**
  * @brief Post-increment operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
+ * @tparam value_type The type of the elements to be iterated over.
  * @return iterator - copy of the iterator before the increment.
  */
 template <typename value_type>
@@ -618,8 +658,8 @@ vector<value_type>::iterator::operator++(int) noexcept {
  * @brief Subtraction operator for shifting the iterator by a given number of
  * positions.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] shift number of positions to shift.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
  * @return iterator - new iterator shifted by the specified positions.
  */
 template <typename value_type>
@@ -634,8 +674,8 @@ typename vector<value_type>::iterator vector<value_type>::iterator::operator-(
 /**
  * @brief Difference operator to calculate the distance between two iterators.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] other the other iterator to calculate the distance from.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other iterator to calculate the distance from.
  * @return size_type - distance between the iterators.
  */
 template <typename value_type>
@@ -648,8 +688,8 @@ typename vector<value_type>::size_type vector<value_type>::iterator::operator-(
  * @brief Addition operator for shifting the iterator by a given number of
  * positions.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] shift number of positions to shift.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
  * @return iterator - new iterator shifted by the specified positions.
  */
 template <typename value_type>
@@ -665,8 +705,8 @@ typename vector<value_type>::iterator vector<value_type>::iterator::operator+(
  * @brief Subtraction assignment operator to shift the iterator by a given
  * number of positions.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] shift number of positions to shift.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
  */
 template <typename value_type>
 void vector<value_type>::iterator::operator-=(const int shift) noexcept {
@@ -677,8 +717,8 @@ void vector<value_type>::iterator::operator-=(const int shift) noexcept {
  * @brief Addition assignment operator to shift the iterator by a given number
  * of positions.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] shift number of positions to shift.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
  */
 template <typename value_type>
 void vector<value_type>::iterator::operator+=(const int shift) noexcept {
@@ -688,8 +728,8 @@ void vector<value_type>::iterator::operator+=(const int shift) noexcept {
 /**
  * @brief Equality comparison operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] other the other iterator to compare with.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other iterator to compare with.
  * @return true - if the iterators are equal.
  * @return false - if the iterators are not equal.
  */
@@ -701,8 +741,8 @@ bool vector<value_type>::iterator::operator==(iterator other) const noexcept {
 /**
  * @brief Inequality comparison operator.
  *
- * @tparam value_type the type of the elements to be iterated over.
- * @param[in] other the other iterator to compare with.
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other iterator to compare with.
  * @return true - if the iterators are not equal.
  * @return false - if the iterators are equal.
  */
@@ -711,6 +751,12 @@ bool vector<value_type>::iterator::operator!=(iterator other) const noexcept {
   return ptr_ != other.ptr_;
 }
 
+/**
+ * @brief Returns a pointer to the first element in the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @return pointer - a pointer to the first element.
+ */
 template <typename value_type>
 typename vector<value_type>::pointer vector<value_type>::iterator::ptr()
     const noexcept {
