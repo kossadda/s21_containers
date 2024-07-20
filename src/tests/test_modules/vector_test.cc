@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#include "./main_test.h"
+#include "./../main_test.h"
 
 using s21_vector = s21::vector<int>;
 using s21_iterator = s21::vector<int>::iterator;
@@ -324,7 +324,6 @@ TEST(vector, clearElements) {
 }
 
 TEST(vector, insertOneElement) {
-  s21_vector::size_type count{};
   s21_vector s21_v{11, 22, 33, 44, 55};
   std_vector std_v{11, 22, 33, 44, 55};
 
@@ -334,13 +333,12 @@ TEST(vector, insertOneElement) {
   EXPECT_TRUE(s21_v.size() == std_v.size());
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 
-  for (; count < s21_v.size(); count++) {
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
     EXPECT_TRUE(s21_v[count] == std_v[count]);
   }
 }
 
 TEST(vector, insertMoreElements) {
-  s21_vector::size_type count{};
   s21_vector s21_v{11, 22, 33, 44, 55};
   std_vector std_v{11, 22, 33, 44, 55};
 
@@ -350,7 +348,7 @@ TEST(vector, insertMoreElements) {
   EXPECT_TRUE(s21_v.size() == std_v.size());
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 
-  for (; count < s21_v.size(); count++) {
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
     EXPECT_TRUE(s21_v[count] == std_v[count]);
   }
 }
@@ -364,7 +362,6 @@ TEST(vector, insertThrows) {
 }
 
 TEST(vector, eraseMoreElement) {
-  s21_vector::size_type count{};
   s21_vector s21_v{11, 22, 33, 44, 55};
   std_vector std_v{11, 22, 33, 44, 55};
 
@@ -374,13 +371,12 @@ TEST(vector, eraseMoreElement) {
   EXPECT_TRUE(s21_v.size() == std_v.size());
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 
-  for (; count < s21_v.size(); count++) {
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
     EXPECT_TRUE(s21_v[count] == std_v[count]);
   }
 }
 
 TEST(vector, eraseOneElement) {
-  s21_vector::size_type count{};
   s21_vector s21_v{11, 22, 33, 44, 55};
   std_vector std_v{11, 22, 33, 44, 55};
 
@@ -390,13 +386,12 @@ TEST(vector, eraseOneElement) {
   EXPECT_TRUE(s21_v.size() == std_v.size());
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 
-  for (; count < s21_v.size(); count++) {
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
     EXPECT_TRUE(s21_v[count] == std_v[count]);
   }
 }
 
 TEST(vector, eraseMoreElements) {
-  s21_vector::size_type count{};
   s21_vector s21_v{11, 22, 33, 44, 55};
   std_vector std_v{11, 22, 33, 44, 55};
 
@@ -406,7 +401,7 @@ TEST(vector, eraseMoreElements) {
   EXPECT_TRUE(s21_v.size() == std_v.size());
   EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
 
-  for (; count < s21_v.size(); count++) {
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
     EXPECT_TRUE(s21_v[count] == std_v[count]);
   }
 }
@@ -419,4 +414,56 @@ TEST(vector, eraseThrows) {
   EXPECT_THROW(s21_v.erase(s21_v.begin(), s21_v.end() + 1), std::range_error);
   EXPECT_THROW(s21_v.erase(s21_v.begin(), s21_v.end() - s21_v.size() - 1), std::range_error);
   EXPECT_THROW(s21_v.erase(s21_v.end(), s21_v.begin()), std::range_error);
+}
+
+TEST(vector, pushBackElement_1) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  s21_v.push_back(123);
+  std_v.push_back(123);
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, pushBackElement_2) {
+  s21_vector s21_v;
+  std_vector std_v;
+
+  for (s21_vector::size_type i = 0; i < 100; i++) {
+    s21_v.push_back(i);
+    std_v.push_back(i);
+  }
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, pushBackElement_3) {
+  s21_vector s21_v;
+  std_vector std_v;
+
+  s21_v.reserve(25);
+  std_v.reserve(25);
+
+  for (s21_vector::size_type i = 0; i < 26; i++) {
+    s21_v.push_back(i);
+    std_v.push_back(i);
+  }
+
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
 }

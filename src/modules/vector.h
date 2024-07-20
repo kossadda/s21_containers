@@ -84,6 +84,7 @@ class vector {
   void clear() noexcept;
   iterator insert(iterator pos, const_reference value, size_type count = 1);
   void erase(iterator pos, iterator last_pos = iterator{});
+  void push_back(const_reference value);
 };
 
 /**
@@ -127,8 +128,41 @@ class vector<value_type>::VectorIterator {
   pointer ptr() const noexcept;
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
-//                                    VECTOR                                  //
+//                         VECTOR PRIVATE METHODS                             //
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Allocates memory for the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @return pointer A pointer to the allocated memory.
+ * @throw std::bad_alloc - if the allocation failed.
+ */
+template <typename value_type>
+typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
+  return new value_type[capacity_]{};
+}
+
+/**
+ * @brief Frees the memory allocated for the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ */
+template <typename value_type>
+void vector<value_type>::freeMemory() noexcept {
+  if (arr_ != nullptr) {
+    delete[] arr_;
+    arr_ = nullptr;
+  }
+
+  size_ = capacity_ = 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                            VECTOR CONSTRUCTORS                             //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -148,7 +182,7 @@ template <typename value_type>
 vector<value_type>::vector(size_type n, const_reference value)
     : size_{n}, capacity_{n}, arr_{allocateMemory()} {
   if (size_) {
-    std::fill(arr_, arr_ + size_, value);
+    std::uninitialized_fill(arr_, arr_ + size_, value);
   }
 }
 
@@ -228,32 +262,10 @@ vector<value_type> &vector<value_type>::operator=(vector &&v) {
   return *this;
 }
 
-/**
- * @brief Allocates memory for the vector.
- *
- * @tparam value_type The type of elements stored in the vector.
- * @return pointer A pointer to the allocated memory.
- * @throw std::bad_alloc - if the allocation failed.
- */
-template <typename value_type>
-typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
-  return new value_type[capacity_]{};
-}
 
-/**
- * @brief Frees the memory allocated for the vector.
- *
- * @tparam value_type The type of elements stored in the vector.
- */
-template <typename value_type>
-void vector<value_type>::freeMemory() noexcept {
-  if (arr_ != nullptr) {
-    delete[] arr_;
-    arr_ = nullptr;
-  }
-
-  size_ = capacity_ = 0;
-}
+////////////////////////////////////////////////////////////////////////////////
+//                              VECTOR ITERATORS                              //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Returns an iterator to the beginning of the vector.
@@ -277,6 +289,11 @@ template <typename value_type>
 typename vector<value_type>::iterator vector<value_type>::end() const noexcept {
   return iterator{arr_ + size_};
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                              VECTOR CAPACITY                               //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Checks if the vector is empty.
@@ -326,11 +343,11 @@ void vector<value_type>::reserve(size_type size) {
     throw std::length_error("vector::reserve() - size greater than max_size()");
 
   if (size > capacity_) {
-    size_type vector_size = size_;
-    vector expand(size);
-    std::copy(arr_, arr_ + size_, expand.arr_);
-    *this = std::move(expand);
-    size_ = vector_size;
+    capacity_ = size;
+    pointer new_arr = new value_type[size]{};
+    std::copy(arr_, arr_ + size_, new_arr);
+    delete[] arr_;
+    arr_ = (capacity_) ? new_arr : nullptr;
   }
 }
 
@@ -354,11 +371,18 @@ typename vector<value_type>::size_type vector<value_type>::capacity()
 template <typename value_type>
 void vector<value_type>::shrink_to_fit() {
   if (size_ != capacity_) {
-    vector squeeze(size_);
-    std::copy(arr_, arr_ + size_, squeeze.arr_);
-    *this = std::move(squeeze);
+    capacity_ = size_;
+    pointer new_arr = new value_type[size_]{};
+    std::copy(arr_, arr_ + size_, new_arr);
+    delete[] arr_;
+    arr_ = (capacity_) ? new_arr : nullptr;
   }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                          VECTOR ELEMENT ACCESS                             //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Returns a reference to the element at the specified position.
@@ -425,6 +449,11 @@ typename vector<value_type>::pointer vector<value_type>::data() const noexcept {
   return arr_;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//                             VECTOR MODYFIERS                               //
+////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @brief Removes all elements from the vector and sets its size to 0.
  *
@@ -451,6 +480,7 @@ void vector<value_type>::clear() noexcept {
  * moved to make space for the new elements, and the size of the vector is
  * updated accordingly.
  *
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos Iterator position at which to insert the new elements.
  * @param[in] value The value to insert.
  * @param[in] count The number of copies of `value` to insert.
@@ -487,6 +517,7 @@ typename vector<value_type>::iterator vector<value_type>::insert(
  * This function removes elements in the range [pos, last_pos). If `last_pos` is
  * not provided, it removes the single element at the position `pos`.
  *
+ * @tparam value_type The type of elements stored in the vector.
  * @param[in] pos An iterator pointing to the first element to be removed.
  * @param[in] last_pos An iterator pointing to one past the last element to be
  * removed. Defaults to nullptr.
@@ -514,8 +545,29 @@ void vector<value_type>::erase(iterator pos, iterator last_pos) {
   }
 }
 
+/**
+ * @brief Adds a new element to the end of the vector.
+ * 
+ * @details
+ * This method adds a new element to the end of the vector. If the current 
+ * size of the vector equals its capacity, the method will first reserve 
+ * additional space to accommodate the new element. The new element is 
+ * constructed in place using placement new, avoiding the use of the 
+ * assignment operator.
+ * 
+ * @tparam value_type The type of elements stored in the vector.
+ * @param[in] value The value to be added to the end of the vector.
+ */
+template <typename value_type>
+void vector<value_type>::push_back(const_reference value) {
+  if(size_ == capacity_)
+    reserve((capacity_) ? capacity_ * 2 : 1);
+
+  arr_[size_++] = value;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
-//                                  ITERATORS                                 //
+//                            ITERATOR CONSTRUCTORS                           //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -540,6 +592,11 @@ vector<value_type>::iterator::VectorIterator(const pointer ptr) : ptr_{ptr} {}
 template <typename value_type>
 vector<value_type>::iterator::VectorIterator(const iterator &other)
     : ptr_{other.ptr_} {}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                             ITERATOR OPERATORS                             //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Dereference operator for constant access.

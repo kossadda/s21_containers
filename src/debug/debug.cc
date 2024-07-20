@@ -17,27 +17,21 @@ using iterator = s21::vector<int>::iterator;
 using vector = s21::vector<int>;
 
 int main() {
-  s21::vector<int> test{5, 4, 3, 2, 1};
-  s21::vector<int>::iterator it{test.begin() + 3};
+  s21::vector<int> m;
+  std::vector<int> s;
 
-  test.erase(test.begin() + 3, test.begin() + 3);
-  // auto std_it = test.insert(it, 3, 3);
-
-  for(std::vector<int>::size_type i = 0; i < test.size(); i++) {
-    std::cout << test[i] << " ";
+  for (vector::size_type i = 0; i < 129; i++) {
+    m.push_back(i);
+    s.push_back(i);
+  }
+  
+  for(std::vector<int>::size_type i = 0; i < m.size(); i++) {
+    std::cout << m[i] << ":" << s[i] << " ";
   }
   std::cout << std::endl;
 
-  std::cout << "size: " << test.size() << std::endl;
-  std::cout << "capacity: " << test.capacity() << std::endl;
-  std::cout << "check std it: " << *(test.begin() + 4) << std::endl;
+  std::cout << "size: " << m.size() << ":" << s.size() << std::endl;
+  std::cout << "capacity: " << m.capacity() << ":" << s.capacity() << std::endl;
 
-  // std::cout << test.size() << std::endl;
-  // std::cout << *it << std::endl;
-  
-  // vector v1{5};
-
-  // std::cout << "size:" << v1.size() << std::endl;
-  
   return 0;
 }
