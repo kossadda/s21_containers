@@ -20,7 +20,7 @@ int main() {
   s21::vector<int> m;
   std::vector<int> s;
 
-  for (vector::size_type i = 0; i < 129; i++) {
+  for (vector::size_type i = 100; i < 105; i++) {
     m.push_back(i);
     s.push_back(i);
   }

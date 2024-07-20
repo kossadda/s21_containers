@@ -85,6 +85,8 @@ class vector {
   iterator insert(iterator pos, const_reference value, size_type count = 1);
   void erase(iterator pos, iterator last_pos = iterator{});
   void push_back(const_reference value);
+  void pop_back() noexcept;
+  void swap(vector &other) noexcept;
 };
 
 /**
@@ -110,6 +112,7 @@ class vector<value_type>::VectorIterator {
   explicit VectorIterator(const pointer ptr);
   VectorIterator(const iterator &other);
 
+  // Iterator operators
   operator pointer() const noexcept;
   void operator=(const iterator &other) noexcept;
   void operator=(pointer ptr) noexcept;
@@ -196,7 +199,7 @@ vector<value_type>::vector(size_type n, const_reference value)
 template <typename value_type>
 vector<value_type>::vector(const std::initializer_list<value_type> &items)
     : size_{items.size()}, capacity_{items.size()}, arr_{allocateMemory()} {
-  std::copy(items.begin(), items.begin() + size_, arr_);
+  std::uninitialized_copy(items.begin(), items.begin() + size_, arr_);
 }
 
 /**
@@ -211,7 +214,7 @@ vector<value_type>::vector(const std::initializer_list<value_type> &items)
 template <typename value_type>
 vector<value_type>::vector(const vector &v)
     : size_{v.size_}, capacity_{v.capacity_}, arr_{allocateMemory()} {
-  std::copy(v.arr_, v.arr_ + v.size_, arr_);
+  std::uninitialized_copy(v.arr_, v.arr_ + v.size_, arr_);
 }
 
 /**
@@ -335,13 +338,14 @@ typename vector<value_type>::size_type vector<value_type>::max_size()
  */
 template <typename value_type>
 void vector<value_type>::reserve(size_type size) {
-  if (size > max_size())
+  if (size > max_size()) {
     throw std::length_error("vector::reserve() - size greater than max_size()");
+  }
 
   if (size > capacity_) {
     capacity_ = size;
     pointer new_arr = new value_type[size]{};
-    std::copy(arr_, arr_ + size_, new_arr);
+    std::uninitialized_copy(arr_, arr_ + size_, new_arr);
     delete[] arr_;
     arr_ = (capacity_) ? new_arr : nullptr;
   }
@@ -390,8 +394,9 @@ void vector<value_type>::shrink_to_fit() {
 template <typename value_type>
 typename vector<value_type>::reference vector<value_type>::at(
     size_type pos) const {
-  if (pos >= size_)
+  if (pos >= size_) {
     throw std::out_of_range("vector::at() - pos out of vector range");
+  }
 
   return *(arr_ + pos);
 }
@@ -497,7 +502,7 @@ typename vector<value_type>::iterator vector<value_type>::insert(
   }
 
   std::move_backward(arr_ + ins_pos, arr_ + size_, arr_ + size_ + count);
-  std::fill(arr_ + ins_pos, arr_ + ins_pos + count, value);
+  std::uninitialized_fill(arr_ + ins_pos, arr_ + ins_pos + count, value);
 
   size_ = new_size;
 
@@ -554,9 +559,46 @@ void vector<value_type>::erase(iterator pos, iterator last_pos) {
  */
 template <typename value_type>
 void vector<value_type>::push_back(const_reference value) {
-  if (size_ == capacity_) reserve((capacity_) ? capacity_ * 2 : 1);
+  if (size_ == capacity_) {
+    reserve((capacity_) ? capacity_ * 2 : 1);
+  }
 
   arr_[size_++] = value;
+}
+
+/**
+ * @brief Removes the last element from the vector.
+ *
+ * @details
+ * This function decreases the size of the vector by one. If the vector is
+ * empty, the function does nothing. This method does not free the memory
+ * allocated for the elements,it only decreases the size of the vector. The
+ * capacity remains unchanged.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ */
+template <typename value_type>
+void vector<value_type>::pop_back() noexcept {
+  if (size_) {
+    size_--;
+  }
+}
+
+/**
+ * @brief Exchanges the contents of the vector with those of another vector.
+ *
+ * This function swaps the contents of the current vector with the given vector
+ * other. It performs the swap by exchanging the internal pointers and metadata,
+ * making the operation very efficient.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @param[out] other The vector to swap contents with.
+ */
+template <typename value_type>
+void vector<value_type>::swap(vector &other) noexcept {
+  std::swap(other.size_, size_);
+  std::swap(other.capacity_, capacity_);
+  std::swap(other.arr_, arr_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -598,6 +640,7 @@ vector<value_type>::iterator::VectorIterator(const iterator &other)
  * require a raw pointer, while the iterator provides a more convenient and
  * type-safe way to access and traverse elements of the vector.
  *
+ * @tparam value_type The type of the elements to be iterated over.
  * @return pointer - a raw pointer to the underlying element of type value_type
  * that the iterator points to.
  */
@@ -609,15 +652,17 @@ vector<value_type>::iterator::operator value_type *() const noexcept {
 /**
  * @brief Dereference operator for constant access.
  *
+ * @tparam value_type The type of the elements to be iterated over.
  * @return const_reference - reference to the value pointed by the iterator.
  * @throw std::invalid_argument - if the iterator is empty.
  */
 template <typename value_type>
 typename vector<value_type>::const_reference
 vector<value_type>::iterator::operator*() const {
-  if (!ptr_)
+  if (!ptr_) {
     throw std::invalid_argument(
-        "iterator::operator*() - trying to dereference an empty iterator");
+        "iterator::operator* - try to dereference an empty iterator");
+  }
 
   return *ptr_;
 }
@@ -632,9 +677,10 @@ vector<value_type>::iterator::operator*() const {
 template <typename value_type>
 typename vector<value_type>::reference
 vector<value_type>::iterator::operator*() {
-  if (!ptr_)
+  if (!ptr_) {
     throw std::invalid_argument(
         "iterator::operator*() - trying to dereference an empty iterator");
+  }
 
   return *ptr_;
 }
