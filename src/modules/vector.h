@@ -34,6 +34,7 @@ namespace s21 {
  */
 template <typename value_type>
 class vector {
+  class VectorConstIterator;
   class VectorIterator;
 
  public:
@@ -42,14 +43,14 @@ class vector {
   using const_reference = const value_type &;
   using size_type = std::size_t;
   using iterator = vector<value_type>::VectorIterator;
-  using const_iterator = const iterator;
+  using const_iterator = vector<value_type>::VectorConstIterator;
 
  private:
   size_type size_{};
   size_type capacity_{};
   value_type *arr_{};
 
-  pointer allocateMemory();
+  pointer allocateMemory(size_type size, size_type capacity);
   void freeMemory() noexcept;
 
  public:
@@ -60,10 +61,13 @@ class vector {
   vector(vector &&v) noexcept;
   ~vector() noexcept;
   vector &operator=(vector &&v);
+  vector &operator=(const vector &v);
 
   // Vector Iterators
   iterator begin() const noexcept;
   iterator end() const noexcept;
+  const_iterator cbegin() const noexcept;
+  const_iterator cend() const noexcept;
 
   // Vector Capacity
   bool empty() const noexcept;
@@ -82,52 +86,69 @@ class vector {
 
   // Vector Modifiers
   void clear() noexcept;
-  iterator insert(iterator pos, const_reference value, size_type count = 1);
-  void erase(iterator pos, iterator last_pos = iterator{});
+  const_iterator insert(const_iterator pos, const_reference value,
+                        size_type count = 1);
+  void erase(const_iterator pos, const_iterator last_pos = const_iterator{});
   void push_back(const_reference value);
   void pop_back() noexcept;
   void swap(vector &other) noexcept;
 };
 
 /**
- * @brief A bidirectional iterator class template.
+ * @brief A constant iterator for the vector class.
  *
  * @details
- * This class template provides a bidirectional iterator for a collection of
- * elements of type value_type. It supports various iterator operations,
- * including incrementing and decrementing the iterator, as well as arithmetic
- * operations to advance the iterator by a specific number of positions.
- * Comparison operators and dereference operators are also provided to interact
- * with the elements pointed to by the iterator.
+ * This iterator allows traversal of elements in the vector without modifying
+ * them. It supports typical iterator operations such as increment, decrement,
+ * addition, subtraction, and dereference.
  *
- * @tparam value_type The type of the elements to be iterated over.
+ * @tparam value_type The type of elements stored in the vector.
  */
 template <typename value_type>
-class vector<value_type>::VectorIterator {
+class vector<value_type>::VectorConstIterator {
  private:
   pointer ptr_{};
 
  public:
-  VectorIterator() noexcept = default;
-  explicit VectorIterator(const pointer ptr);
-  VectorIterator(const iterator &other);
+  VectorConstIterator() noexcept = default;
+  explicit VectorConstIterator(const pointer ptr);
+  VectorConstIterator(const const_iterator &other);
 
-  // Iterator operators
+  // ConstIterator operators
   operator pointer() const noexcept;
-  void operator=(const iterator &other) noexcept;
-  void operator=(pointer ptr) noexcept;
-  iterator &operator--() noexcept;
-  iterator &operator++() noexcept;
-  const iterator operator--(int) noexcept;
-  const iterator operator++(int) noexcept;
-  iterator operator+(const int shift) const noexcept;
-  iterator operator-(const int shift) const noexcept;
-  size_type operator-(const iterator &other) const noexcept;
+  void operator=(const const_iterator &other) noexcept;
+  void operator=(const pointer ptr) noexcept;
+  const_iterator &operator--() noexcept;
+  const_iterator &operator++() noexcept;
+  const const_iterator operator--(int) noexcept;
+  const const_iterator operator++(int) noexcept;
+  const_iterator operator+(const int shift) const noexcept;
+  const_iterator operator-(const int shift) const noexcept;
+  size_type operator-(const const_iterator &other) const noexcept;
   void operator-=(const int shift) noexcept;
   void operator+=(const int shift) noexcept;
-  bool operator==(iterator other) const noexcept;
-  bool operator!=(iterator other) const noexcept;
+  bool operator==(const_iterator other) const noexcept;
+  bool operator!=(const_iterator other) const noexcept;
   const_reference operator*() const;
+};
+
+/**
+ * @brief An iterator for the vector class.
+ *
+ * @details
+ * This iterator allows traversal of elements in the vector and modifying them.
+ * It inherits from VectorConstIterator and overrides the dereference operator
+ * to allow modification of the elements.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ */
+template <typename value_type>
+class vector<value_type>::VectorIterator : public VectorConstIterator {
+ public:
+  VectorIterator() noexcept = default;
+  explicit VectorIterator(const pointer ptr) : const_iterator{ptr} {};
+  VectorIterator(const iterator &other) : const_iterator{other} {};
+
   reference operator*();
 };
 
@@ -143,7 +164,11 @@ class vector<value_type>::VectorIterator {
  * @throw std::bad_alloc - if the allocation failed.
  */
 template <typename value_type>
-typename vector<value_type>::pointer vector<value_type>::allocateMemory() {
+typename vector<value_type>::pointer vector<value_type>::allocateMemory(
+    size_type size, size_type capacity) {
+  size_ = size;
+  capacity_ = capacity;
+
   return new value_type[capacity_]{};
 }
 
@@ -181,7 +206,7 @@ void vector<value_type>::freeMemory() noexcept {
  */
 template <typename value_type>
 vector<value_type>::vector(size_type n, const_reference value)
-    : size_{n}, capacity_{n}, arr_{allocateMemory()} {
+    : arr_{allocateMemory(n, n)} {
   if (size_) {
     std::uninitialized_fill(arr_, arr_ + size_, value);
   }
@@ -198,7 +223,7 @@ vector<value_type>::vector(size_type n, const_reference value)
  */
 template <typename value_type>
 vector<value_type>::vector(const std::initializer_list<value_type> &items)
-    : size_{items.size()}, capacity_{items.size()}, arr_{allocateMemory()} {
+    : arr_{allocateMemory(items.size(), items.size())} {
   std::uninitialized_copy(items.begin(), items.begin() + size_, arr_);
 }
 
@@ -213,7 +238,7 @@ vector<value_type>::vector(const std::initializer_list<value_type> &items)
  */
 template <typename value_type>
 vector<value_type>::vector(const vector &v)
-    : size_{v.size_}, capacity_{v.capacity_}, arr_{allocateMemory()} {
+    : arr_{allocateMemory(v.size_, v.capacity_)} {
   std::uninitialized_copy(v.arr_, v.arr_ + v.size_, arr_);
 }
 
@@ -257,8 +282,20 @@ vector<value_type>::~vector() noexcept {
  */
 template <typename value_type>
 vector<value_type> &vector<value_type>::operator=(vector &&v) {
-  freeMemory();
-  new (this) vector{std::move(v)};
+  if (this != &v) {
+    freeMemory();
+    new (this) vector{std::move(v)};
+  }
+
+  return *this;
+}
+
+template <typename value_type>
+vector<value_type> &vector<value_type>::operator=(const vector &v) {
+  if (this != &v) {
+    freeMemory();
+    new (this) vector{v};
+  }
 
   return *this;
 }
@@ -288,6 +325,30 @@ typename vector<value_type>::iterator vector<value_type>::begin()
 template <typename value_type>
 typename vector<value_type>::iterator vector<value_type>::end() const noexcept {
   return iterator{arr_ + size_};
+}
+
+/**
+ * @brief Returns a const_iterator to the beginning of the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @return const_iterator - const_iterator to the beginning of the vector.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator vector<value_type>::cbegin()
+    const noexcept {
+  return const_iterator{arr_};
+}
+
+/**
+ * @brief Returns a const_iterator to the end of the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @return const_iterator - const_iterator to the end of the vector.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator vector<value_type>::cend()
+    const noexcept {
+  return const_iterator{arr_ + size_};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -488,13 +549,13 @@ void vector<value_type>::clear() noexcept {
  * @throw std::out_of_range - if pos is not a valid iterator within the vector.
  */
 template <typename value_type>
-typename vector<value_type>::iterator vector<value_type>::insert(
-    iterator pos, const_reference value, size_type count) {
+typename vector<value_type>::const_iterator vector<value_type>::insert(
+    const_iterator pos, const_reference value, size_type count) {
   if (pos < arr_ || pos > arr_ + size_) {
     throw std::out_of_range("vector::insert() - pos is not at vectors range");
   }
 
-  size_type ins_pos = pos - begin();
+  size_type ins_pos = pos - cbegin();
   size_type new_size = size_ + count;
 
   if (capacity_ < new_size) {
@@ -506,7 +567,7 @@ typename vector<value_type>::iterator vector<value_type>::insert(
 
   size_ = new_size;
 
-  return begin() + ins_pos;
+  return cbegin() + ins_pos;
 }
 
 /**
@@ -525,7 +586,7 @@ typename vector<value_type>::iterator vector<value_type>::insert(
  * vector or if last_pos is before pos.
  */
 template <typename value_type>
-void vector<value_type>::erase(iterator pos, iterator last_pos) {
+void vector<value_type>::erase(const_iterator pos, const_iterator last_pos) {
   if (last_pos == nullptr) {
     last_pos = pos + 1;
   }
@@ -602,7 +663,7 @@ void vector<value_type>::swap(vector &other) noexcept {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//                            ITERATOR CONSTRUCTORS                           //
+//                         CONST ITERATOR CONSTRUCTORS                        //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -610,42 +671,44 @@ void vector<value_type>::swap(vector &other) noexcept {
  *
  * @details
  * Takes a pointer to value_type as input and converts it to an object of type
- * iterator.
+ * const_iterator.
  *
  * @tparam value_type The type of the elements to be iterated over.
  * @param[in] ptr Pointer to the element.
  */
 template <typename value_type>
-vector<value_type>::iterator::VectorIterator(const pointer ptr) : ptr_{ptr} {}
+vector<value_type>::const_iterator::VectorConstIterator(const pointer ptr)
+    : ptr_{ptr} {}
 
 /**
- * @brief Copy constructor from other iterator.
+ * @brief Copy constructor from other const_iterator.
  *
  * @tparam value_type The type of the elements to be iterated over.
- * @param[in] other The iterator to copy from.
+ * @param[in] other The const_iterator to copy from.
  */
 template <typename value_type>
-vector<value_type>::iterator::VectorIterator(const iterator &other)
+vector<value_type>::const_iterator::VectorConstIterator(
+    const const_iterator &other)
     : ptr_{other.ptr_} {}
 
 ////////////////////////////////////////////////////////////////////////////////
-//                             ITERATOR OPERATORS                             //
+//                          CONST ITERATOR OPERATORS                          //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief Converts the iterator to a raw pointer of type value_type*.
+ * @brief Converts the const_iterator to a raw pointer of type value_type*.
  *
- * This operator allows for implicit conversion of the iterator to a raw pointer
- * of type pointer. It is useful for interfacing with APIs or functions that
- * require a raw pointer, while the iterator provides a more convenient and
- * type-safe way to access and traverse elements of the vector.
+ * This operator allows for implicit conversion of the const_iterator to a raw
+ * pointer of type pointer. It is useful for interfacing with APIs or functions
+ * that require a raw pointer, while the const_iterator provides a more
+ * convenient and type-safe way to access and traverse elements of the vector.
  *
  * @tparam value_type The type of the elements to be iterated over.
  * @return pointer - a raw pointer to the underlying element of type value_type
- * that the iterator points to.
+ * that the const_iterator points to.
  */
 template <typename value_type>
-vector<value_type>::iterator::operator value_type *() const noexcept {
+vector<value_type>::const_iterator::operator value_type *() const noexcept {
   return ptr_;
 }
 
@@ -653,19 +716,207 @@ vector<value_type>::iterator::operator value_type *() const noexcept {
  * @brief Dereference operator for constant access.
  *
  * @tparam value_type The type of the elements to be iterated over.
- * @return const_reference - reference to the value pointed by the iterator.
- * @throw std::invalid_argument - if the iterator is empty.
+ * @return const_reference - reference to the value pointed by the
+ * const_iterator.
+ * @throw std::invalid_argument - if the const_iterator is empty.
  */
 template <typename value_type>
 typename vector<value_type>::const_reference
-vector<value_type>::iterator::operator*() const {
+vector<value_type>::const_iterator::operator*() const {
   if (!ptr_) {
     throw std::invalid_argument(
-        "iterator::operator* - try to dereference an empty iterator");
+        "const_iterator::operator* - try to dereference an empty iterator");
   }
 
   return *ptr_;
 }
+
+/**
+ * @brief Assignment operator from other const_iterator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The const_iterator to assign from.
+ */
+template <typename value_type>
+void vector<value_type>::const_iterator::operator=(
+    const const_iterator &other) noexcept {
+  ptr_ = other.ptr_;
+}
+
+/**
+ * @brief Assignment operator from a pointer.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] ptr Pointer to the element.
+ */
+template <typename value_type>
+void vector<value_type>::const_iterator::operator=(const pointer ptr) noexcept {
+  ptr_ = ptr;
+}
+
+/**
+ * @brief Pre-decrement operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @return reference - reference to the updated const_iterator.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator &
+vector<value_type>::const_iterator::operator--() noexcept {
+  ptr_--;
+
+  return *this;
+}
+
+/**
+ * @brief Post-decrement operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @return const_iterator - copy of the const_iterator before the decrement.
+ */
+template <typename value_type>
+const typename vector<value_type>::const_iterator
+vector<value_type>::const_iterator::operator--(int) noexcept {
+  const_iterator copy{*this};
+  ptr_--;
+
+  return copy;
+}
+
+/**
+ * @brief Pre-increment operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @return reference - reference to the updated const_iterator.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator &
+vector<value_type>::const_iterator::operator++() noexcept {
+  ptr_++;
+
+  return *this;
+}
+
+/**
+ * @brief Post-increment operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @return const_iterator - copy of the const_iterator before the increment.
+ */
+template <typename value_type>
+const typename vector<value_type>::const_iterator
+vector<value_type>::const_iterator::operator++(int) noexcept {
+  const_iterator copy{*this};
+  ptr_++;
+
+  return copy;
+}
+
+/**
+ * @brief Subtraction operator for shifting the const_iterator by a given number
+ * of positions.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
+ * @return const_iterator - new const_iterator shifted by the specified
+ * positions.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator
+vector<value_type>::const_iterator::operator-(const int shift) const noexcept {
+  const_iterator copy(*this);
+  copy.ptr_ -= shift;
+
+  return copy;
+}
+
+/**
+ * @brief Difference operator to calculate the distance between two iterators.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other const_iterator to calculate the distance from.
+ * @return size_type - distance between the iterators.
+ */
+template <typename value_type>
+typename vector<value_type>::size_type
+vector<value_type>::const_iterator::operator-(
+    const const_iterator &other) const noexcept {
+  return (ptr_ > other.ptr_) ? ptr_ - other.ptr_ : other.ptr_ - ptr_;
+}
+
+/**
+ * @brief Addition operator for shifting the const_iterator by a given number of
+ * positions.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
+ * @return const_iterator - new const_iterator shifted by the specified
+ * positions.
+ */
+template <typename value_type>
+typename vector<value_type>::const_iterator
+vector<value_type>::const_iterator::operator+(const int shift) const noexcept {
+  const_iterator copy(*this);
+  copy.ptr_ += shift;
+
+  return copy;
+}
+
+/**
+ * @brief Subtraction assignment operator to shift the const_iterator by a given
+ * number of positions.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
+ */
+template <typename value_type>
+void vector<value_type>::const_iterator::operator-=(const int shift) noexcept {
+  ptr_ -= shift;
+}
+
+/**
+ * @brief Addition assignment operator to shift the const_iterator by a given
+ * number of positions.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] shift Number of positions to shift.
+ */
+template <typename value_type>
+void vector<value_type>::const_iterator::operator+=(const int shift) noexcept {
+  ptr_ += shift;
+}
+
+/**
+ * @brief Equality comparison operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other const_iterator to compare with.
+ * @return true - if the iterators are equal.
+ * @return false - if the iterators are not equal.
+ */
+template <typename value_type>
+bool vector<value_type>::const_iterator::operator==(
+    const_iterator other) const noexcept {
+  return ptr_ == other.ptr_;
+}
+
+/**
+ * @brief Inequality comparison operator.
+ *
+ * @tparam value_type The type of the elements to be iterated over.
+ * @param[in] other The other const_iterator to compare with.
+ * @return true - if the iterators are not equal.
+ * @return false - if the iterators are equal.
+ */
+template <typename value_type>
+bool vector<value_type>::const_iterator::operator!=(
+    const_iterator other) const noexcept {
+  return ptr_ != other.ptr_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                             ITERATOR OPERATOR                              //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Dereference operator for non-constant access.
@@ -677,189 +928,7 @@ vector<value_type>::iterator::operator*() const {
 template <typename value_type>
 typename vector<value_type>::reference
 vector<value_type>::iterator::operator*() {
-  if (!ptr_) {
-    throw std::invalid_argument(
-        "iterator::operator*() - trying to dereference an empty iterator");
-  }
-
-  return *ptr_;
-}
-
-/**
- * @brief Assignment operator from other iterator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] other The iterator to assign from.
- */
-template <typename value_type>
-void vector<value_type>::iterator::operator=(const iterator &other) noexcept {
-  ptr_ = other.ptr_;
-}
-
-/**
- * @brief Assignment operator from a pointer.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] ptr Pointer to the element.
- */
-template <typename value_type>
-void vector<value_type>::iterator::operator=(pointer ptr) noexcept {
-  ptr_ = ptr;
-}
-
-/**
- * @brief Pre-decrement operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @return reference - reference to the updated iterator.
- */
-template <typename value_type>
-typename vector<value_type>::iterator &
-vector<value_type>::iterator::operator--() noexcept {
-  ptr_--;
-
-  return *this;
-}
-
-/**
- * @brief Post-decrement operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @return iterator - copy of the iterator before the decrement.
- */
-template <typename value_type>
-const typename vector<value_type>::iterator
-vector<value_type>::iterator::operator--(int) noexcept {
-  iterator copy{*this};
-  ptr_--;
-
-  return copy;
-}
-
-/**
- * @brief Pre-increment operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @return reference - reference to the updated iterator.
- */
-template <typename value_type>
-typename vector<value_type>::iterator &
-vector<value_type>::iterator::operator++() noexcept {
-  ptr_++;
-
-  return *this;
-}
-
-/**
- * @brief Post-increment operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @return iterator - copy of the iterator before the increment.
- */
-template <typename value_type>
-const typename vector<value_type>::iterator
-vector<value_type>::iterator::operator++(int) noexcept {
-  iterator copy{*this};
-  ptr_++;
-
-  return copy;
-}
-
-/**
- * @brief Subtraction operator for shifting the iterator by a given number of
- * positions.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] shift Number of positions to shift.
- * @return iterator - new iterator shifted by the specified positions.
- */
-template <typename value_type>
-typename vector<value_type>::iterator vector<value_type>::iterator::operator-(
-    const int shift) const noexcept {
-  iterator copy(*this);
-  copy.ptr_ -= shift;
-
-  return copy;
-}
-
-/**
- * @brief Difference operator to calculate the distance between two iterators.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] other The other iterator to calculate the distance from.
- * @return size_type - distance between the iterators.
- */
-template <typename value_type>
-typename vector<value_type>::size_type vector<value_type>::iterator::operator-(
-    const iterator &other) const noexcept {
-  return (ptr_ > other.ptr_) ? ptr_ - other.ptr_ : other.ptr_ - ptr_;
-}
-
-/**
- * @brief Addition operator for shifting the iterator by a given number of
- * positions.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] shift Number of positions to shift.
- * @return iterator - new iterator shifted by the specified positions.
- */
-template <typename value_type>
-typename vector<value_type>::iterator vector<value_type>::iterator::operator+(
-    const int shift) const noexcept {
-  iterator copy(*this);
-  copy.ptr_ += shift;
-
-  return copy;
-}
-
-/**
- * @brief Subtraction assignment operator to shift the iterator by a given
- * number of positions.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] shift Number of positions to shift.
- */
-template <typename value_type>
-void vector<value_type>::iterator::operator-=(const int shift) noexcept {
-  ptr_ -= shift;
-}
-
-/**
- * @brief Addition assignment operator to shift the iterator by a given number
- * of positions.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] shift Number of positions to shift.
- */
-template <typename value_type>
-void vector<value_type>::iterator::operator+=(const int shift) noexcept {
-  ptr_ += shift;
-}
-
-/**
- * @brief Equality comparison operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] other The other iterator to compare with.
- * @return true - if the iterators are equal.
- * @return false - if the iterators are not equal.
- */
-template <typename value_type>
-bool vector<value_type>::iterator::operator==(iterator other) const noexcept {
-  return ptr_ == other.ptr_;
-}
-
-/**
- * @brief Inequality comparison operator.
- *
- * @tparam value_type The type of the elements to be iterated over.
- * @param[in] other The other iterator to compare with.
- * @return true - if the iterators are not equal.
- * @return false - if the iterators are equal.
- */
-template <typename value_type>
-bool vector<value_type>::iterator::operator!=(iterator other) const noexcept {
-  return ptr_ != other.ptr_;
+  return const_cast<reference>(const_iterator::operator*());
 }
 
 }  // namespace s21

@@ -14,17 +14,23 @@
 #include <vector>
 
 using iterator = s21::vector<int>::iterator;
+using const_iterator = s21::vector<int>::const_iterator;
 using vector = s21::vector<int>;
 
 int main() {
-  s21::vector<int> m;
+  s21::vector<int> kek;
   std::vector<int> s;
 
-  for (vector::size_type i = 100; i < 105; i++) {
-    m.push_back(i);
-    s.push_back(i);
-  }
-  
+  kek.insert(kek.cbegin(), 2);
+  s.insert(s.cbegin(), 2);
+  kek.insert(kek.cbegin(), 3);
+  s.insert(s.cbegin(), 3);
+  kek.insert(kek.cbegin(), 5);
+  s.insert(s.cbegin(), 5);
+
+  vector m;
+  m = kek;
+
   for(std::vector<int>::size_type i = 0; i < m.size(); i++) {
     std::cout << m[i] << ":" << s[i] << " ";
   }

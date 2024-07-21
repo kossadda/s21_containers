@@ -14,7 +14,7 @@
 #include "./../main_test.h"
 
 using s21_vector = s21::vector<int>;
-using s21_iterator = s21::vector<int>::iterator;
+using s21_iterator = s21::vector<int>::const_iterator;
 
 using std_vector = std::vector<int>;
 using std_iterator = std::vector<int>::iterator;
@@ -62,7 +62,7 @@ TEST(vectorIterator, iteratorAssignment) {
 
 TEST(vectorIterator, dereferenceIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector::iterator it{arr};
 
   int new_value = 11;
   *it = new_value;
@@ -71,7 +71,7 @@ TEST(vectorIterator, dereferenceIterator) {
 }
 
 TEST(vectorIterator, exceptDereferenceIterator) {
-  s21_iterator it;
+  s21_vector::iterator it;
 
   EXPECT_THROW(*it = 5, std::invalid_argument);
 }
@@ -540,5 +540,17 @@ TEST(vector, swapEmptyWithNonEmpty) {
 
   for (s21_vector::size_type count{}; count < s21_v2.size(); count++) {
     EXPECT_TRUE(s21_v2[count] == std_v2[count]);
+  }
+}
+
+TEST(vector, assignVectors) {
+  s21_vector s21_v1{11, 22, 33, 44, 55};
+  s21_vector s21_v2 = s21_v1;
+
+  EXPECT_TRUE(s21_v1.size() == s21_v2.size());
+  EXPECT_TRUE(s21_v1.capacity() == s21_v2.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v2.size(); count++) {
+    EXPECT_TRUE(s21_v1[count] == s21_v2[count]);
   }
 }
