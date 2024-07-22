@@ -26,6 +26,8 @@ class tree {
   tree() = default;
   ~tree();
 
+  value_type searh(const key_type &key);
+
  private:
   Node *root_{};
 
@@ -35,16 +37,11 @@ class tree {
   void rotateLeft(Node *&old_root);
   void rotateRight(Node *&old_root);
   void cleanTree(Node *node);
-
-
-
-
-
-
-
-
-
-
+  Node *findNode(Node *node, const key_type &key);
+  void deleteNode(const key_type &key);
+  void deleteOneChild(Node *&node, Node *&child);
+  void deleteRedNoChild(Node *&node);
+  void deleteBlackNoChild(Node *&node);
 
   void printNodes(const Node *node) {
     if (node) {
@@ -54,8 +51,7 @@ class tree {
     }
   }
 
-  public:
-
+ public:
   void print() {
     printNodes(root_);
     std::cout << std::endl;
@@ -66,21 +62,27 @@ class tree {
     createNode(10, 4, root_);
     createNode(15, 4, root_);
     createNode(20, 4, root_);
-    createNode(25, 4, root_);
+    createNode(25, 42344, root_);
     createNode(30, 4, root_);
     createNode(2, 4, root_);
     createNode(2112, 4, root_);
-    createNode(112, 4, root_);
+    createNode(112, 1114, root_);
     createNode(35, 4, root_);
     createNode(40, 4, root_);
     createNode(33, 4, root_);
     // createNode(8, 4, root_);
+
+    // deleteNode(33);
+    // deleteNode(40);
+    // deleteNode(2);
+    deleteNode(33);
+    deleteNode(30);
   }
 };
 
 template <typename key_type, typename value_type>
 tree<key_type, value_type>::~tree() {
-  cleanTree(root_); 
+  cleanTree(root_);
 }
 
 template <typename key_type, typename value_type>
@@ -126,8 +128,8 @@ void tree<key_type, value_type>::balancingTree(Node *node) {
   while (node->parent && node->parent->color == RED) {
     Node *parent = node->parent;
     Node *grandparent = parent->parent;
-    Node *uncle = (parent == grandparent->left) ? grandparent->right
-                                                : grandparent->left;
+    Node *uncle =
+        (parent == grandparent->left) ? grandparent->right : grandparent->left;
 
     if (uncle && uncle->color == RED) {
       parent->color = BLACK;
@@ -156,7 +158,7 @@ void tree<key_type, value_type>::balancingTree(Node *node) {
       }
     }
   }
-} 
+}
 
 template <typename key_type, typename value_type>
 void tree<key_type, value_type>::rotateLeft(Node *&old_root) {
@@ -211,6 +213,95 @@ void tree<key_type, value_type>::cleanTree(Node *node) {
     cleanTree(node->right);
     delete node;
   }
+}
+
+template <typename key_type, typename value_type>
+value_type tree<key_type, value_type>::searh(const key_type &key) {
+  Node *value = findNode(root_, key);
+
+  return (value) ? value->value : value_type{};
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
+    Node *node, const key_type &key) {
+  if (!node) {
+    return nullptr;
+  }
+
+  if (node->key > key) {
+    return findNode(node->left, key);
+  } else if (node->key < key) {
+    return findNode(node->right, key);
+  } else {
+    return node;
+  }
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::deleteNode(const key_type &key) {
+  Node *node = findNode(root_, key);
+
+  if(!node) {
+    return;
+  }
+
+  if (node->color == RED) {
+    if(!node->left && !node->right) {
+      deleteRedNoChild(node);
+    }
+  } else {
+    if(!node->left && !node->right) {
+      // deleteBlackNoChild(node);
+    } else if(!node->left && node->right) {
+      deleteOneChild(node, node->right);
+    }  else if(node->left && !node->right) {
+      deleteOneChild(node, node->left);
+    }
+  }
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::deleteOneChild(Node *&node, Node *&child) {
+  Node *ch = child;
+
+  node->key = child->key;
+  node->value = child->value;
+  child = nullptr;
+
+  delete ch;
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::deleteRedNoChild(Node *&node) {
+  Node *parent{node->parent};
+
+  if(parent) {
+    if(parent->left == node) {
+      parent->left = nullptr;
+    } else {
+      parent->right = nullptr;
+    }
+  }
+
+  delete node;
+  node = nullptr;
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) {
+  Node *parent{node->parent};
+
+  if(parent) {
+    if(parent->left == node) {
+      parent->left = nullptr;
+    } else {
+      parent->right = nullptr;
+    }
+  }
+
+  delete node;
+  node = nullptr;
 }
 
 }  // namespace s21
