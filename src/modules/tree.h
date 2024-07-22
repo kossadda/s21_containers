@@ -1,7 +1,7 @@
 /**
  * @file tree.h
  * @author kossadda (https://github.com/kossadda)
- * @brief Binary tree implementation
+ * @brief Binary red-black tree implementation
  * @version 1.0
  * @date 2024-07-21
  *
@@ -19,197 +19,197 @@ namespace s21 {
 
 template <typename key_type, typename value_type>
 class tree {
+  enum Colors { RED, BLACK };
   struct Node;
 
  public:
   tree() = default;
-  tree(const key_type &key, const value_type &value);
-  tree(tree &&t);
-  tree(const tree &other);
   ~tree();
-  tree &operator=(tree &&t);
-  tree &operator=(const tree &t);
-
-  void add(const key_type &key, const value_type &value);
-  void print();
-
-  void test() {
-    Node *kek = findNode("пять", root_);
-    std::cout << kek->key_ << std::endl;
-    // removeNode(root_->left_);
-  }
 
  private:
   Node *root_{};
 
-  Node *createNode(const key_type &key, const value_type &value);
-  void removeNode(Node *&node);
-  void push(Node *&node, const key_type &key, const value_type &value);
+  void createNode(const key_type &key, const value_type &value, Node *&node,
+                  Node *parent = nullptr);
+  void balancingTree(Node *node);
+  void rotateLeft(Node *&old_root);
+  void rotateRight(Node *&old_root);
   void cleanTree(Node *node);
-  void printNodes(const Node *node);
-  Node *copyTree(const Node *node);
-  Node *findNode(const key_type key, Node *current);
-  Node *findNode(const value_type key, Node *current);
+
+
+
+
+
+
+
+
+
+
+
+  void printNodes(const Node *node) {
+    if (node) {
+      if (node->left) printNodes(node->left);
+      std::cout << "{" << node->key << ":" << node->value << "} ";
+      if (node->right) printNodes(node->right);
+    }
+  }
+
+  public:
+
+  void print() {
+    printNodes(root_);
+    std::cout << std::endl;
+  }
+
+  void test() {
+    createNode(156, 4, root_);
+    createNode(10, 4, root_);
+    createNode(15, 4, root_);
+    createNode(20, 4, root_);
+    createNode(25, 4, root_);
+    createNode(30, 4, root_);
+    createNode(2, 4, root_);
+    createNode(2112, 4, root_);
+    createNode(112, 4, root_);
+    createNode(35, 4, root_);
+    createNode(40, 4, root_);
+    createNode(33, 4, root_);
+    // createNode(8, 4, root_);
+  }
 };
+
+template <typename key_type, typename value_type>
+tree<key_type, value_type>::~tree() {
+  cleanTree(root_); 
+}
 
 template <typename key_type, typename value_type>
 class tree<key_type, value_type>::Node {
  public:
-  key_type key_;
-  value_type value_;
-  Node *left_;
-  Node *right_;
+  key_type key;
+  value_type value;
+  Colors color{tree::RED};
+  Node *parent;
+  Node *left{};
+  Node *right{};
 
-  Node(const key_type &key, const value_type &value, Node *left = nullptr,
-       Node *right = nullptr)
-      : key_(key), value_(value), left_(left), right_(right) {}
+  Node(const key_type &k, const value_type &v, Colors c = tree::RED,
+       Node *p = nullptr)
+      : key(k), value(v), color{c}, parent{p} {};
 };
 
 template <typename key_type, typename value_type>
-tree<key_type, value_type>::tree(const key_type &key, const value_type &value)
-    : root_{createNode(key, value)} {}
+void tree<key_type, value_type>::createNode(const key_type &key,
+                                            const value_type &value,
+                                            Node *&node, Node *parent) {
+  if (!node) {
+    node = new Node{key, value, RED, parent};
 
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::tree(const tree &other)
-    : root_{copyTree(other.root_)} {}
-
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::tree(tree &&t)
-    : root_{std::exchange(t.root_, nullptr)} {}
-
-template <typename key_type, typename value_type>
-tree<key_type, value_type> &tree<key_type, value_type>::operator=(tree &&t) {
-  if (this != &t) {
-    cleanTree(root_);
-    root_ = std::exchange(t.root_, nullptr);
+    if (node->parent && node->parent->color == RED) {
+      balancingTree(node);
+    }
+  } else {
+    if (key < node->key) {
+      createNode(key, value, node->left, node);
+    } else {
+      createNode(key, value, node->right, node);
+    }
   }
 
-  return *this;
+  if (root_) {
+    root_->color = BLACK;
+  }
 }
 
 template <typename key_type, typename value_type>
-tree<key_type, value_type> &tree<key_type, value_type>::operator=(const tree &t) {
-  if (this != &t) {
-    cleanTree(root_);
-    root_ = copyTree(t.root_);
+void tree<key_type, value_type>::balancingTree(Node *node) {
+  while (node->parent && node->parent->color == RED) {
+    Node *parent = node->parent;
+    Node *grandparent = parent->parent;
+    Node *uncle = (parent == grandparent->left) ? grandparent->right
+                                                : grandparent->left;
+
+    if (uncle && uncle->color == RED) {
+      parent->color = BLACK;
+      uncle->color = BLACK;
+      grandparent->color = RED;
+      node = grandparent;
+
+    } else {
+      if (node == parent->right && parent == grandparent->left) {
+        rotateLeft(parent);
+        node = parent;
+        parent = node->parent;
+      } else if (node == parent->left && parent == grandparent->right) {
+        rotateRight(parent);
+        node = parent;
+        parent = node->parent;
+      }
+
+      parent->color = BLACK;
+      grandparent->color = RED;
+
+      if (parent == grandparent->left) {
+        rotateRight(grandparent);
+      } else {
+        rotateLeft(grandparent);
+      }
+    }
+  }
+} 
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::rotateLeft(Node *&old_root) {
+  Node *new_root = old_root->right;
+  old_root->right = new_root->left;
+
+  if (new_root->left) {
+    new_root->left->parent = old_root;
   }
 
-  return *this;
+  new_root->parent = old_root->parent;
+
+  if (!old_root->parent) {
+    root_ = new_root;
+  } else if (old_root == old_root->parent->left) {
+    old_root->parent->left = new_root;
+  } else {
+    old_root->parent->right = new_root;
+  }
+
+  new_root->left = old_root;
+  old_root->parent = new_root;
 }
 
 template <typename key_type, typename value_type>
-tree<key_type, value_type>::~tree() {
-  cleanTree(root_);
+void tree<key_type, value_type>::rotateRight(Node *&old_root) {
+  Node *new_root = old_root->left;
+  old_root->left = new_root->right;
+
+  if (new_root->right) {
+    new_root->right->parent = old_root;
+  }
+
+  new_root->parent = old_root->parent;
+
+  if (!old_root->parent) {
+    root_ = new_root;
+  } else if (old_root == old_root->parent->left) {
+    old_root->parent->left = new_root;
+  } else {
+    old_root->parent->right = new_root;
+  }
+
+  new_root->right = old_root;
+  old_root->parent = new_root;
 }
 
 template <typename key_type, typename value_type>
 void tree<key_type, value_type>::cleanTree(Node *node) {
   if (node) {
-    cleanTree(node->left_);
-    cleanTree(node->right_);
+    cleanTree(node->left);
+    cleanTree(node->right);
     delete node;
-  }
-}
-
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::copyTree(
-    const Node *node) {
-  if (!node) {
-    return nullptr;
-  }
-
-  Node *new_node = createNode(node->key_, node->value_);
-  new_node->left_ = copyTree(node->left_);
-  new_node->right_ = copyTree(node->right_);
-
-  return new_node;
-}
-
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *
-tree<key_type, value_type>::createNode(const key_type &key,
-                                       const value_type &value) {
-  return new Node{key, value};
-}
-
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::removeNode(Node *&node) {
-  if(!node) {
-    return;
-  }
-
-  // if (node->right_) {
-  //   node->key_ = node->right_->key_;
-  //   node->value_ = node->right_->value_;
-  //   removeNode
-  // }
-}
-
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::add(const key_type &key,
-                                      const value_type &value) {
-  push(root_, key, value);
-}
-
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::push(Node *&node, const key_type &key,
-                                      const value_type &value) {
-  if (!node) {
-    node = createNode(key, value);
-  } else {
-    if (key < node->key_) {
-      push(node->left_, key, value);
-    } else {
-      push(node->right_, key, value);
-    }
-  }
-}
-
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(const key_type key, Node *current) {
-  if(!current) {
-    return nullptr;
-  }
-
-  if(key < current->key_) {
-    return findNode(key, current->left_);
-  } else if(key > current->key_) {
-    return findNode(key, current->right_);
-  } else {
-    return current;
-  }
-}
-
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(const value_type value, Node *current) {
-  if (!current) {
-    return nullptr;
-  }
-
-  if (current->value_ == value) {
-    return current;
-  }
-
-  Node* found = findNode(value, current->left_);
-  if (found) {
-    return found;
-  }
-
-  return findNode(value, current->right_);
-}
-
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::print() {
-  printNodes(root_);
-  std::cout << std::endl;
-}
-
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::printNodes(const Node *node) {
-  if (node) {
-    if (node->left_) printNodes(node->left_);
-    std::cout << "{" << node->key_ << ":" << node->value_ << "} ";
-    if (node->right_) printNodes(node->right_);
   }
 }
 
