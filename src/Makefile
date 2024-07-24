@@ -112,7 +112,7 @@ $(LIBRARY): $(OBJ_DIR) $(MODULES_O) $(MODULES_H) $(MAIN_H)
 	@ar rcs $@ $(MODULES_OBJ_PATH)
 	@ranlib $@
 
-$(TARGET): $(LIBRARY) $(OBJ_DIR) $(TEST_O)
+$(TARGET): clean $(LIBRARY) $(OBJ_DIR) $(TEST_O)
 	@$(CXX) $(TEST_OBJ_PATH) $(LIBRARY) $(LDFLAGS) -o $@
 	@-./$@
 
