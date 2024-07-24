@@ -31,6 +31,9 @@ class tree {
   void rotateRight(Node *old_root);
   void cleanTree(Node *node);
   Node *findNode(Node *node, const key_type &key);
+  Node *findMin(Node *node);
+  Node *findMax(Node *node);
+  void deleteTwoChild(Node *&node);
   void deleteOneChild(Node *&node, Node *&child);
   void deleteRedNoChild(Node *&node);
   void deleteBlackNoChild(Node *&node);
@@ -136,6 +139,8 @@ void tree<key_type, value_type>::remove(const key_type &key) {
   if (node->color == RED) {
     if (!left && !right) {
       deleteRedNoChild(node);
+    } else if (left && right) {
+      deleteTwoChild(node);
     }
   } else {
     if (!left && !right) {
@@ -144,6 +149,8 @@ void tree<key_type, value_type>::remove(const key_type &key) {
       deleteOneChild(node, node->right);
     } else if (left && !right) {
       deleteOneChild(node, node->left);
+    } else {
+      deleteTwoChild(node);
     }
   }
 }
@@ -297,6 +304,26 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
 }
 
 template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMax(
+    Node *node) {
+  while (node->right) {
+    node = node->right;
+  }
+
+  return node;
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMin(
+    Node *node) {
+  while (node->left) {
+    node = node->left;
+  }
+
+  return node;
+}
+
+template <typename key_type, typename value_type>
 void tree<key_type, value_type>::removeMemory(Node *&parent, Node *ptr_copy) {
   if (parent->left == ptr_copy) {
     parent->left = nullptr;
@@ -333,6 +360,29 @@ void tree<key_type, value_type>::deleteRedNoChild(Node *&node) {
 
   delete node;
   node = nullptr;
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::deleteTwoChild(Node *&node) {
+  Node *swap = findMax(node->left);
+  if (!(swap && !(swap->left && swap->right))) {
+    swap = findMin(node->right);
+  }
+
+  std::swap(swap->key, node->key);
+  std::swap(swap->value, node->value);
+
+  if (!swap->left && !swap->right) {
+    if (swap->color == RED) {
+      deleteRedNoChild(swap);
+    } else {
+      deleteBlackNoChild(swap);
+    }
+  } else if (!swap->left && swap->right) {
+    deleteOneChild(swap, swap->right);
+  } else if (swap->left && !swap->right) {
+    deleteOneChild(swap, swap->left);
+  }
 }
 
 template <typename key_type, typename value_type>
@@ -417,17 +467,13 @@ void tree<key_type, value_type>::blackParRedSonBlackRight(Node *&node) {
 template <typename key_type, typename value_type>
 void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(Node *&node) {
   Node *parent = node->parent;
-  bool is_left = (parent->left == node) ? true : false;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
   removeMemory(parent, node);
-  if (is_left) {
-    rotateLeft(brother->parent);
-    rotateLeft(parent);
-  } else {
-    rotateRight(brother->parent);
-    rotateRight(parent);
-  }
+  rotateLeft(brother->parent);
+  std::swap(brother->color, parent->color);
+  rotateLeft(parent);
+  swapColors(parent->parent);
 }
 
 template <typename key_type, typename value_type>
@@ -457,11 +503,8 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
   if (brother->color == RED) {
     parent->color = RED;
     brother->color = BLACK;
-    if (brother == parent->left) {
-      rotateRight(parent);
-    } else {
-      rotateLeft(parent);
-    }
+
+    (brother == parent->left) ? rotateRight(parent) : rotateLeft(parent);
     fixDoubleBlack(node);
   } else {
     if ((brother->left && brother->left->color == BLACK) &&
@@ -475,8 +518,7 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
     } else {
       if (brother == parent->left) {
         if (brother->left && brother->left->color == RED) {
-          brother->left->color = brother->color;
-          brother->color = parent->color;
+          brother->left->color = std::exchange(brother->color, parent->color);
           rotateRight(parent);
         } else {
           if (brother->right && brother->right->color == RED) {
@@ -487,8 +529,7 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
         }
       } else {
         if (brother->right && brother->right->color == RED) {
-          brother->right->color = brother->color;
-          brother->color = parent->color;
+          brother->right->color = std::exchange(brother->color, parent->color);
           rotateLeft(parent);
         } else {
           if (brother->left && brother->left->color == RED) {
