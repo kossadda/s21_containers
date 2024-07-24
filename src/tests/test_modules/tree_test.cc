@@ -329,39 +329,36 @@ TEST(TreeTest, test_14) {
 }
 
 TEST(TreeTest, test_15) {
-  // str result =
-  //     "R---{B:100}\n    L---{B:30}\n        L---{B:10}\n            "
-  //     "R---{R:20}\n        R---{R:80}\n            L---{B:77}\n            "
-  //     "R---{B:88}\n    R---{B:130}\n        L---{B:120}\n            "
-  //     "R---{R:122}\n        R---{B:140}\n";
-  // init_list list = {100, 20, 120, 10, 30, 110, 130, 5,  140, 122, 115, 116,
-  // 117,
-  //                   118, 60, 26,  1,  22, 66,  69,  77, 82,  88,  99,  80};
-  // init_list remove = {60,  82, 66, 26,  22,  69,  1,  110,
-  //                     118, 5,  99, 115, 116, 117, 140};
-  // Tree t;
+  str result =
+      "R---{B:80}\n    L---{B:30}\n        L---{B:10}\n            "
+      "R---{R:20}\n        R---{B:77}\n    R---{B:100}\n        L---{B:88}\n   "
+      "     R---{B:122}\n            L---{R:120}\n";
+  init_list list = {100, 20, 120, 10, 30, 110, 130, 5,  140, 122, 115, 116, 117,
+                    118, 60, 26,  1,  22, 66,  69,  77, 82,  88,  99,  80};
+  init_list remove = {60,  82, 66, 26,  22,  69,  1,   110,
+                      118, 5,  99, 115, 116, 117, 140, 130};
+  Tree t;
 
-  // auto iterator = list.begin();
-  // for (init_list::size_type i = 0; i < list.size(); i++) {
-  //   t.add(*iterator++, 1);
-  // }
+  auto iterator = list.begin();
+  for (init_list::size_type i = 0; i < list.size(); i++) {
+    t.add(*iterator++, 1);
+  }
 
-  // auto rem_iterator = remove.begin();
-  // for (init_list::size_type i = 0; i < remove.size(); i++) {
-  //   t.remove(*rem_iterator++);
-  // }
+  auto rem_iterator = remove.begin();
+  for (init_list::size_type i = 0; i < remove.size(); i++) {
+    t.remove(*rem_iterator++);
+  }
 
-  // EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.print() == result) << t.print();
 }
 
 TEST(TreeTest, test_16) {
   str result =
       "R---{B:10}\n    L---{B:4}\n        L---{B:2}\n            R---{R:3}\n   "
-      "     R---{B:5}\n    R---{B:25}\n        L---{B:20}\n            "
-      "L---{R:14}\n                L---{B:12}\n                    "
-      "L---{R:11}\n                R---{B:16}\n                    "
-      "L---{B:15}\n                    R---{B:17}\n                        "
-      "R---{R:19}\n            R---{R:23}\n";
+      "     R---{B:5}\n    R---{R:16}\n        L---{B:14}\n            "
+      "L---{B:12}\n                L---{R:11}\n            R---{B:15}\n        "
+      "R---{B:20}\n            L---{B:17}\n                R---{R:19}\n        "
+      "    R---{B:25}\n                L---{R:23}\n";
   init_list list = {20, 10, 25, 23, 30, 33, 4,  16, 2,
                     5,  14, 17, 3,  12, 15, 19, 11};
   init_list remove = {33, 30};

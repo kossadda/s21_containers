@@ -1,14 +1,3 @@
-/**
- * @file tree.h
- * @author kossadda (https://github.com/kossadda)
- * @brief Binary red-black tree implementation
- * @version 1.0
- * @date 2024-07-21
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #ifndef SRC_MODULES_TREE_H_
 #define SRC_MODULES_TREE_H_
 
@@ -143,10 +132,6 @@ void tree<key_type, value_type>::remove(const key_type &key) {
 
   Node *left = node->left;
   Node *right = node->right;
-
-  if (!node) {
-    return;
-  }
 
   if (node->color == RED) {
     if (!left && !right) {
@@ -451,7 +436,6 @@ void tree<key_type, value_type>::blackParBlackBrosBlackAll(Node *&node) {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
   brother->color = RED;
-
   removeMemory(parent, node);
 
   if (parent->color == BLACK) {
@@ -464,7 +448,6 @@ void tree<key_type, value_type>::blackParBlackBrosBlackAll(Node *&node) {
 template <typename key_type, typename value_type>
 void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
   if (node == root_) {
-    node->color = BLACK;
     return;
   }
 
@@ -474,40 +457,48 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
   if (brother->color == RED) {
     parent->color = RED;
     brother->color = BLACK;
-
-    (parent->left == node) ? rotateLeft(parent) : rotateRight(parent);
+    if (brother == parent->left) {
+      rotateRight(parent);
+    } else {
+      rotateLeft(parent);
+    }
     fixDoubleBlack(node);
   } else {
-    if ((brother->left && brother->left->color == RED) ||
-        (brother->right && brother->right->color == RED)) {
-      if (brother->left && brother->left->color == RED) {
-        if (parent->left == node) {
-          brother->color = std::exchange(parent->color, BLACK);
-          brother->left->color = BLACK;
-          rotateRight(parent);
-        } else {
-          brother->left->color = std::exchange(parent->color, BLACK);
-          rotateRight(brother);
-          rotateLeft(parent);
-        }
-      } else {
-        if (parent->left == node) {
-          brother->right->color = std::exchange(parent->color, BLACK);
-          rotateLeft(brother);
-          rotateRight(parent);
-        } else {
-          brother->color = std::exchange(parent->color, BLACK);
-          brother->right->color = BLACK;
-          rotateLeft(parent);
-        }
-      }
-    } else {
+    if ((brother->left && brother->left->color == BLACK) &&
+        (brother->right && brother->right->color == BLACK)) {
       brother->color = RED;
       if (parent->color == BLACK) {
         fixDoubleBlack(parent);
       } else {
         parent->color = BLACK;
       }
+    } else {
+      if (brother == parent->left) {
+        if (brother->left && brother->left->color == RED) {
+          brother->left->color = brother->color;
+          brother->color = parent->color;
+          rotateRight(parent);
+        } else {
+          if (brother->right && brother->right->color == RED) {
+            brother->right->color = parent->color;
+            rotateLeft(brother);
+            rotateRight(parent);
+          }
+        }
+      } else {
+        if (brother->right && brother->right->color == RED) {
+          brother->right->color = brother->color;
+          brother->color = parent->color;
+          rotateLeft(parent);
+        } else {
+          if (brother->left && brother->left->color == RED) {
+            brother->left->color = parent->color;
+            rotateRight(brother);
+            rotateLeft(parent);
+          }
+        }
+      }
+      parent->color = BLACK;
     }
   }
 }
