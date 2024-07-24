@@ -46,10 +46,12 @@ class tree {
   void deleteRedNoChild(Node *&node);
   void deleteBlackNoChild(Node *&node);
   void redParBlackSonRedLeft(Node *&node);
+  void redParBlackSonRedRight(Node *&node);
   void blackParRedSonBlackRight(Node *&node);
-  void blackParRedSonBlackRightRedLeft(Node *&node);
+  void blackParRedBrosBlackRightRedLeft(Node *&node);
   void blackParBlackBrosBlackAll(Node *&node);
-  void blackParBlackBrosRedLeftRight(Node *&node);
+  void blackParBlackBrosRedRightGran(Node *&node);
+  void blackParBlackBrosRedLeftOrAllGran(Node *&node);
   void removeMemory(Node *&node, Node *ptr_copy);
   void swapColors(Node *node);
   std::string printNodes(const Node *node, int indent = 0,
@@ -364,19 +366,24 @@ void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) {
     } else if ((is_left && brother->right && brother->right->color == RED) ||
                (!is_left && brother->left && brother->left->color == RED)) {
       redParBlackSonRedLeft(node);
+    } else if ((is_left && brother->left && brother->left->color == RED) ||
+               (!is_left && brother->right && brother->right->color == RED)) {
+      redParBlackSonRedRight(node);
     }
   } else if (brother && parent->color == BLACK && brother->color == BLACK) {
     if (!brother->left && !brother->right) {
       blackParBlackBrosBlackAll(node);
+    } else if((is_left && !brother->right && brother->left) || (!is_left && !brother->left && brother->right)) {
+      blackParBlackBrosRedRightGran(node);
     } else {
-      blackParBlackBrosRedLeftRight(node);
+      blackParBlackBrosRedLeftOrAllGran(node);
     }
   } else if (brother && node->parent->color == BLACK && brother->color == RED) {
     if ((is_left && brother->left && brother->left->color == BLACK) ||
         (!is_left && brother->right && brother->right->color == BLACK)) {
       Node *grgrson = (is_left) ? brother->left->right : brother->right->left;
       if (grgrson && grgrson->color == RED) {
-        blackParRedSonBlackRightRedLeft(node);
+        blackParRedBrosBlackRightRedLeft(node);
       } else {
         blackParRedSonBlackRight(node);
       }
@@ -396,6 +403,19 @@ void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
+void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) {
+  Node *parent = node->parent;
+  Node *brother = (parent->left == node) ? parent->right : parent->left;
+  bool is_left = (parent->left == node) ? true : false;
+
+  removeMemory(parent, node);
+  (is_left) ? rotateRight(brother) : rotateLeft(brother);
+  std::swap(brother->color, brother->parent->color);
+  (is_left) ? rotateLeft(parent) : rotateRight(parent);
+  swapColors(parent->parent);
+}
+
+template <typename key_type, typename value_type>
 void tree<key_type, value_type>::blackParRedSonBlackRight(Node *&node) {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
@@ -408,7 +428,7 @@ void tree<key_type, value_type>::blackParRedSonBlackRight(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParRedSonBlackRightRedLeft(Node *&node) {
+void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(Node *&node) {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
@@ -429,7 +449,7 @@ void tree<key_type, value_type>::blackParBlackBrosBlackAll(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosRedLeftRight(Node *&node) {
+void tree<key_type, value_type>::blackParBlackBrosRedLeftOrAllGran(Node *&node) {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
 
@@ -438,13 +458,30 @@ void tree<key_type, value_type>::blackParBlackBrosRedLeftRight(Node *&node) {
     rotateLeft(parent);
     if (parent->parent && parent->parent->right) {
       parent->parent->right->color = BLACK;
+    } else if (root_ == parent) {
+      root_->right->color = BLACK;
     }
   } else {
     rotateRight(parent);
     if (parent->parent && parent->parent->left) {
       parent->parent->left->color = BLACK;
+    } else if (root_ == parent) {
+      root_->left->color = BLACK;
     }
   }
+}
+
+template <typename key_type, typename value_type>
+void tree<key_type, value_type>::blackParBlackBrosRedRightGran(Node *&node) {
+  Node *parent = node->parent;
+  Node *brother = (parent->left == node) ? parent->right : parent->left;
+  bool is_left = (parent->left == node) ? true : false;
+
+  removeMemory(parent, node);
+  (is_left) ? rotateRight(brother) : rotateLeft(brother);
+  std::swap(brother->color, brother->parent->color);
+  (is_left) ? rotateLeft(parent) : rotateRight(parent);
+  brother->color = BLACK;
 }
 
 }  // namespace s21
