@@ -1,119 +1,146 @@
+/**
+ * @file tree.h
+ * @author kossadda (https://github.com/kossadda)
+ * @brief Header for the red-black tree container
+ * @version 1.0
+ * @date 2024-07-25
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #ifndef SRC_MODULES_TREE_H_
 #define SRC_MODULES_TREE_H_
 
 #include <algorithm>
+#include <initializer_list>
 #include <iostream>
+#include <string>
+#include <utility>
 
 namespace s21 {
 
 template <typename key_type, typename value_type>
 class tree {
+ private:
   enum Colors { RED, BLACK };
-  struct Node;
+  class Node;
+  class TreeIterator;
+
+  Node *root_{};
+  Node *sentinel_{};
 
  public:
-  tree() = default;
+  using iterator = TreeIterator;
+
+  tree() noexcept = default;
   tree(const key_type key, const value_type value);
   ~tree();
 
-  value_type search(const key_type &key);
+  iterator begin() const noexcept;
+  iterator end() const noexcept;
+
+  value_type search(const key_type &key) const;
   void insert(const key_type key, const value_type value);
-  void remove(const key_type &key);
-  std::string print();
+  void remove(const key_type &key) noexcept;
+  std::string structure() const noexcept;
 
  private:
-  Node *root_{};
-
   void createNode(const key_type &key, const value_type &value, Node *&node,
                   Node *parent = nullptr);
-  void balancingTree(Node *node);
-  void rotateLeft(Node *old_root);
-  void rotateRight(Node *old_root);
-  void cleanTree(Node *node);
-  Node *findNode(Node *node, const key_type &key);
-  Node *findMin(Node *node);
-  Node *findMax(Node *node);
-  void deleteTwoChild(Node *&node);
-  void deleteOneChild(Node *&node, Node *&child);
-  void deleteRedNoChild(Node *&node);
-  void deleteBlackNoChild(Node *&node);
-  void redParBlackSonRedLeft(Node *&node);
-  void redParBlackSonRedRight(Node *&node);
-  void blackParRedSonBlackRight(Node *&node);
-  void blackParRedBrosBlackRightRedLeft(Node *&node);
-  void blackParBlackBrosBlackAll(Node *&node);
-  void blackParBlackBrosRedRightGran(Node *&node);
-  void blackParBlackBrosRedLeftOrAllGran(Node *&node);
-  void fixDoubleBlack(Node *&node);
-  void removeMemory(Node *&node, Node *ptr_copy);
-  void swapColors(Node *node);
+  void balancingTree(Node *node) noexcept;
+  void rotateLeft(Node *old_root) noexcept;
+  void rotateRight(Node *old_root) noexcept;
+  void cleanTree(Node *node) noexcept;
+  Node *findNode(Node *node, const key_type &key) const noexcept;
+  static Node *findMin(Node *node) noexcept;
+  static Node *findMax(Node *node) noexcept;
+  void deleteTwoChild(Node *&node) noexcept;
+  void deleteOneChild(Node *&node, Node *&child) noexcept;
+  void deleteRedNoChild(Node *&node) noexcept;
+  void deleteBlackNoChild(Node *&node) noexcept;
+  void redParBlackSonRedLeft(Node *&node) noexcept;
+  void redParBlackSonRedRight(Node *&node) noexcept;
+  void blackParRedSonBlackRight(Node *&node) noexcept;
+  void blackParRedBrosBlackRightRedLeft(Node *&node) noexcept;
+  void blackParBlackBrosBlackAll(Node *&node) noexcept;
+  void blackParBlackBrosRedRightGran(Node *&node) noexcept;
+  void blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept;
+  void fixDoubleBlack(Node *&node) noexcept;
+  void removeMemory(Node *&node, Node *ptr_copy) noexcept;
+  void swapColors(Node *node) noexcept;
   std::string printNodes(const Node *node, int indent = 0,
-                         bool last = true) const;
+                         bool last = true) const noexcept;
 };
-
-template <typename key_type, typename value_type>
-std::string tree<key_type, value_type>::printNodes(const Node *node, int indent,
-                                                   bool last) const {
-  std::string str{};
-
-  if (node) {
-    str = std::string(indent, ' ');
-    if (last) {
-      str += "R---";
-      str += (node->color == RED ? "{R:" : "{B:");
-    } else {
-      str += "L---";
-      str += (node->color == RED ? "{R:" : "{B:");
-    }
-    char *char_str = (char *)malloc(50);
-    std::sprintf(char_str, "%d", node->key);
-    str += std::string(char_str);
-    str += "}\n";
-    if (char_str) {
-      free(char_str);
-    }
-
-    str += printNodes(node->left, indent + 4, false);
-    str += printNodes(node->right, indent + 4, true);
-  }
-
-  return str;
-}
-
-template <typename key_type, typename value_type>
-std::string tree<key_type, value_type>::print() {
-  std::string str = printNodes(root_);
-
-  return str;
-}
 
 template <typename key_type, typename value_type>
 class tree<key_type, value_type>::Node {
  public:
   key_type key;
   value_type value;
-  Colors color{tree::RED};
+  Colors color;
   Node *parent;
   Node *left{};
   Node *right{};
 
-  Node(const key_type &k, const value_type &v, Colors c = tree::RED,
-       Node *p = nullptr)
+  Node(const key_type &k, const value_type &v, Colors c = RED, Node *p = 0)
       : key(k), value(v), color{c}, parent{p} {};
+};
+
+template <typename key_type, typename value_type>
+class tree<key_type, value_type>::TreeIterator {
+ private:
+  Node *ptr_{};
+  Node *first{};
+  Node *last{};
+
+ public:
+  TreeIterator() noexcept = default;
+  TreeIterator(Node *node, Node *root, Node *sentinel) noexcept;
+  TreeIterator(const iterator &other) noexcept;
+
+  iterator &operator=(const iterator &other) noexcept;
+  iterator &operator--() noexcept;
+  iterator &operator++() noexcept;
+  iterator operator+(const int shift) const noexcept;
+  iterator operator-(const int shift) const noexcept;
+  bool operator==(iterator other) const noexcept;
+  bool operator!=(iterator other) const noexcept;
 };
 
 template <typename key_type, typename value_type>
 tree<key_type, value_type>::tree(const key_type key, const value_type value) {
   createNode(key, value, root_);
+  sentinel_ = new Node{key_type{}, value_type{}, BLACK, nullptr};
 }
 
 template <typename key_type, typename value_type>
 tree<key_type, value_type>::~tree() {
   cleanTree(root_);
+  delete sentinel_;
 }
 
 template <typename key_type, typename value_type>
-value_type tree<key_type, value_type>::search(const key_type &key) {
+typename tree<key_type, value_type>::iterator
+tree<key_type, value_type>::begin() const noexcept {
+  return iterator{findMin(root_), root_, sentinel_};
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::iterator tree<key_type, value_type>::end()
+    const noexcept {
+  return iterator{sentinel_, root_, findMax(root_)};
+}
+
+template <typename key_type, typename value_type>
+std::string tree<key_type, value_type>::structure() const noexcept {
+  std::string str = printNodes(root_);
+
+  return str;
+}
+
+template <typename key_type, typename value_type>
+value_type tree<key_type, value_type>::search(const key_type &key) const {
   Node *value = findNode(root_, key);
 
   return (value) ? value->value : value_type{};
@@ -126,7 +153,7 @@ void tree<key_type, value_type>::insert(const key_type key,
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::remove(const key_type &key) {
+void tree<key_type, value_type>::remove(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
 
   if (!node) {
@@ -179,7 +206,7 @@ void tree<key_type, value_type>::createNode(const key_type &key,
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::balancingTree(Node *node) {
+void tree<key_type, value_type>::balancingTree(Node *node) noexcept {
   while (node->parent && node->parent->color == RED) {
     Node *parent = node->parent;
     Node *grandparent = parent->parent;
@@ -215,7 +242,7 @@ void tree<key_type, value_type>::balancingTree(Node *node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::rotateLeft(Node *old_root) {
+void tree<key_type, value_type>::rotateLeft(Node *old_root) noexcept {
   Node *new_root = old_root->right;
 
   if (new_root->left) {
@@ -237,7 +264,7 @@ void tree<key_type, value_type>::rotateLeft(Node *old_root) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::rotateRight(Node *old_root) {
+void tree<key_type, value_type>::rotateRight(Node *old_root) noexcept {
   Node *new_root = old_root->left;
 
   if (new_root->right) {
@@ -259,7 +286,7 @@ void tree<key_type, value_type>::rotateRight(Node *old_root) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::swapColors(Node *node) {
+void tree<key_type, value_type>::swapColors(Node *node) noexcept {
   if (node == nullptr || node->left == nullptr || node->right == nullptr) {
     return;
   }
@@ -279,7 +306,7 @@ void tree<key_type, value_type>::swapColors(Node *node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::cleanTree(Node *node) {
+void tree<key_type, value_type>::cleanTree(Node *node) noexcept {
   if (node) {
     cleanTree(node->left);
     cleanTree(node->right);
@@ -289,7 +316,7 @@ void tree<key_type, value_type>::cleanTree(Node *node) {
 
 template <typename key_type, typename value_type>
 typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
-    Node *node, const key_type &key) {
+    Node *node, const key_type &key) const noexcept {
   if (!node) {
     return nullptr;
   }
@@ -305,7 +332,7 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
 
 template <typename key_type, typename value_type>
 typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMax(
-    Node *node) {
+    Node *node) noexcept {
   while (node->right) {
     node = node->right;
   }
@@ -315,7 +342,7 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMax(
 
 template <typename key_type, typename value_type>
 typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMin(
-    Node *node) {
+    Node *node) noexcept {
   while (node->left) {
     node = node->left;
   }
@@ -324,7 +351,8 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMin(
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::removeMemory(Node *&parent, Node *ptr_copy) {
+void tree<key_type, value_type>::removeMemory(Node *&parent,
+                                              Node *ptr_copy) noexcept {
   if (parent->left == ptr_copy) {
     parent->left = nullptr;
   } else {
@@ -336,7 +364,8 @@ void tree<key_type, value_type>::removeMemory(Node *&parent, Node *ptr_copy) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteOneChild(Node *&node, Node *&child) {
+void tree<key_type, value_type>::deleteOneChild(Node *&node,
+                                                Node *&child) noexcept {
   Node *ch = child;
 
   node->key = child->key;
@@ -347,7 +376,7 @@ void tree<key_type, value_type>::deleteOneChild(Node *&node, Node *&child) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteRedNoChild(Node *&node) {
+void tree<key_type, value_type>::deleteRedNoChild(Node *&node) noexcept {
   Node *parent{node->parent};
 
   if (parent) {
@@ -363,7 +392,7 @@ void tree<key_type, value_type>::deleteRedNoChild(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteTwoChild(Node *&node) {
+void tree<key_type, value_type>::deleteTwoChild(Node *&node) noexcept {
   Node *swap = findMax(node->left);
   if (!(swap && !(swap->left && swap->right))) {
     swap = findMin(node->right);
@@ -386,7 +415,7 @@ void tree<key_type, value_type>::deleteTwoChild(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) {
+void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) noexcept {
   if (!node->parent) {
     return;
   }
@@ -429,7 +458,7 @@ void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) {
+void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -440,7 +469,7 @@ void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) {
+void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -453,7 +482,8 @@ void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParRedSonBlackRight(Node *&node) {
+void tree<key_type, value_type>::blackParRedSonBlackRight(
+    Node *&node) noexcept {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
@@ -465,7 +495,8 @@ void tree<key_type, value_type>::blackParRedSonBlackRight(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(Node *&node) {
+void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(
+    Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
@@ -477,7 +508,8 @@ void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosBlackAll(Node *&node) {
+void tree<key_type, value_type>::blackParBlackBrosBlackAll(
+    Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
@@ -492,7 +524,7 @@ void tree<key_type, value_type>::blackParBlackBrosBlackAll(Node *&node) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
+void tree<key_type, value_type>::fixDoubleBlack(Node *&node) noexcept {
   if (node == root_) {
     return;
   }
@@ -546,7 +578,7 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) {
 
 template <typename key_type, typename value_type>
 void tree<key_type, value_type>::blackParBlackBrosRedLeftOrAllGran(
-    Node *&node) {
+    Node *&node) noexcept {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
 
@@ -569,7 +601,8 @@ void tree<key_type, value_type>::blackParBlackBrosRedLeftOrAllGran(
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosRedRightGran(Node *&node) {
+void tree<key_type, value_type>::blackParBlackBrosRedRightGran(
+    Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -579,6 +612,137 @@ void tree<key_type, value_type>::blackParBlackBrosRedRightGran(Node *&node) {
   std::swap(brother->color, brother->parent->color);
   (is_left) ? rotateLeft(parent) : rotateRight(parent);
   brother->color = BLACK;
+}
+
+template <typename key_type, typename value_type>
+std::string tree<key_type, value_type>::printNodes(const Node *node, int indent,
+                                                   bool last) const noexcept {
+  std::string str{};
+
+  if (node) {
+    str = std::string(indent, ' ');
+    if (last) {
+      str += "R---";
+      str += (node->color == RED ? "{R:" : "{B:");
+    } else {
+      str += "L---";
+      str += (node->color == RED ? "{R:" : "{B:");
+    }
+    char *char_str = static_cast<char *>(malloc(50));
+    std::snprintf(char_str, 50, "%d", node->key);
+    str += std::string(char_str);
+    str += "}\n";
+    if (char_str) {
+      free(char_str);
+    }
+
+    str += printNodes(node->left, indent + 4, false);
+    str += printNodes(node->right, indent + 4, true);
+  }
+
+  return str;
+}
+
+template <typename key_type, typename value_type>
+tree<key_type, value_type>::iterator::TreeIterator(Node *node, Node *root,
+                                                   Node *sentinel) noexcept
+    : ptr_{node}, first{root}, last{sentinel} {}
+
+template <typename key_type, typename value_type>
+tree<key_type, value_type>::iterator::TreeIterator(
+    const iterator &other) noexcept
+    : ptr_{other.ptr_}, first{other.first}, last{other.last} {}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::iterator &
+tree<key_type, value_type>::iterator::operator=(
+    const iterator &other) noexcept {
+  ptr_ = other.ptr_;
+  first = other.first;
+  last = other.last;
+
+  return *this;
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::iterator &
+tree<key_type, value_type>::iterator::operator--() noexcept {
+  if (!ptr_) {
+    if (last == findMax(first)) {
+      std::swap(ptr_, last);
+    }
+
+    return *this;
+  }
+
+  if (ptr_->left) {
+    ptr_ = findMax(ptr_->left);
+  } else {
+    if (ptr_ != findMin(first)) {
+      Node *parent = ptr_->parent;
+
+      while (parent && ptr_ == parent->left) {
+        ptr_ = parent;
+        parent = parent->parent;
+      }
+
+      ptr_ = parent;
+    }
+  }
+
+  return *this;
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::iterator &
+tree<key_type, value_type>::iterator::operator++() noexcept {
+  if (!ptr_) {
+    if (ptr_ == findMax(first)) {
+      std::swap(ptr_, last);
+    }
+
+    return *this;
+  }
+
+  if (ptr_->right) {
+    ptr_ = findMin(ptr_->right);
+  } else {
+    Node *parent = ptr_->parent;
+
+    while (parent && ptr_ == parent->right) {
+      ptr_ = parent;
+      parent = parent->parent;
+    }
+
+    ptr_ = parent;
+  }
+
+  return *this;
+}
+
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::iterator
+tree<key_type, value_type>::iterator::operator+(
+    const int shift) const noexcept {
+  iterator copy{*this};
+
+  for (int i = 0; i < shift; i++) {
+    ++copy;
+  }
+
+  return copy;
+}
+
+template <typename key_type, typename value_type>
+bool tree<key_type, value_type>::iterator::operator==(
+    iterator other) const noexcept {
+  return (ptr_ == other.ptr_) ? true : false;
+}
+
+template <typename key_type, typename value_type>
+bool tree<key_type, value_type>::iterator::operator!=(
+    iterator other) const noexcept {
+  return (ptr_ != other.ptr_) ? true : false;
 }
 
 }  // namespace s21

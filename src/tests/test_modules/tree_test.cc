@@ -25,7 +25,7 @@ TEST(tree, test_1) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_2) {
@@ -38,7 +38,7 @@ TEST(tree, test_2) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_3) {
@@ -52,7 +52,7 @@ TEST(tree, test_3) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_4) {
@@ -65,7 +65,7 @@ TEST(tree, test_4) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_5) {
@@ -78,7 +78,7 @@ TEST(tree, test_5) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_6) {
@@ -93,7 +93,7 @@ TEST(tree, test_6) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_7) {
@@ -108,7 +108,7 @@ TEST(tree, test_7) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_8) {
@@ -123,7 +123,7 @@ TEST(tree, test_8) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_9) {
@@ -142,7 +142,7 @@ TEST(tree, test_9) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_10) {
@@ -160,7 +160,7 @@ TEST(tree, test_10) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_11) {
@@ -180,7 +180,7 @@ TEST(tree, test_11) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_12) {
@@ -200,7 +200,7 @@ TEST(tree, test_12) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_13) {
@@ -219,7 +219,7 @@ TEST(tree, test_13) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_14) {
@@ -238,7 +238,7 @@ TEST(tree, test_14) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_15) {
@@ -256,7 +256,7 @@ TEST(tree, test_15) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_16) {
@@ -275,7 +275,7 @@ TEST(tree, test_16) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_17) {
@@ -293,7 +293,7 @@ TEST(tree, test_17) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_18) {
@@ -315,7 +315,7 @@ TEST(tree, test_18) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_19) {
@@ -336,7 +336,7 @@ TEST(tree, test_19) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_20) {
@@ -357,7 +357,7 @@ TEST(tree, test_20) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_21) {
@@ -378,7 +378,7 @@ TEST(tree, test_21) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_22) {
@@ -398,7 +398,7 @@ TEST(tree, test_22) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_23) {
@@ -418,7 +418,7 @@ TEST(tree, test_23) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_24) {
@@ -437,7 +437,7 @@ TEST(tree, test_24) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_25) {
@@ -456,7 +456,7 @@ TEST(tree, test_25) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_26) {
@@ -474,7 +474,7 @@ TEST(tree, test_26) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_27) {
@@ -491,7 +491,7 @@ TEST(tree, test_27) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_28) {
@@ -508,7 +508,7 @@ TEST(tree, test_28) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_29) {
@@ -526,7 +526,7 @@ TEST(tree, test_29) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
 TEST(tree, test_30) {
@@ -542,5 +542,5 @@ TEST(tree, test_30) {
 
   for (auto key : remove) t.remove(key);
 
-  EXPECT_TRUE(t.print() == result) << t.print();
+  EXPECT_TRUE(t.structure() == result) << t.structure();
 }
