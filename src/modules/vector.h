@@ -34,26 +34,31 @@ namespace s21 {
  */
 template <typename value_type>
 class vector {
+ private:
+  // Container types
   class VectorConstIterator;
   class VectorIterator;
 
  public:
-  using pointer = value_type *;
-  using reference = value_type &;
-  using const_reference = const value_type &;
-  using size_type = std::size_t;
-  using iterator = VectorIterator;
-  using const_iterator = VectorConstIterator;
+  // Type aliases
+  using pointer = value_type *;                ///< Pointer to value_type
+  using reference = value_type &;              ///< Reference to value_type
+  using const_reference = const value_type &;  ///< Const refer to value_type
+  using size_type = std::size_t;               ///< Containers size type
+  using iterator = VectorIterator;             ///< For read/write elements
+  using const_iterator = VectorConstIterator;  ///< For read elements
 
  private:
-  size_type size_{};
-  size_type capacity_{};
-  value_type *arr_{};
+  size_type size_{};      ///< Size of vector
+  size_type capacity_{};  ///< Current capacity of vector
+  value_type *arr_{};     ///< Array of elements
 
+  // Allocating/deallocating memory
   pointer allocateMemory(size_type size, size_type capacity);
   void freeMemory() noexcept;
 
  public:
+  // Constructors/assignment operators/destructor
   vector() noexcept = default;
   explicit vector(size_type n, const_reference value = value_type{});
   vector(const std::initializer_list<value_type> &items);
@@ -107,14 +112,15 @@ class vector {
 template <typename value_type>
 class vector<value_type>::VectorConstIterator {
  private:
-  pointer ptr_{};
+  pointer ptr_{};  ///< Pointer to the current element
 
  public:
+  // Constructors
   VectorConstIterator() noexcept = default;
   explicit VectorConstIterator(const pointer ptr);
   VectorConstIterator(const const_iterator &other);
 
-  // ConstIterator operators
+  // Operators
   operator pointer() const noexcept;
   const_iterator &operator=(const const_iterator &other) noexcept;
   const_iterator &operator=(const pointer ptr) noexcept;
@@ -145,14 +151,15 @@ class vector<value_type>::VectorConstIterator {
 template <typename value_type>
 class vector<value_type>::VectorIterator {
  private:
-  pointer ptr_{};
+  pointer ptr_{};  ///< Pointer to the current element
 
  public:
+  // Constructors
   VectorIterator() noexcept = default;
   explicit VectorIterator(const pointer ptr);
   VectorIterator(const iterator &other);
 
-  // Iterator operators
+  // Operators
   operator pointer() const noexcept;
   iterator &operator=(const iterator &other) noexcept;
   iterator &operator=(const pointer ptr) noexcept;
@@ -169,41 +176,6 @@ class vector<value_type>::VectorIterator {
   bool operator!=(iterator other) const noexcept;
   reference operator*();
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//                         VECTOR PRIVATE METHODS                             //
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @brief Allocates memory for the vector.
- *
- * @tparam value_type The type of elements stored in the vector.
- * @return pointer A pointer to the allocated memory.
- * @throw std::bad_alloc - if the allocation failed.
- */
-template <typename value_type>
-typename vector<value_type>::pointer vector<value_type>::allocateMemory(
-    size_type size, size_type capacity) {
-  size_ = size;
-  capacity_ = capacity;
-
-  return new value_type[capacity_]{};
-}
-
-/**
- * @brief Frees the memory allocated for the vector.
- *
- * @tparam value_type The type of elements stored in the vector.
- */
-template <typename value_type>
-void vector<value_type>::freeMemory() noexcept {
-  if (arr_ != nullptr) {
-    delete[] arr_;
-    arr_ = nullptr;
-  }
-
-  size_ = capacity_ = 0;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                            VECTOR CONSTRUCTORS                             //
@@ -678,6 +650,41 @@ void vector<value_type>::swap(vector &other) noexcept {
   std::swap(other.size_, size_);
   std::swap(other.capacity_, capacity_);
   std::swap(other.arr_, arr_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                         VECTOR PRIVATE METHODS                             //
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Allocates memory for the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ * @return pointer A pointer to the allocated memory.
+ * @throw std::bad_alloc - if the allocation failed.
+ */
+template <typename value_type>
+typename vector<value_type>::pointer vector<value_type>::allocateMemory(
+    size_type size, size_type capacity) {
+  size_ = size;
+  capacity_ = capacity;
+
+  return new value_type[capacity_]{};
+}
+
+/**
+ * @brief Frees the memory allocated for the vector.
+ *
+ * @tparam value_type The type of elements stored in the vector.
+ */
+template <typename value_type>
+void vector<value_type>::freeMemory() noexcept {
+  if (arr_ != nullptr) {
+    delete[] arr_;
+    arr_ = nullptr;
+  }
+
+  size_ = capacity_ = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
