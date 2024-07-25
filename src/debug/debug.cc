@@ -13,11 +13,22 @@
 #include "./../s21_containers.h"
 #include <vector>
 #include <stack>
+#include <set>
 
-using Tree = s21::tree<int, int>;
+using tree = s21::tree<int, int>;
+using vector = s21::vector<int>;
 
 int main() {
-  Tree t;
+  tree k;
+  // std::initializer_list<int> list{30, 10, 70, 5, 20, 50, 90, 25, 27};
+
+  for (auto i = 0; i <= 10000; i++) {
+    k.insert(i, 1);
+  }
+
+  tree::iterator it{k.end()};
+  --it;
+  std::cout << k.structure();
 
   return 0;
 }
