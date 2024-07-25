@@ -37,10 +37,11 @@ class tree {
  private:
   // Container types
   class TreeIterator;
-  class Node;
   enum Colors { RED, BLACK };
 
  public:
+  class Node;
+
   // Type aliases
   using iterator = TreeIterator;  ///< For read/write elements
 
@@ -59,7 +60,7 @@ class tree {
   iterator end() const noexcept;
 
   // Working with tree
-  value_type search(const key_type &key) const;
+  Node *search(const key_type &key) const;
   void insert(const key_type key, const value_type value);
   void remove(const key_type &key) noexcept;
   std::string structure() const noexcept;
@@ -134,6 +135,7 @@ class tree<key_type, value_type>::TreeIterator {
   iterator operator-(const int shift) const noexcept;
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
+  Node *operator->() const noexcept;
 };
 
 /**
@@ -252,10 +254,11 @@ typename tree<key_type, value_type>::iterator tree<key_type, value_type>::end()
  * default-constructed value_type if the key is not found.
  */
 template <typename key_type, typename value_type>
-value_type tree<key_type, value_type>::search(const key_type &key) const {
+typename tree<key_type, value_type>::Node *tree<key_type, value_type>::search(
+    const key_type &key) const {
   Node *value = findNode(root_, key);
 
-  return (value) ? value->value : value_type{};
+  return value;
 }
 
 /**
@@ -1181,6 +1184,21 @@ template <typename key_type, typename value_type>
 bool tree<key_type, value_type>::iterator::operator!=(
     iterator other) const noexcept {
   return (ptr_ != other.ptr_) ? true : false;
+}
+
+/**
+ * @brief Arrow operator for the tree iterator.
+ *
+ * @details Returns a pointer to the node pointed to by the iterator.
+ * 
+ * @tparam key_type The type of keys stored in the tree.
+ * @tparam value_type The type of values stored in the tree.
+ * @return Node* - pointer to the node.
+ */
+template <typename key_type, typename value_type>
+typename tree<key_type, value_type>::Node *
+tree<key_type, value_type>::iterator::operator->() const noexcept {
+  return ptr_;
 }
 
 }  // namespace s21
