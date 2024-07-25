@@ -17,7 +17,7 @@ class tree {
   ~tree();
 
   value_type search(const key_type &key);
-  void add(const key_type key, const value_type value);
+  void insert(const key_type key, const value_type value);
   void remove(const key_type &key);
   std::string print();
 
@@ -120,8 +120,8 @@ value_type tree<key_type, value_type>::search(const key_type &key) {
 }
 
 template <typename key_type, typename value_type>
-void tree<key_type, value_type>::add(const key_type key,
-                                     const value_type value) {
+void tree<key_type, value_type>::insert(const key_type key,
+                                        const value_type value) {
   createNode(key, value, root_);
 }
 

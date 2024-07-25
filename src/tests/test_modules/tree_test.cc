@@ -21,15 +21,9 @@ TEST(tree, test_1) {
   init_list remove = {20};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -40,15 +34,9 @@ TEST(tree, test_2) {
   init_list remove = {10};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -60,15 +48,9 @@ TEST(tree, test_3) {
   init_list remove = {20};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -79,15 +61,9 @@ TEST(tree, test_4) {
   init_list remove = {20};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -98,15 +74,9 @@ TEST(tree, test_5) {
   init_list remove = {40};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -119,15 +89,9 @@ TEST(tree, test_6) {
   init_list remove = {30};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -140,15 +104,9 @@ TEST(tree, test_7) {
   init_list remove = {110};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -161,15 +119,9 @@ TEST(tree, test_8) {
   init_list remove = {110, 30};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -186,15 +138,9 @@ TEST(tree, test_9) {
   init_list remove = {110};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -210,15 +156,9 @@ TEST(tree, test_10) {
   init_list remove = {110, 118};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -236,15 +176,9 @@ TEST(tree, test_11) {
   init_list remove = {60, 82, 66, 26, 22, 69, 1, 110};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -262,15 +196,9 @@ TEST(tree, test_12) {
   init_list remove = {60, 82, 66, 26, 22, 69, 1, 110, 118};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -287,15 +215,9 @@ TEST(tree, test_13) {
   init_list remove = {60, 82, 66, 26, 22, 69, 1, 110, 118, 5};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -312,15 +234,9 @@ TEST(tree, test_14) {
                       110, 118, 5,  99, 115, 116, 117};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -336,15 +252,9 @@ TEST(tree, test_15) {
                       118, 5,  99, 115, 116, 117, 140, 130};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -361,15 +271,9 @@ TEST(tree, test_16) {
   init_list remove = {33, 30};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -385,15 +289,9 @@ TEST(tree, test_17) {
   init_list remove = {33, 30, 16, 15};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -413,15 +311,9 @@ TEST(tree, test_18) {
   init_list remove = {44};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -440,15 +332,9 @@ TEST(tree, test_19) {
   init_list remove = {44, 64};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -467,15 +353,9 @@ TEST(tree, test_20) {
   init_list remove = {44, 64, 49};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -494,15 +374,9 @@ TEST(tree, test_21) {
   init_list remove = {44, 64, 49, 100};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -520,15 +394,9 @@ TEST(tree, test_22) {
   init_list remove = {44, 64, 49, 100, 77};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -546,15 +414,9 @@ TEST(tree, test_23) {
   init_list remove = {44, 64, 49, 100, 77, 111};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -571,15 +433,9 @@ TEST(tree, test_24) {
   init_list remove = {44, 64, 49, 100, 77, 111, 112};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -596,15 +452,9 @@ TEST(tree, test_25) {
   init_list remove = {44, 64, 49, 100, 77, 111, 112, 5, 1};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -620,15 +470,9 @@ TEST(tree, test_26) {
   init_list remove = {44, 64, 49, 100, 77, 111, 112, 5, 1, 33};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -643,15 +487,9 @@ TEST(tree, test_27) {
   init_list remove = {44, 64, 49, 100, 77, 111, 112, 5, 1, 33, 105, 91};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -666,15 +504,9 @@ TEST(tree, test_28) {
   init_list remove = {44, 64, 49, 100, 77, 111, 112, 5, 1, 33, 105, 91, 22, 54};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -690,15 +522,9 @@ TEST(tree, test_29) {
                       1,  33, 105, 91,  22, 54,  12};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
@@ -712,15 +538,9 @@ TEST(tree, test_30) {
                       33, 105, 91, 22,  54, 12,  209, 222, 228};
   tree t;
 
-  auto iterator = list.begin();
-  for (init_list::size_type i = 0; i < list.size(); i++) {
-    t.add(*iterator++, 1);
-  }
+  for (auto key : list) t.insert(key, 1);
 
-  auto rem_iterator = remove.begin();
-  for (init_list::size_type i = 0; i < remove.size(); i++) {
-    t.remove(*rem_iterator++);
-  }
+  for (auto key : remove) t.remove(key);
 
   EXPECT_TRUE(t.print() == result) << t.print();
 }
