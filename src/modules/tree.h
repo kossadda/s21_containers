@@ -43,6 +43,7 @@ class tree {
 
  public:
   class Node;
+  enum Uniq { UNIQUE, NON_UNIQUE };
 
   // Type aliases
 
@@ -54,13 +55,14 @@ class tree {
  private:
   Node *root_{};      ///< Root of tree
   Node *sentinel_{};  ///< Dummy element
+  Uniq type_{};       ///< Determines whether to allow duplicates
 
  public:
   // Constructors/destructor
 
-  tree() noexcept = default;
-  tree(const key_value &pair);
-  tree(std::initializer_list<key_value> const &items);
+  tree(Uniq type = UNIQUE) noexcept;
+  explicit tree(const key_value &pair, Uniq type = UNIQUE);
+  tree(std::initializer_list<key_value> const &items, Uniq type = UNIQUE);
   tree(const tree &t);
   tree(tree &&t);
   tree &operator=(tree &&t);
@@ -74,16 +76,17 @@ class tree {
 
   // Working with tree
 
-  key_value *search(const key_type &key) const;
-  void insert(const key_value &pair);
-  void remove(const key_type &key) noexcept;
+  iterator search(const key_type &key) const;
+  iterator insert(const key_value &pair);
+  iterator remove(const key_type &key) noexcept;
+  void clear() noexcept;
   std::string structure() const noexcept;
 
  private:
   // Add/remove nodes
 
-  void createNode(const key_value &pair, Node *&node, Node *parent = nullptr);
-  void cleanTree(Node *node) noexcept;
+  Node *createNode(const key_value &pair, Node *&node, Node *parent = nullptr);
+  void cleanTree(Node *&node) noexcept;
   void removeMemory(Node *&node, Node *ptr_copy) noexcept;
 
   // Tree balancing
@@ -196,6 +199,19 @@ class tree<K, V>::Node {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * @brief Default constructor a tree without nodes.
+ *
+ * @details
+ * This constructor defines the type of tree elements (unique, non-unique)
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] type Type of tree elements (unique/non-unique).
+ */
+template <typename K, typename V>
+tree<K, V>::tree(Uniq type) noexcept : type_{type} {}
+
+/**
  * @brief Constructs a tree with a single node.
  *
  * @details
@@ -204,13 +220,13 @@ class tree<K, V>::Node {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] key The key of the node.
- * @param[in] value The value of the node.
+ * @param[in] pair The pair of key/value for node.
+ * @param[in] type Type of tree elements (unique/non-unique).
  */
 template <typename K, typename V>
-tree<K, V>::tree(const key_value &pair) {
-  sentinel_ = new Node{key_value{}, BLACK, nullptr};
-  createNode(pair, root_);
+tree<K, V>::tree(const key_value &pair, Uniq type) : type_{type} {
+  sentinel_ = new Node{key_value{}};
+  insert(pair);
 }
 
 /**
@@ -223,15 +239,16 @@ tree<K, V>::tree(const key_value &pair) {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] items The initializer list of key-value pairs to insert into the
- * tree.
+ * @param[in] items The initializer list of key-val pairs insert into the tree.
+ * @param[in] type Type of tree elements (unique/non-unique).
  */
 template <typename K, typename V>
-tree<K, V>::tree(std::initializer_list<key_value> const &items) {
-  sentinel_ = new Node{key_value{}, BLACK, nullptr};
+tree<K, V>::tree(std::initializer_list<key_value> const &items, Uniq type)
+    : type_{type} {
+  sentinel_ = new Node{key_value{}};
 
   for (auto pair : items) {
-    createNode(pair, root_);
+    insert(pair);
   }
 }
 
@@ -248,11 +265,11 @@ tree<K, V>::tree(std::initializer_list<key_value> const &items) {
  * @param[in] t The tree to copy from.
  */
 template <typename K, typename V>
-tree<K, V>::tree(const tree &t) {
-  sentinel_ = new Node{key_value{}, BLACK, nullptr};
+tree<K, V>::tree(const tree &t) : type_{t.type_} {
+  sentinel_ = new Node{key_value{}};
 
-  for (auto i : t) {
-    createNode(i, root_);
+  for (auto pair : t) {
+    insert(pair);
   }
 }
 
@@ -271,7 +288,8 @@ tree<K, V>::tree(const tree &t) {
 template <typename K, typename V>
 tree<K, V>::tree(tree &&t)
     : root_{std::exchange(t.root_, nullptr)},
-      sentinel_{std::exchange(t.sentinel_, nullptr)} {}
+      sentinel_{std::exchange(t.sentinel_, nullptr)},
+      type_{t.type_} {}
 
 /**
  * @brief Move assignment operator for the red-black tree.
@@ -331,8 +349,13 @@ tree<K, V> &tree<K, V>::operator=(const tree &t) {
  */
 template <typename K, typename V>
 tree<K, V>::~tree() {
-  cleanTree(root_);
-  delete sentinel_;
+  if (root_) {
+    cleanTree(root_);
+  }
+  
+  if (sentinel_) {
+    delete sentinel_;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -377,10 +400,10 @@ typename tree<K, V>::iterator tree<K, V>::end() const noexcept {
  * nullptr if the key is not found.
  */
 template <typename K, typename V>
-typename tree<K, V>::key_value *tree<K, V>::search(const key_type &key) const {
-  Node *value = findNode(root_, key);
+typename tree<K, V>::iterator tree<K, V>::search(const key_type &key) const {
+  Node *find = findNode(root_, key);
 
-  return (value) ? &value->pair : nullptr;
+  return (find) ? iterator{find, root_, sentinel_} : iterator{};
 }
 
 /**
@@ -388,12 +411,21 @@ typename tree<K, V>::key_value *tree<K, V>::search(const key_type &key) const {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] key The key of the node.
- * @param[in] value The value of the node.
+ * @param[in] pair The pair of key/value for node.
  */
 template <typename K, typename V>
-void tree<K, V>::insert(const key_value &pair) {
-  createNode(pair, root_);
+typename tree<K, V>::iterator tree<K, V>::insert(const key_value &pair) {
+  if (type_ == UNIQUE && findNode(root_, pair.first)) {
+    return iterator{};
+  }
+
+  if (!sentinel_) {
+    sentinel_ = new Node{key_value{}};
+  }
+
+  Node *node_pos = createNode(pair, root_);
+
+  return iterator{node_pos, root_, sentinel_};
 }
 
 /**
@@ -404,12 +436,14 @@ void tree<K, V>::insert(const key_value &pair) {
  * @param[in] key The key of the node to remove.
  */
 template <typename K, typename V>
-void tree<K, V>::remove(const key_type &key) noexcept {
+typename tree<K, V>::iterator tree<K, V>::remove(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
 
   if (!node) {
-    return;
+    return iterator{};
   }
+
+  iterator ret_node = ++iterator{node, root_, sentinel_};
 
   Node *left = node->left;
   Node *right = node->right;
@@ -430,6 +464,26 @@ void tree<K, V>::remove(const key_type &key) noexcept {
     } else {
       deleteTwoChild(node);
     }
+  }
+
+  return ret_node;
+}
+
+/**
+ * @brief Cleans the tree by deleting all nodes.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ */
+template <typename K, typename V>
+void tree<K, V>::clear() noexcept {
+  if (root_) {
+    cleanTree(root_);
+  }
+
+  if (sentinel_) {
+    delete sentinel_;
+    sentinel_ = nullptr;
   }
 }
 
@@ -456,31 +510,38 @@ std::string tree<K, V>::structure() const noexcept {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] key The key of the node.
- * @param[in] value The value of the node.
+ * @param[in] pair The pair of key/value for node.
  * @param[in,out] node A reference to the node pointer where the new node will
  * be created.
  * @param[in] parent The parent of the new node.
  */
 template <typename K, typename V>
-void tree<K, V>::createNode(const key_value &pair, Node *&node, Node *parent) {
+typename tree<K, V>::Node *tree<K, V>::createNode(const key_value &pair,
+                                                  Node *&node, Node *parent) {
+  Node *ret_node{root_};
+
   if (!node) {
     node = new Node{pair, RED, parent};
+    if (root_ == node) {
+      ret_node = node;
+    }
 
     if (node->parent && node->parent->color == RED) {
       balancingTree(node);
     }
   } else {
     if (pair.first < node->pair.first) {
-      createNode(pair, node->left, node);
+      ret_node = createNode(pair, node->left, node);
     } else {
-      createNode(pair, node->right, node);
+      ret_node = createNode(pair, node->right, node);
     }
   }
 
   if (root_) {
     root_->color = BLACK;
   }
+
+  return ret_node;
 }
 
 /**
@@ -488,14 +549,16 @@ void tree<K, V>::createNode(const key_value &pair, Node *&node, Node *parent) {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] node The root node of the tree.
+ * @param[in,out] node The root node of the tree.
  */
 template <typename K, typename V>
-void tree<K, V>::cleanTree(Node *node) noexcept {
+void tree<K, V>::cleanTree(Node *&node) noexcept {
   if (node) {
     cleanTree(node->left);
     cleanTree(node->right);
+
     delete node;
+    node = nullptr;
   }
 }
 
