@@ -1,5 +1,5 @@
 /**
- * @file debug.cpp
+ * @file debug.cc
  * @author kossadda (https://github.com/kossadda)
  * @brief Separate module for manual testing
  * @version 1.0
@@ -10,25 +10,21 @@
  */
 
 
-// #include "./../s21_containers.h"
-#include <vector>
-#include <string>
-#include <stack>
-#include <set>
+#include "./../s21_containers.h"
+#include <map>
 
-// using tree = s21::tree<int, int>;
-// using vector = s21::vector<int>;
+using maps = s21::map<int, const char *>;
+using p = std::pair<int, const char *>;
+using tree = s21::tree<int, int>;
+using vector = s21::vector<int>;
 
 int main() {
-  // std::initializer_list<int> list{30, 10, 70, 5, 20, 50, 90, 25, 27};
+  // std::initializer_list<p> list{{30, 1}, {10, 1}, {70, 1}, {5, 1}, {20, 1}, {50, 1}, {90, 1}, {25, 1}, {27, 1}};
+  maps map{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
 
-  // for (auto i = 0; i <= 10000; i++) {
-  //   k.insert(i, 1);
-  // }
+  std::cout << map[2] << std::endl;
 
-  // tree::iterator it{k.end()};
-  // --it;
-  // std::cout << k.structure();
+  // std::cout << t.structure();
 
   return 0;
 }
