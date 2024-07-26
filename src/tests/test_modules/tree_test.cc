@@ -16,6 +16,86 @@ using str = std::string;
 using init_list = std::initializer_list<int>;
 using pair = std::pair<int, int>;
 
+TEST(tree, initializer_list_constructor) {
+  std::initializer_list<pair> items = {{30, 1}, {40, 1}, {20, 1}, {10, 1}};
+  int res[] = {10, 20, 30, 40};
+  tree t{items};
+
+  int i = 0;
+  for (auto it1 = t.begin(); it1 != t.end(); i++) {
+    EXPECT_TRUE(it1->pair.first == res[i]);
+    ++it1;
+  }
+}
+
+TEST(tree, copy_constructor) {
+  tree t1;
+  init_list list = {30, 40, 20, 10};
+
+  for (auto key : list) t1.insert(pair{key, 1});
+
+  tree t2{t1};
+
+  for (auto it1 = t1.begin(), it2 = t2.begin(); it1 != t1.end();) {
+    EXPECT_TRUE(it1->pair.first == it2->pair.first);
+    ++it1;
+    ++it2;
+  }
+}
+
+TEST(tree, move_constructor) {
+  tree t1;
+  init_list list = {30, 40, 20, 10};
+  int res[] = {10, 20, 30, 40};
+
+  for (auto key : list) t1.insert(pair{key, 1});
+
+  tree t2{std::move(t1)};
+
+  int i = 0;
+  for (auto it1 = t1.begin(); it1 != t1.end(); i++) {
+    EXPECT_TRUE(it1->pair.first == res[i]);
+    ++it1;
+  }
+
+  EXPECT_TRUE(t1.structure().empty());
+}
+
+TEST(tree, copy_assignment) {
+  tree t1;
+  init_list list = {30, 40, 20, 10};
+
+  for (auto key : list) t1.insert(pair{key, 1});
+
+  tree t2;
+  t2 = t1;
+
+  for (auto it1 = t1.begin(), it2 = t2.begin(); it1 != t1.end();) {
+    EXPECT_TRUE(it1->pair.first == it2->pair.first);
+    ++it1;
+    ++it2;
+  }
+}
+
+TEST(tree, move_assignment) {
+  tree t1;
+  init_list list = {30, 40, 20, 10};
+  int res[] = {10, 20, 30, 40};
+
+  for (auto key : list) t1.insert(pair{key, 1});
+
+  tree t2;
+  t2 = std::move(t1);
+
+  int i = 0;
+  for (auto it1 = t1.begin(); it1 != t1.end(); i++) {
+    EXPECT_TRUE(it1->pair.first == res[i]);
+    ++it1;
+  }
+
+  EXPECT_TRUE(t1.structure().empty());
+}
+
 TEST(tree, test_1) {
   str result = "R---{B:30}\n    L---{B:10}\n    R---{B:40}\n";
   init_list list = {30, 40, 20, 10};

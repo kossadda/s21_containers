@@ -12,6 +12,7 @@
 #ifndef _S21_CONTAINERS_H_
 #define _S21_CONTAINERS_H_
 
+#include "./modules/map.h"
 #include "./modules/tree.h"
 #include "./modules/vector.h"
 
