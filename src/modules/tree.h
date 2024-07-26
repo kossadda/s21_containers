@@ -18,6 +18,7 @@
 #include <string>
 #include <utility>
 
+/// @brief Namespace for working with containers
 namespace s21 {
 
 /**
@@ -26,16 +27,17 @@ namespace s21 {
  * @details
  * This template class tree provides a red-black tree similar to
  * std::map in the C++ Standard Library. It manages a balanced binary search
- * tree of elements of type key_type and value_type, supporting various
+ * tree of elements of type K and V, supporting various
  * operations including iteration, element access, and size management.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  */
-template <typename key_type, typename value_type>
+template <typename K, typename V>
 class tree {
  private:
   // Container types
+
   class TreeIterator;
   enum Colors { RED, BLACK };
 
@@ -43,7 +45,11 @@ class tree {
   class Node;
 
   // Type aliases
-  using iterator = TreeIterator;  ///< For read/write elements
+
+  using key_type = K;                 ///< Type of first template (nodes key)
+  using value_type = V;               ///< Type of second template (nodes value)
+  using iterator = TreeIterator;      ///< For read/write elements
+  using key_value = std::pair<K, V>;  ///< Key-value pair
 
  private:
   Node *root_{};      ///< Root of tree
@@ -51,28 +57,32 @@ class tree {
 
  public:
   // Constructors/destructor
+
   tree() noexcept = default;
-  tree(const key_type key, const value_type value);
+  tree(const key_value &pair);
   ~tree();
 
   // Tree Iterators
+
   iterator begin() const noexcept;
   iterator end() const noexcept;
 
   // Working with tree
+
   Node *search(const key_type &key) const;
-  void insert(const key_type key, const value_type value);
+  void insert(const key_value &pair);
   void remove(const key_type &key) noexcept;
   std::string structure() const noexcept;
 
  private:
   // Add/remove nodes
-  void createNode(const key_type &key, const value_type &value, Node *&node,
-                  Node *parent = nullptr);
+
+  void createNode(const key_value &pair, Node *&node, Node *parent = nullptr);
   void cleanTree(Node *node) noexcept;
   void removeMemory(Node *&node, Node *ptr_copy) noexcept;
 
   // Tree balancing
+
   void balancingTree(Node *node) noexcept;
   void fixDoubleBlack(Node *&node) noexcept;
   void rotateLeft(Node *old_root) noexcept;
@@ -80,17 +90,20 @@ class tree {
   void swapColors(Node *node) noexcept;
 
   // Tree searching
+
   Node *findNode(Node *node, const key_type &key) const noexcept;
   static Node *findMax(Node *node) noexcept;
   static Node *findMin(Node *node) noexcept;
 
   // Cases of node removal
+
   void deleteTwoChild(Node *&node) noexcept;
   void deleteOneChild(Node *&node, Node *&child) noexcept;
   void deleteRedNoChild(Node *&node) noexcept;
   void deleteBlackNoChild(Node *&node) noexcept;
 
   // Black no child node removal cases
+
   void redParBlackSonRedLeft(Node *&node) noexcept;
   void redParBlackSonRedRight(Node *&node) noexcept;
   void blackParRedSonBlackRight(Node *&node) noexcept;
@@ -100,6 +113,7 @@ class tree {
   void blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept;
 
   // Printing
+
   std::string printNodes(const Node *node, int indent = 0,
                          bool last = true) const noexcept;
 };
@@ -111,11 +125,11 @@ class tree {
  * This class represents an iterator for the red-black tree. It allows traversal
  * of the tree and access to its elements.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  */
-template <typename key_type, typename value_type>
-class tree<key_type, value_type>::TreeIterator {
+template <typename K, typename V>
+class tree<K, V>::TreeIterator {
  private:
   Node *ptr_{};   ///< Pointer to the current node
   Node *first{};  ///< Pointer to the lowest node
@@ -145,36 +159,31 @@ class tree<key_type, value_type>::TreeIterator {
  * This class represents a node in the red-black tree. It contains the key,
  * value, color, parent, left child, and right child of the node.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  */
-template <typename key_type, typename value_type>
-class tree<key_type, value_type>::Node {
+template <typename K, typename V>
+class tree<K, V>::Node {
  public:
-  key_type key;      ///< Node key
-  value_type value;  ///< Node value
-  Colors color;      ///< Color of node (red/black)
-  Node *parent;      ///< Parent of this node
-  Node *left{};      ///< Left son of this node
-  Node *right{};     ///< Right son of this node
+  key_value pair;  ///< Node key
+  Colors color;    ///< Color of node (red/black)
+  Node *parent;    ///< Parent of this node
+  Node *left{};    ///< Left son of this node
+  Node *right{};   ///< Right son of this node
 
-  Node(const key_type &k, const value_type &v, Colors c = RED, Node *p = 0);
+  /**
+   * @brief Constructs a new node.
+   *
+   * @tparam key_type The type of keys stored in the tree.
+   * @tparam value_type The type of values stored in the tree.
+   * @param[in] k The key of the node.
+   * @param[in] v The value of the node.
+   * @param[in] c The color of the node.
+   * @param[in] p The parent of the node.
+   */
+  Node(const key_value &pair_, Colors color_ = RED, Node *parent_ = 0)
+      : pair{pair_}, color{color_}, parent{parent_} {}
 };
-
-/**
- * @brief Constructs a new node.
- *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
- * @param[in] k The key of the node.
- * @param[in] v The value of the node.
- * @param[in] c The color of the node.
- * @param[in] p The parent of the node.
- */
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::Node::Node(const key_type &k, const value_type &v,
-                                       Colors c, Node *p)
-    : key(k), value(v), color{c}, parent{p} {}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                              TREE CONSTRUCTORS                             //
@@ -187,15 +196,15 @@ tree<key_type, value_type>::Node::Node(const key_type &k, const value_type &v,
  * This constructor initializes the tree with a single node containing the given
  * key and value.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] key The key of the node.
  * @param[in] value The value of the node.
  */
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::tree(const key_type key, const value_type value) {
-  createNode(key, value, root_);
-  sentinel_ = new Node{key_type{}, value_type{}, BLACK, nullptr};
+template <typename K, typename V>
+tree<K, V>::tree(const key_value &pair) {
+  createNode(pair, root_);
+  sentinel_ = new Node{key_value{}, BLACK, nullptr};
 }
 
 /**
@@ -204,8 +213,8 @@ tree<key_type, value_type>::tree(const key_type key, const value_type value) {
  * @details
  * Destroys the tree and frees allocated memory.
  */
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::~tree() {
+template <typename K, typename V>
+tree<K, V>::~tree() {
   cleanTree(root_);
   delete sentinel_;
 }
@@ -217,26 +226,24 @@ tree<key_type, value_type>::~tree() {
 /**
  * @brief Returns an iterator to the beginning of the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return iterator - an iterator to the beginning of the tree.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator
-tree<key_type, value_type>::begin() const noexcept {
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::begin() const noexcept {
   return iterator{findMin(root_), root_, sentinel_};
 }
 
 /**
  * @brief Returns an iterator to the end of the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return iterator - an iterator to the end of the tree.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator tree<key_type, value_type>::end()
-    const noexcept {
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::end() const noexcept {
   return iterator{sentinel_, root_, findMax(root_)};
 }
 
@@ -247,15 +254,14 @@ typename tree<key_type, value_type>::iterator tree<key_type, value_type>::end()
 /**
  * @brief Searches for a value associated with a given key.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] key The key to search for.
  * @return value_type - the value associated with the key, or a
  * default-constructed value_type if the key is not found.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::search(
-    const key_type &key) const {
+template <typename K, typename V>
+typename tree<K, V>::Node *tree<K, V>::search(const key_type &key) const {
   Node *value = findNode(root_, key);
 
   return value;
@@ -264,26 +270,25 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::search(
 /**
  * @brief Inserts a new node with the given key and value into the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] key The key of the node.
  * @param[in] value The value of the node.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::insert(const key_type key,
-                                        const value_type value) {
-  createNode(key, value, root_);
+template <typename K, typename V>
+void tree<K, V>::insert(const key_value &pair) {
+  createNode(pair, root_);
 }
 
 /**
  * @brief Removes the node with the given key from the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] key The key of the node to remove.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::remove(const key_type &key) noexcept {
+template <typename K, typename V>
+void tree<K, V>::remove(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
 
   if (!node) {
@@ -315,12 +320,12 @@ void tree<key_type, value_type>::remove(const key_type &key) noexcept {
 /**
  * @brief Returns a string representation of the tree structure.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return std::string - a string representation of the tree structure.
  */
-template <typename key_type, typename value_type>
-std::string tree<key_type, value_type>::structure() const noexcept {
+template <typename K, typename V>
+std::string tree<K, V>::structure() const noexcept {
   std::string str = printNodes(root_);
 
   return str;
@@ -333,29 +338,27 @@ std::string tree<key_type, value_type>::structure() const noexcept {
 /**
  * @brief Creates a new node with the given key and value.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] key The key of the node.
  * @param[in] value The value of the node.
  * @param[in,out] node A reference to the node pointer where the new node will
  * be created.
  * @param[in] parent The parent of the new node.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::createNode(const key_type &key,
-                                            const value_type &value,
-                                            Node *&node, Node *parent) {
+template <typename K, typename V>
+void tree<K, V>::createNode(const key_value &pair, Node *&node, Node *parent) {
   if (!node) {
-    node = new Node{key, value, RED, parent};
+    node = new Node{pair, RED, parent};
 
     if (node->parent && node->parent->color == RED) {
       balancingTree(node);
     }
   } else {
-    if (key < node->key) {
-      createNode(key, value, node->left, node);
+    if (pair.first < node->pair.first) {
+      createNode(pair, node->left, node);
     } else {
-      createNode(key, value, node->right, node);
+      createNode(pair, node->right, node);
     }
   }
 
@@ -367,12 +370,12 @@ void tree<key_type, value_type>::createNode(const key_type &key,
 /**
  * @brief Cleans the tree by deleting all nodes.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::cleanTree(Node *node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::cleanTree(Node *node) noexcept {
   if (node) {
     cleanTree(node->left);
     cleanTree(node->right);
@@ -383,14 +386,13 @@ void tree<key_type, value_type>::cleanTree(Node *node) noexcept {
 /**
  * @brief Removes the memory of the given node.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] parent The parent of the node to remove.
  * @param[in,out] ptr_copy The node to remove.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::removeMemory(Node *&parent,
-                                              Node *ptr_copy) noexcept {
+template <typename K, typename V>
+void tree<K, V>::removeMemory(Node *&parent, Node *ptr_copy) noexcept {
   if (parent->left == ptr_copy) {
     parent->left = nullptr;
   } else {
@@ -408,12 +410,12 @@ void tree<key_type, value_type>::removeMemory(Node *&parent,
 /**
  * @brief Balances the tree after inserting a new node.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The newly inserted node.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::balancingTree(Node *node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::balancingTree(Node *node) noexcept {
   while (node->parent && node->parent->color == RED) {
     Node *parent = node->parent;
     Node *grandparent = parent->parent;
@@ -451,12 +453,12 @@ void tree<key_type, value_type>::balancingTree(Node *node) noexcept {
 /**
  * @brief Fixes a double black violation.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node with the double black violation.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::fixDoubleBlack(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::fixDoubleBlack(Node *&node) noexcept {
   if (node == root_) {
     return;
   }
@@ -511,12 +513,12 @@ void tree<key_type, value_type>::fixDoubleBlack(Node *&node) noexcept {
 /**
  * @brief Performs a left rotation at the given node.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] old_root The node at which to perform the rotation.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::rotateLeft(Node *old_root) noexcept {
+template <typename K, typename V>
+void tree<K, V>::rotateLeft(Node *old_root) noexcept {
   Node *new_root = old_root->right;
 
   if (new_root->left) {
@@ -540,12 +542,12 @@ void tree<key_type, value_type>::rotateLeft(Node *old_root) noexcept {
 /**
  * @brief Performs a right rotation at the given node.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] old_root The node at which to perform the rotation.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::rotateRight(Node *old_root) noexcept {
+template <typename K, typename V>
+void tree<K, V>::rotateRight(Node *old_root) noexcept {
   Node *new_root = old_root->left;
 
   if (new_root->right) {
@@ -569,12 +571,12 @@ void tree<key_type, value_type>::rotateRight(Node *old_root) noexcept {
 /**
  * @brief Swaps the colors of the given node and its children.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The node at which to swap colors.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::swapColors(Node *node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::swapColors(Node *node) noexcept {
   if (node == nullptr || node->left == nullptr || node->right == nullptr) {
     return;
   }
@@ -600,23 +602,23 @@ void tree<key_type, value_type>::swapColors(Node *node) noexcept {
 /**
  * @brief Finds the node with the given key.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @param[in] key The key to search for.
  * @return Node* - the node with the given key, or nullptr if the key is not
  * found.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
+template <typename K, typename V>
+typename tree<K, V>::Node *tree<K, V>::findNode(
     Node *node, const key_type &key) const noexcept {
   if (!node) {
     return nullptr;
   }
 
-  if (node->key > key) {
+  if (node->pair.first > key) {
     return findNode(node->left, key);
-  } else if (node->key < key) {
+  } else if (node->pair.first < key) {
     return findNode(node->right, key);
   } else {
     return node;
@@ -626,14 +628,13 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findNode(
 /**
  * @brief Finds the node with the maximum key in the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @return Node* - the node with the maximum key.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMax(
-    Node *node) noexcept {
+template <typename K, typename V>
+typename tree<K, V>::Node *tree<K, V>::findMax(Node *node) noexcept {
   while (node->right) {
     node = node->right;
   }
@@ -644,14 +645,13 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMax(
 /**
  * @brief Finds the node with the minimum key in the tree.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @return Node* - the node with the minimum key.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMin(
-    Node *node) noexcept {
+template <typename K, typename V>
+typename tree<K, V>::Node *tree<K, V>::findMin(Node *node) noexcept {
   while (node->left) {
     node = node->left;
   }
@@ -666,19 +666,18 @@ typename tree<key_type, value_type>::Node *tree<key_type, value_type>::findMin(
 /**
  * @brief Deletes a node with two children.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteTwoChild(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::deleteTwoChild(Node *&node) noexcept {
   Node *swap = findMax(node->left);
   if (!(swap && !(swap->left && swap->right))) {
     swap = findMin(node->right);
   }
 
-  std::swap(swap->key, node->key);
-  std::swap(swap->value, node->value);
+  std::swap(swap->pair, node->pair);
 
   if (!swap->left && !swap->right) {
     if (swap->color == RED) {
@@ -696,18 +695,16 @@ void tree<key_type, value_type>::deleteTwoChild(Node *&node) noexcept {
 /**
  * @brief Deletes a node with one child.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  * @param[in,out] child The child of the node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteOneChild(Node *&node,
-                                                Node *&child) noexcept {
+template <typename K, typename V>
+void tree<K, V>::deleteOneChild(Node *&node, Node *&child) noexcept {
   Node *ch = child;
 
-  node->key = child->key;
-  node->value = child->value;
+  node->pair = child->pair;
   child = nullptr;
 
   delete ch;
@@ -716,12 +713,12 @@ void tree<key_type, value_type>::deleteOneChild(Node *&node,
 /**
  * @brief Deletes a red node with no children.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteRedNoChild(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::deleteRedNoChild(Node *&node) noexcept {
   Node *parent{node->parent};
 
   if (parent) {
@@ -739,12 +736,12 @@ void tree<key_type, value_type>::deleteRedNoChild(Node *&node) noexcept {
 /**
  * @brief Deletes a black node with no children.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::deleteBlackNoChild(Node *&node) noexcept {
   if (!node->parent) {
     return;
   }
@@ -794,12 +791,12 @@ void tree<key_type, value_type>::deleteBlackNoChild(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a red parent and a black
  * brother with a red left child.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::redParBlackSonRedLeft(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -813,12 +810,12 @@ void tree<key_type, value_type>::redParBlackSonRedLeft(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a red parent and a black
  * brother with a red right child.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::redParBlackSonRedRight(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -834,13 +831,12 @@ void tree<key_type, value_type>::redParBlackSonRedRight(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a red
  * brother with a black right child.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParRedSonBlackRight(
-    Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::blackParRedSonBlackRight(Node *&node) noexcept {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
@@ -855,13 +851,12 @@ void tree<key_type, value_type>::blackParRedSonBlackRight(
  * @brief Handles the case where the node to delete has a black parent and a red
  * brother with a black right child and a red left child.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(
-    Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::blackParRedBrosBlackRightRedLeft(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
@@ -876,13 +871,12 @@ void tree<key_type, value_type>::blackParRedBrosBlackRightRedLeft(
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with no children.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosBlackAll(
-    Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::blackParBlackBrosBlackAll(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
@@ -900,13 +894,12 @@ void tree<key_type, value_type>::blackParBlackBrosBlackAll(
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with a red right grandchild.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosRedRightGran(
-    Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::blackParBlackBrosRedRightGran(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
@@ -922,13 +915,12 @@ void tree<key_type, value_type>::blackParBlackBrosRedRightGran(
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with a red left child or all grandchildren.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
-template <typename key_type, typename value_type>
-void tree<key_type, value_type>::blackParBlackBrosRedLeftOrAllGran(
-    Node *&node) noexcept {
+template <typename K, typename V>
+void tree<K, V>::blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
 
@@ -957,16 +949,16 @@ void tree<key_type, value_type>::blackParBlackBrosRedLeftOrAllGran(
 /**
  * @brief Prints the nodes of the tree in a structured format.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @param[in] indent The indentation level for printing.
  * @param[in] last Whether the node is the last child of its parent.
  * @return std::string - a string representation of the tree structure.
  */
-template <typename key_type, typename value_type>
-std::string tree<key_type, value_type>::printNodes(const Node *node, int indent,
-                                                   bool last) const noexcept {
+template <typename K, typename V>
+std::string tree<K, V>::printNodes(const Node *node, int indent,
+                                   bool last) const noexcept {
   std::string str{};
 
   if (node) {
@@ -979,7 +971,7 @@ std::string tree<key_type, value_type>::printNodes(const Node *node, int indent,
       str += (node->color == RED ? "{R:" : "{B:");
     }
     char *char_str = static_cast<char *>(malloc(50));
-    std::snprintf(char_str, 50, "%d", node->key);
+    std::snprintf(char_str, 50, "%d", node->pair.first);
     str += std::string(char_str);
     str += "}\n";
     if (char_str) {
@@ -1000,27 +992,26 @@ std::string tree<key_type, value_type>::printNodes(const Node *node, int indent,
 /**
  * @brief Constructs a tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] node The node to which the iterator points.
  * @param[in] root The root node of the tree.
  * @param[in] sentinel The sentinel node of the tree.
  */
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::iterator::TreeIterator(Node *node, Node *root,
-                                                   Node *sentinel) noexcept
+template <typename K, typename V>
+tree<K, V>::iterator::TreeIterator(Node *node, Node *root,
+                                   Node *sentinel) noexcept
     : ptr_{node}, first{root}, last{sentinel} {}
 
 /**
  * @brief Copy constructor for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] other The iterator to copy from.
  */
-template <typename key_type, typename value_type>
-tree<key_type, value_type>::iterator::TreeIterator(
-    const iterator &other) noexcept
+template <typename K, typename V>
+tree<K, V>::iterator::TreeIterator(const iterator &other) noexcept
     : ptr_{other.ptr_}, first{other.first}, last{other.last} {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1030,14 +1021,13 @@ tree<key_type, value_type>::iterator::TreeIterator(
 /**
  * @brief Assignment operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] other The iterator to assign from.
  * @return iterator& - reference to the assigned iterator.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator &
-tree<key_type, value_type>::iterator::operator=(
+template <typename K, typename V>
+typename tree<K, V>::iterator &tree<K, V>::iterator::operator=(
     const iterator &other) noexcept {
   ptr_ = other.ptr_;
   first = other.first;
@@ -1049,13 +1039,12 @@ tree<key_type, value_type>::iterator::operator=(
 /**
  * @brief Pre-decrement operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return iterator& - reference to the decremented iterator.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator &
-tree<key_type, value_type>::iterator::operator--() noexcept {
+template <typename K, typename V>
+typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
   if (!ptr_) {
     if (last == findMax(first)) {
       std::swap(ptr_, last);
@@ -1085,13 +1074,12 @@ tree<key_type, value_type>::iterator::operator--() noexcept {
 /**
  * @brief Pre-increment operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return iterator& - reference to the incremented iterator.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator &
-tree<key_type, value_type>::iterator::operator++() noexcept {
+template <typename K, typename V>
+typename tree<K, V>::iterator &tree<K, V>::iterator::operator++() noexcept {
   if (!ptr_) {
     if (ptr_ == findMax(first)) {
       std::swap(ptr_, last);
@@ -1119,14 +1107,13 @@ tree<key_type, value_type>::iterator::operator++() noexcept {
 /**
  * @brief Addition operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] shift The number of positions to shift.
  * @return iterator - the shifted iterator.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator
-tree<key_type, value_type>::iterator::operator+(
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::iterator::operator+(
     const int shift) const noexcept {
   iterator copy{*this};
 
@@ -1140,14 +1127,13 @@ tree<key_type, value_type>::iterator::operator+(
 /**
  * @brief Addition operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] shift The number of positions to shift.
  * @return iterator - the shifted iterator.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::iterator
-tree<key_type, value_type>::iterator::operator-(
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::iterator::operator-(
     const int shift) const noexcept {
   iterator copy{*this};
 
@@ -1161,28 +1147,26 @@ tree<key_type, value_type>::iterator::operator-(
 /**
  * @brief Equality comparison operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] other The iterator to compare with.
  * @return true if the iterators are equal, false otherwise.
  */
-template <typename key_type, typename value_type>
-bool tree<key_type, value_type>::iterator::operator==(
-    iterator other) const noexcept {
+template <typename K, typename V>
+bool tree<K, V>::iterator::operator==(iterator other) const noexcept {
   return (ptr_ == other.ptr_) ? true : false;
 }
 
 /**
  * @brief Inequality comparison operator for the tree iterator.
  *
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @param[in] other The iterator to compare with.
  * @return true if the iterators are not equal, false otherwise.
  */
-template <typename key_type, typename value_type>
-bool tree<key_type, value_type>::iterator::operator!=(
-    iterator other) const noexcept {
+template <typename K, typename V>
+bool tree<K, V>::iterator::operator!=(iterator other) const noexcept {
   return (ptr_ != other.ptr_) ? true : false;
 }
 
@@ -1190,14 +1174,13 @@ bool tree<key_type, value_type>::iterator::operator!=(
  * @brief Arrow operator for the tree iterator.
  *
  * @details Returns a pointer to the node pointed to by the iterator.
- * 
- * @tparam key_type The type of keys stored in the tree.
- * @tparam value_type The type of values stored in the tree.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
  * @return Node* - pointer to the node.
  */
-template <typename key_type, typename value_type>
-typename tree<key_type, value_type>::Node *
-tree<key_type, value_type>::iterator::operator->() const noexcept {
+template <typename K, typename V>
+typename tree<K, V>::Node *tree<K, V>::iterator::operator->() const noexcept {
   return ptr_;
 }
 

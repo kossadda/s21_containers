@@ -397,7 +397,6 @@ TEST(vector, assignVectors) {
   }
 }
 
-
 TEST(vectorIterator, pointerConstruct) {
   int arr[] = {1, 2, 3, 4, 5};
   std_vector vec{1, 2, 3, 4, 5};
