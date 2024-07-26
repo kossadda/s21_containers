@@ -38,11 +38,11 @@ class tree {
  private:
   // Container types
 
+  struct Node;
   class TreeIterator;
   enum Colors { RED, BLACK };
 
  public:
-  class Node;
   enum Uniq { UNIQUE, NON_UNIQUE };
 
   // Type aliases
@@ -140,8 +140,8 @@ template <typename K, typename V>
 class tree<K, V>::TreeIterator {
  private:
   Node *ptr_{};   ///< Pointer to the current node
-  Node *first{};  ///< Pointer to the lowest node
-  Node *last{};   ///< Pointer to a dummy node
+  Node *first_{};  ///< Pointer to the lowest node
+  Node *last_{};   ///< Pointer to a dummy node
 
  public:
   // Constructors
@@ -157,7 +157,6 @@ class tree<K, V>::TreeIterator {
   iterator operator-(const int shift) const noexcept;
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
-  Node *operator->() const noexcept;
   key_value &operator*() const noexcept;
 };
 
@@ -352,7 +351,7 @@ tree<K, V>::~tree() {
   if (root_) {
     cleanTree(root_);
   }
-  
+
   if (sentinel_) {
     delete sentinel_;
   }
@@ -1180,7 +1179,7 @@ std::string tree<K, V>::printNodes(const Node *node, int indent,
 template <typename K, typename V>
 tree<K, V>::iterator::TreeIterator(Node *node, Node *root,
                                    Node *sentinel) noexcept
-    : ptr_{node}, first{root}, last{sentinel} {}
+    : ptr_{node}, first_{root}, last_{sentinel} {}
 
 /**
  * @brief Copy constructor for the tree iterator.
@@ -1191,7 +1190,7 @@ tree<K, V>::iterator::TreeIterator(Node *node, Node *root,
  */
 template <typename K, typename V>
 tree<K, V>::iterator::TreeIterator(const iterator &other) noexcept
-    : ptr_{other.ptr_}, first{other.first}, last{other.last} {}
+    : ptr_{other.ptr_}, first_{other.first_}, last_{other.last_} {}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                           TREE ITERATOR OPERATORS                          //
@@ -1209,8 +1208,8 @@ template <typename K, typename V>
 typename tree<K, V>::iterator &tree<K, V>::iterator::operator=(
     const iterator &other) noexcept {
   ptr_ = other.ptr_;
-  first = other.first;
-  last = other.last;
+  first_ = other.first_;
+  last_ = other.last_;
 
   return *this;
 }
@@ -1224,9 +1223,9 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator=(
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
-  if (!ptr_ || last == findMax(first)) {
-    if (last) {
-      std::swap(ptr_, last);
+  if (!ptr_ || last_ == findMax(first_)) {
+    if (last_) {
+      std::swap(ptr_, last_);
     }
 
     return *this;
@@ -1235,7 +1234,7 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
   if (ptr_->left) {
     ptr_ = findMax(ptr_->left);
   } else {
-    if (ptr_ != findMin(first)) {
+    if (ptr_ != findMin(first_)) {
       Node *parent = ptr_->parent;
 
       while (parent && ptr_ == parent->left) {
@@ -1259,9 +1258,9 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator &tree<K, V>::iterator::operator++() noexcept {
-  if (!ptr_ || ptr_ == findMax(first)) {
+  if (!ptr_ || ptr_ == findMax(first_)) {
     if (ptr_) {
-      std::swap(ptr_, last);
+      std::swap(ptr_, last_);
     }
 
     return *this;
@@ -1333,7 +1332,7 @@ typename tree<K, V>::iterator tree<K, V>::iterator::operator-(
  */
 template <typename K, typename V>
 bool tree<K, V>::iterator::operator==(iterator other) const noexcept {
-  return (ptr_ == other.ptr_ && first == other.first && last == other.last)
+  return (ptr_ == other.ptr_ && first_ == other.first_ && last_ == other.last_)
              ? true
              : false;
 }
@@ -1348,23 +1347,9 @@ bool tree<K, V>::iterator::operator==(iterator other) const noexcept {
  */
 template <typename K, typename V>
 bool tree<K, V>::iterator::operator!=(iterator other) const noexcept {
-  return (ptr_ != other.ptr_ || first != other.first || last != other.last)
+  return (ptr_ != other.ptr_ || first_ != other.first_ || last_ != other.last_)
              ? true
              : false;
-}
-
-/**
- * @brief Arrow operator for the tree iterator.
- *
- * @details Returns a pointer to the node pointed to by the iterator.
- *
- * @tparam K The type of keys stored in the tree.
- * @tparam V The type of values stored in the tree.
- * @return Node* - pointer to the node.
- */
-template <typename K, typename V>
-typename tree<K, V>::Node *tree<K, V>::iterator::operator->() const noexcept {
-  return ptr_;
 }
 
 /**

@@ -21,8 +21,8 @@ class map {
  private:
   // Container types
 
-  class MapConstIterator;
-  class MapIterator;
+  // typedef  MapConstIterator;
+  typedef typename tree<K, M>::iterator MapIterator;
 
  public:
   // Type aliases
@@ -35,7 +35,7 @@ class map {
   using const_reference = const reference;
   using size_type = std::size_t;
   using iterator = MapIterator;
-  using const_iterator = MapConstIterator;
+  // using const_iterator = MapConstIterator;
 
  private:
   size_type size_{};
@@ -51,9 +51,15 @@ class map {
   map &operator=(map &&m);
   map &operator=(const map &m);
 
+  iterator begin();
+
   mapped_type &at(const key_type &key);
   mapped_type &operator[](const key_type &key);
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//                              MAP CONSTRUCTORS                              //
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename K, typename M>
 map<K, M>::map(std::initializer_list<value_type> const &items)
@@ -102,6 +108,11 @@ typename map<K, M>::mapped_type &map<K, M>::operator[](const key_type &key) {
   auto pair_it = tree_.search(key);
 
   return (*pair_it).second;
+}
+
+template <typename K, typename M>
+typename map<K, M>::iterator map<K, M>::begin() {
+  return tree_.begin();
 }
 
 }  // namespace s21
