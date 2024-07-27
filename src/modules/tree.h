@@ -40,6 +40,7 @@ class tree {
 
   struct Node;
   class TreeIterator;
+  class TreeConstIterator;
   enum Colors { RED, BLACK };
 
  public:
@@ -47,10 +48,11 @@ class tree {
 
   // Type aliases
 
-  using key_type = K;                 ///< Type of first template (nodes key)
-  using value_type = V;               ///< Type of second template (nodes value)
-  using iterator = TreeIterator;      ///< For read/write elements
-  using key_value = std::pair<K, V>;  ///< Key-value pair
+  using key_type = K;             ///< Type of first template (nodes key)
+  using mapped_type = V;          ///< Type of second template (nodes value)
+  using iterator = TreeIterator;  ///< For read/write elements
+  using const_iterator = TreeConstIterator;  ///< For read elements
+  using value_type = std::pair<K, V>;        ///< Key-map pair
 
  private:
   Node *root_{};      ///< Root of tree
@@ -61,8 +63,8 @@ class tree {
   // Constructors/destructor
 
   tree(Uniq type = UNIQUE) noexcept;
-  explicit tree(const key_value &pair, Uniq type = UNIQUE);
-  tree(std::initializer_list<key_value> const &items, Uniq type = UNIQUE);
+  explicit tree(const value_type &pair, Uniq type = UNIQUE);
+  tree(std::initializer_list<value_type> const &items, Uniq type = UNIQUE);
   tree(const tree &t);
   tree(tree &&t);
   tree &operator=(tree &&t);
@@ -73,11 +75,13 @@ class tree {
 
   iterator begin() const noexcept;
   iterator end() const noexcept;
+  const_iterator cbegin() const noexcept;
+  const_iterator cend() const noexcept;
 
   // Working with tree
 
   iterator search(const key_type &key) const;
-  iterator insert(const key_value &pair);
+  iterator insert(const value_type &pair);
   iterator remove(const key_type &key) noexcept;
   void clear() noexcept;
   std::string structure() const noexcept;
@@ -85,9 +89,10 @@ class tree {
  private:
   // Add/remove nodes
 
-  Node *createNode(const key_value &pair, Node *&node, Node *parent = nullptr);
+  Node *createNode(const value_type &pair, Node *&node, Node *parent = nullptr);
   void cleanTree(Node *&node) noexcept;
   void removeMemory(Node *&node, Node *ptr_copy) noexcept;
+  void copyTree(Node *node);
 
   // Tree balancing
 
@@ -139,7 +144,7 @@ class tree {
 template <typename K, typename V>
 class tree<K, V>::TreeIterator {
  private:
-  Node *ptr_{};   ///< Pointer to the current node
+  Node *ptr_{};    ///< Pointer to the current node
   Node *first_{};  ///< Pointer to the lowest node
   Node *last_{};   ///< Pointer to a dummy node
 
@@ -157,7 +162,35 @@ class tree<K, V>::TreeIterator {
   iterator operator-(const int shift) const noexcept;
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
-  key_value &operator*() const noexcept;
+  mapped_type &operator*() noexcept;
+
+  operator const_iterator() const noexcept {
+    return const_iterator{ptr_, first_, last_};
+  }
+};
+
+template <typename K, typename V>
+class tree<K, V>::TreeConstIterator {
+ private:
+  Node *ptr_{};    ///< Pointer to the current node
+  Node *first_{};  ///< Pointer to the lowest node
+  Node *last_{};   ///< Pointer to a dummy node
+
+ public:
+  // Constructors
+  TreeConstIterator() noexcept = default;
+  TreeConstIterator(Node *node, Node *root, Node *sentinel) noexcept;
+  TreeConstIterator(const const_iterator &other) noexcept;
+
+  // Operators
+  const_iterator &operator=(const const_iterator &other) noexcept;
+  const_iterator &operator--() noexcept;
+  const_iterator &operator++() noexcept;
+  const_iterator operator+(const int shift) const noexcept;
+  const_iterator operator-(const int shift) const noexcept;
+  bool operator==(const_iterator other) const noexcept;
+  bool operator!=(const_iterator other) const noexcept;
+  const mapped_type &operator*() const noexcept;
 };
 
 /**
@@ -173,23 +206,23 @@ class tree<K, V>::TreeIterator {
 template <typename K, typename V>
 class tree<K, V>::Node {
  public:
-  key_value pair;  ///< Node key
-  Colors color;    ///< Color of node (red/black)
-  Node *parent;    ///< Parent of this node
-  Node *left{};    ///< Left son of this node
-  Node *right{};   ///< Right son of this node
+  value_type pair;  ///< Node key
+  Colors color;     ///< Color of node (red/black)
+  Node *parent;     ///< Parent of this node
+  Node *left{};     ///< Left son of this node
+  Node *right{};    ///< Right son of this node
 
   /**
    * @brief Constructs a new node.
    *
    * @tparam key_type The type of keys stored in the tree.
-   * @tparam value_type The type of values stored in the tree.
+   * @tparam mapped_type The type of values stored in the tree.
    * @param[in] k The key of the node.
    * @param[in] v The value of the node.
    * @param[in] c The color of the node.
    * @param[in] p The parent of the node.
    */
-  Node(const key_value &pair_, Colors color_ = RED, Node *parent_ = 0)
+  Node(const value_type &pair_, Colors color_ = RED, Node *parent_ = 0)
       : pair{pair_}, color{color_}, parent{parent_} {}
 };
 
@@ -223,8 +256,8 @@ tree<K, V>::tree(Uniq type) noexcept : type_{type} {}
  * @param[in] type Type of tree elements (unique/non-unique).
  */
 template <typename K, typename V>
-tree<K, V>::tree(const key_value &pair, Uniq type) : type_{type} {
-  sentinel_ = new Node{key_value{}};
+tree<K, V>::tree(const value_type &pair, Uniq type) : type_{type} {
+  sentinel_ = new Node{value_type{}};
   insert(pair);
 }
 
@@ -242,9 +275,9 @@ tree<K, V>::tree(const key_value &pair, Uniq type) : type_{type} {
  * @param[in] type Type of tree elements (unique/non-unique).
  */
 template <typename K, typename V>
-tree<K, V>::tree(std::initializer_list<key_value> const &items, Uniq type)
+tree<K, V>::tree(std::initializer_list<value_type> const &items, Uniq type)
     : type_{type} {
-  sentinel_ = new Node{key_value{}};
+  sentinel_ = new Node{value_type{}};
 
   for (auto pair : items) {
     insert(pair);
@@ -265,11 +298,9 @@ tree<K, V>::tree(std::initializer_list<key_value> const &items, Uniq type)
  */
 template <typename K, typename V>
 tree<K, V>::tree(const tree &t) : type_{t.type_} {
-  sentinel_ = new Node{key_value{}};
+  sentinel_ = new Node{value_type{}};
 
-  for (auto pair : t) {
-    insert(pair);
-  }
+  copyTree(t.root_);
 }
 
 /**
@@ -385,6 +416,30 @@ typename tree<K, V>::iterator tree<K, V>::end() const noexcept {
   return iterator{sentinel_, root_, findMax(root_)};
 }
 
+/**
+ * @brief Returns an iterator to the beginning of the tree.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return iterator - an iterator to the beginning of the tree.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::cbegin() const noexcept {
+  return const_iterator{findMin(root_), root_, sentinel_};
+}
+
+/**
+ * @brief Returns an iterator to the end of the tree.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return iterator - an iterator to the end of the tree.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::cend() const noexcept {
+  return const_iterator{sentinel_, root_, findMax(root_)};
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                             WORKING WITH TREE                              //
 ////////////////////////////////////////////////////////////////////////////////
@@ -395,14 +450,14 @@ typename tree<K, V>::iterator tree<K, V>::end() const noexcept {
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
  * @param[in] key The key to search for.
- * @return key_value - pointer to pair associated with the key, or a
+ * @return value_type - pointer to pair associated with the key, or a
  * nullptr if the key is not found.
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator tree<K, V>::search(const key_type &key) const {
   Node *find = findNode(root_, key);
 
-  return (find) ? iterator{find, root_, sentinel_} : iterator{};
+  return (find) ? iterator{find, root_, sentinel_} : end();
 }
 
 /**
@@ -413,13 +468,13 @@ typename tree<K, V>::iterator tree<K, V>::search(const key_type &key) const {
  * @param[in] pair The pair of key/value for node.
  */
 template <typename K, typename V>
-typename tree<K, V>::iterator tree<K, V>::insert(const key_value &pair) {
+typename tree<K, V>::iterator tree<K, V>::insert(const value_type &pair) {
   if (type_ == UNIQUE && findNode(root_, pair.first)) {
-    return iterator{};
+    return end();
   }
 
   if (!sentinel_) {
-    sentinel_ = new Node{key_value{}};
+    sentinel_ = new Node{value_type{}};
   }
 
   Node *node_pos = createNode(pair, root_);
@@ -439,7 +494,7 @@ typename tree<K, V>::iterator tree<K, V>::remove(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
 
   if (!node) {
-    return iterator{};
+    return end();
   }
 
   iterator ret_node = ++iterator{node, root_, sentinel_};
@@ -515,15 +570,13 @@ std::string tree<K, V>::structure() const noexcept {
  * @param[in] parent The parent of the new node.
  */
 template <typename K, typename V>
-typename tree<K, V>::Node *tree<K, V>::createNode(const key_value &pair,
+typename tree<K, V>::Node *tree<K, V>::createNode(const value_type &pair,
                                                   Node *&node, Node *parent) {
   Node *ret_node{root_};
 
   if (!node) {
     node = new Node{pair, RED, parent};
-    if (root_ == node) {
-      ret_node = node;
-    }
+    ret_node = node;
 
     if (node->parent && node->parent->color == RED) {
       balancingTree(node);
@@ -579,6 +632,16 @@ void tree<K, V>::removeMemory(Node *&parent, Node *ptr_copy) noexcept {
 
   delete ptr_copy;
   ptr_copy = nullptr;
+}
+
+template <typename K, typename V>
+void tree<K, V>::copyTree(Node *node) {
+  if (node) {
+    insert(node->pair);
+
+    copyTree(node->left);
+    copyTree(node->right);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1223,26 +1286,24 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator=(
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
-  if (!ptr_ || last_ == findMax(first_)) {
-    if (last_) {
-      std::swap(ptr_, last_);
-    }
+  Node *max_node = findMax(first_);
 
-    return *this;
-  }
+  if (last_ == max_node) {
+    std::swap(ptr_, last_);
+  } else if (ptr_) {
+    if (ptr_->left) {
+      ptr_ = findMax(ptr_->left);
+    } else {
+      if (ptr_ != findMin(first_)) {
+        Node *parent = ptr_->parent;
 
-  if (ptr_->left) {
-    ptr_ = findMax(ptr_->left);
-  } else {
-    if (ptr_ != findMin(first_)) {
-      Node *parent = ptr_->parent;
+        while (parent && ptr_ == parent->left) {
+          ptr_ = parent;
+          parent = parent->parent;
+        }
 
-      while (parent && ptr_ == parent->left) {
         ptr_ = parent;
-        parent = parent->parent;
       }
-
-      ptr_ = parent;
     }
   }
 
@@ -1258,25 +1319,23 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator--() noexcept {
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator &tree<K, V>::iterator::operator++() noexcept {
-  if (!ptr_ || ptr_ == findMax(first_)) {
-    if (ptr_) {
-      std::swap(ptr_, last_);
-    }
+  Node *max_node = findMax(first_);
 
-    return *this;
-  }
+  if (ptr_ == max_node) {
+    std::swap(ptr_, last_);
+  } else if (ptr_ && last_ != max_node) {
+    if (ptr_->right) {
+      ptr_ = findMin(ptr_->right);
+    } else {
+      Node *parent = ptr_->parent;
 
-  if (ptr_->right) {
-    ptr_ = findMin(ptr_->right);
-  } else {
-    Node *parent = ptr_->parent;
+      while (parent && ptr_ == parent->right) {
+        ptr_ = parent;
+        parent = parent->parent;
+      }
 
-    while (parent && ptr_ == parent->right) {
       ptr_ = parent;
-      parent = parent->parent;
     }
-
-    ptr_ = parent;
   }
 
   return *this;
@@ -1357,12 +1416,214 @@ bool tree<K, V>::iterator::operator!=(iterator other) const noexcept {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @return key_value & - reference to pair in current node.
+ * @return value_type & - reference to pair in current node.
  */
 template <typename K, typename V>
-typename tree<K, V>::key_value &tree<K, V>::iterator::operator*()
+typename tree<K, V>::mapped_type &tree<K, V>::iterator::operator*() noexcept {
+  return ptr_->pair.second;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                      TREE CONST ITERATOR CONSTRUCTORS                      //
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Constructs a tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] node The node to which the const_iterator points.
+ * @param[in] root The root node of the tree.
+ * @param[in] sentinel The sentinel node of the tree.
+ */
+template <typename K, typename V>
+tree<K, V>::const_iterator::TreeConstIterator(Node *node, Node *root,
+                                              Node *sentinel) noexcept
+    : ptr_{node}, first_{root}, last_{sentinel} {}
+
+/**
+ * @brief Copy constructor for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] other The const_iterator to copy from.
+ */
+template <typename K, typename V>
+tree<K, V>::const_iterator::TreeConstIterator(
+    const const_iterator &other) noexcept
+    : ptr_{other.ptr_}, first_{other.first_}, last_{other.last_} {}
+
+////////////////////////////////////////////////////////////////////////////////
+//                        TREE CONST ITERATOR OPERATORS                       //
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Assignment operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] other The const_iterator to assign from.
+ * @return const_iterator& - reference to the assigned const_iterator.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator &tree<K, V>::const_iterator::operator=(
+    const const_iterator &other) noexcept {
+  ptr_ = other.ptr_;
+  first_ = other.first_;
+  last_ = other.last_;
+
+  return *this;
+}
+
+/**
+ * @brief Pre-decrement operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return const_iterator& - reference to the decremented const_iterator.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator &
+tree<K, V>::const_iterator::operator--() noexcept {
+  Node *max_node = findMax(first_);
+
+  if (last_ == max_node) {
+    std::swap(ptr_, last_);
+  } else if (ptr_) {
+    if (ptr_->left) {
+      ptr_ = findMax(ptr_->left);
+    } else {
+      if (ptr_ != findMin(first_)) {
+        Node *parent = ptr_->parent;
+
+        while (parent && ptr_ == parent->left) {
+          ptr_ = parent;
+          parent = parent->parent;
+        }
+
+        ptr_ = parent;
+      }
+    }
+  }
+
+  return *this;
+}
+
+/**
+ * @brief Pre-increment operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return const_iterator& - reference to the incremented const_iterator.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator &
+tree<K, V>::const_iterator::operator++() noexcept {
+  Node *max_node = findMax(first_);
+
+  if (ptr_ == max_node) {
+    std::swap(ptr_, last_);
+  } else if (ptr_ && last_ != max_node) {
+    if (ptr_->right) {
+      ptr_ = findMin(ptr_->right);
+    } else {
+      Node *parent = ptr_->parent;
+
+      while (parent && ptr_ == parent->right) {
+        ptr_ = parent;
+        parent = parent->parent;
+      }
+
+      ptr_ = parent;
+    }
+  }
+
+  return *this;
+}
+
+/**
+ * @brief Addition operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to shift.
+ * @return const_iterator - the shifted const_iterator.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator+(
+    const int shift) const noexcept {
+  const_iterator copy{*this};
+
+  for (int i = 0; i < shift; i++) {
+    ++copy;
+  }
+
+  return copy;
+}
+
+/**
+ * @brief Addition operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to shift.
+ * @return const_iterator - the shifted const_iterator.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator-(
+    const int shift) const noexcept {
+  const_iterator copy{*this};
+
+  for (int i = 0; i < shift; i++) {
+    --copy;
+  }
+
+  return copy;
+}
+
+/**
+ * @brief Equality comparison operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] other The const_iterator to compare with.
+ * @return true if the const_iterators are equal, false otherwise.
+ */
+template <typename K, typename V>
+bool tree<K, V>::const_iterator::operator==(
+    const_iterator other) const noexcept {
+  return (ptr_ == other.ptr_ && first_ == other.first_ && last_ == other.last_)
+             ? true
+             : false;
+}
+
+/**
+ * @brief Inequality comparison operator for the tree const_iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] other The const_iterator to compare with.
+ * @return true if the const_iterators are not equal, false otherwise.
+ */
+template <typename K, typename V>
+bool tree<K, V>::const_iterator::operator!=(
+    const_iterator other) const noexcept {
+  return (ptr_ != other.ptr_ || first_ != other.first_ || last_ != other.last_)
+             ? true
+             : false;
+}
+
+/**
+ * @brief Arrow operator for the tree iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return value_type & - reference to pair in current node.
+ */
+template <typename K, typename V>
+const typename tree<K, V>::mapped_type &tree<K, V>::const_iterator::operator*()
     const noexcept {
-  return ptr_->pair;
+  return ptr_->pair.second;
 }
 
 }  // namespace s21

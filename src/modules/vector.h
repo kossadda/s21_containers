@@ -827,7 +827,7 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator--(
 template <typename V>
 typename vector<V>::const_iterator &
 vector<V>::const_iterator::operator++() noexcept {
-  ptr_++;
+  ++ptr_;
 
   return *this;
 }
@@ -842,7 +842,7 @@ template <typename V>
 typename vector<V>::const_iterator vector<V>::const_iterator::operator++(
     int) noexcept {
   const_iterator copy{*this};
-  ptr_++;
+  ++ptr_;
 
   return copy;
 }
@@ -1060,7 +1060,7 @@ typename vector<V>::iterator vector<V>::iterator::operator--(int) noexcept {
  */
 template <typename V>
 typename vector<V>::iterator &vector<V>::iterator::operator++() noexcept {
-  ptr_++;
+  ++ptr_;
 
   return *this;
 }
@@ -1074,7 +1074,7 @@ typename vector<V>::iterator &vector<V>::iterator::operator++() noexcept {
 template <typename V>
 typename vector<V>::iterator vector<V>::iterator::operator++(int) noexcept {
   iterator copy{*this};
-  ptr_++;
+  ++ptr_;
 
   return copy;
 }

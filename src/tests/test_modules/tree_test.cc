@@ -17,13 +17,13 @@ using init_list = std::initializer_list<int>;
 using pair = std::pair<int, int>;
 
 TEST(tree, initializer_list_constructor) {
-  std::initializer_list<pair> items = {{30, 1}, {40, 1}, {20, 1}, {10, 1}};
-  int res[] = {10, 20, 30, 40};
+  std::initializer_list<pair> items = {{30, 3}, {40, 4}, {20, 2}, {10, 1}};
+  int res[] = {1, 2, 3, 4};
   tree t{items};
 
   int i = 0;
   for (auto it1 = t.begin(); it1 != t.end(); i++) {
-    EXPECT_TRUE((*it1).first == res[i]);
+    EXPECT_TRUE(*it1 == res[i]);
     ++it1;
   }
 }
@@ -37,7 +37,7 @@ TEST(tree, copy_constructor) {
   tree t2{t1};
 
   for (auto it1 = t1.begin(), it2 = t2.begin(); it1 != t1.end();) {
-    EXPECT_TRUE((*it1).first == (*it2).first);
+    EXPECT_TRUE(*it1 == *it2);
     ++it1;
     ++it2;
   }
@@ -54,7 +54,7 @@ TEST(tree, move_constructor) {
 
   int i = 0;
   for (auto it1 = t1.begin(); it1 != t1.end(); i++) {
-    EXPECT_TRUE((*it1).first == res[i]);
+    EXPECT_TRUE(*it1 == res[i]);
     ++it1;
   }
 
@@ -71,7 +71,7 @@ TEST(tree, copy_assignment) {
   t2 = t1;
 
   for (auto it1 = t1.begin(), it2 = t2.begin(); it1 != t1.end();) {
-    EXPECT_TRUE((*it1).first == (*it2).first);
+    EXPECT_TRUE(*it1 == *it2);
     ++it1;
     ++it2;
   }
@@ -89,7 +89,7 @@ TEST(tree, move_assignment) {
 
   int i = 0;
   for (auto it1 = t1.begin(); it1 != t1.end(); i++) {
-    EXPECT_TRUE((*it1).first == res[i]);
+    EXPECT_TRUE(*it1 == res[i]);
     ++it1;
   }
 
@@ -630,16 +630,17 @@ TEST(tree_iterator, test_1) {
   init_list list = {30, 40, 20, 10};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 10);
+  EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   ++it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   ++it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 2);
   ++it;
   EXPECT_EQ(it, t.end());
 }
@@ -648,16 +649,17 @@ TEST(tree_iterator, test_2) {
   init_list list = {30, 10, 40, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 10);
+  EXPECT_EQ(*it, 2);
   ++it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   ++it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 3);
   ++it;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 4);
   ++it;
   EXPECT_EQ(it, t.end());
 }
@@ -666,18 +668,19 @@ TEST(tree_iterator, test_3) {
   init_list list = {30, 40, 20, 35, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   ++it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   ++it;
-  EXPECT_EQ((*it).first, 35);
+  EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 2);
   ++it;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 5);
   ++it;
   EXPECT_EQ(it, t.end());
 }
@@ -686,16 +689,17 @@ TEST(tree_iterator, test_4) {
   init_list list = {30, 40, 20, 35};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   ++it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   ++it;
-  EXPECT_EQ((*it).first, 35);
+  EXPECT_EQ(*it, 4);
   ++it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 2);
   ++it;
   EXPECT_EQ(it, t.end());
 }
@@ -704,17 +708,18 @@ TEST(tree_iterator, test_5) {
   init_list list = {30, 40, 20, 35};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.end();
   --it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 2);
   --it;
-  EXPECT_EQ((*it).first, 35);
+  EXPECT_EQ(*it, 4);
   --it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   --it;
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   --it;
   EXPECT_EQ(it, t.begin());
 }
@@ -723,17 +728,18 @@ TEST(tree_iterator, test_6) {
   init_list list = {30, 10, 40, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.end();
   --it;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 4);
   --it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 3);
   --it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   --it;
-  EXPECT_EQ((*it).first, 10);
+  EXPECT_EQ(*it, 2);
   --it;
   EXPECT_EQ(it, t.begin());
 }
@@ -742,19 +748,20 @@ TEST(tree_iterator, test_7) {
   init_list list = {30, 40, 20, 35, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.end();
   --it;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 5);
   --it;
-  EXPECT_EQ((*it).first, 40);
+  EXPECT_EQ(*it, 2);
   --it;
-  EXPECT_EQ((*it).first, 35);
+  EXPECT_EQ(*it, 4);
   --it;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
   --it;
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   --it;
   EXPECT_EQ(it, t.begin());
 }
@@ -763,42 +770,45 @@ TEST(tree_iterator, test_8) {
   init_list list = {30, 40, 20, 35};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   it = it + 2;
-  EXPECT_EQ((*it).first, 35);
+  EXPECT_EQ(*it, 4);
   it = it - 1;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
 }
 
 TEST(tree_iterator, test_9) {
   init_list list = {30, 10, 40, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 10);
+  EXPECT_EQ(*it, 2);
   it = it + 3;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 4);
   it = it - 2;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
 }
 
 TEST(tree_iterator, test_10) {
   init_list list = {30, 40, 20, 35, 50};
   tree t;
 
-  for (auto key : list) t.insert(pair{key, 1});
+  int i = 0;
+  for (auto key : list) t.insert(pair{key, ++i});
 
   auto it = t.begin();
-  EXPECT_EQ((*it).first, 20);
+  EXPECT_EQ(*it, 3);
   it = it + 4;
-  EXPECT_EQ((*it).first, 50);
+  EXPECT_EQ(*it, 5);
   it = it - 3;
-  EXPECT_EQ((*it).first, 30);
+  EXPECT_EQ(*it, 1);
 }
 
 TEST(tree_iterator, test_11) {

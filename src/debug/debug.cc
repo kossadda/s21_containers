@@ -13,25 +13,34 @@
 #include "./../s21_containers.h"
 #include <map>
 
-using m = s21::map<int, const char *>;
-using p = std::pair<int, const char *>;
+using m = s21::map<int, std::string>;
+using p = std::pair<int, std::string>;
 using tree = s21::tree<int, int>;
 using vector = s21::vector<int>;
 
 int main() {
-  // std::initializer_list<p> list{{30, 1}, {10, 1}, {70, 1}, {5, 1}, {20, 1}, {50, 1}, {90, 1}, {25, 1}, {27, 1}};
   m map{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
+
+  map[100] = "hundred";
+  map[125] = "hundred twenty five";
+  map[7] = "seven";
+  map[9] = "nine";
+  map[15] = "fifteen";
+  map[0] = "zero";
+  map[-10] = "minus ten";
 
   m::iterator it = map.begin();
 
-  // std::cout << map[13] << std::endl;
+  m::const_iterator iit{it};
 
-  std::cout << (*it).second << std::endl;
-  std::cout << (*(++it)).second << std::endl;
-  std::cout << (*(++it)).second << std::endl;
-  std::cout << (*(++it)).second << std::endl;
-  std::cout << (*(++it)).second << std::endl;
-  std::cout << (*(++it)).second << std::endl;
+  *it = "JJUFHUIDSHFYUIHUIHDF";
+
+  for(auto i : map) {
+    std::cout << i << std::endl;
+  }
+
+  map.clear();
+  std::cout << map.empty() << std::endl;
 
   return 0;
 }

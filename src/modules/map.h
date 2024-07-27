@@ -21,7 +21,7 @@ class map {
  private:
   // Container types
 
-  // typedef  MapConstIterator;
+  typedef typename tree<K, M>::const_iterator MapConstIterator;
   typedef typename tree<K, M>::iterator MapIterator;
 
  public:
@@ -29,17 +29,17 @@ class map {
 
   using key_type = K;
   using mapped_type = M;
-  using value_type = std::pair<K, M>;
+  using value_type = std::pair<key_type, mapped_type>;
   using pointer = value_type *;
   using reference = value_type &;
   using const_reference = const reference;
   using size_type = std::size_t;
   using iterator = MapIterator;
-  // using const_iterator = MapConstIterator;
+  using const_iterator = MapConstIterator;
 
  private:
   size_type size_{};
-  tree<K, M> tree_{};
+  tree<key_type, mapped_type> tree_{};
 
  public:
   // Constructors/assignment operators/destructor
@@ -52,8 +52,25 @@ class map {
   map &operator=(const map &m);
 
   iterator begin();
+  iterator end();
+  const_iterator cbegin();
+  const_iterator cend();
+
+  bool empty();
+  size_type size();
+  size_type max_size();
+
+  void clear();
+  std::pair<iterator, bool> insert(const value_type &value);
+  std::pair<iterator, bool> insert(const key_type &key, const mapped_type &val);
+  std::pair<iterator, bool> insert_or_asssign(const key_type &key,
+                                              const mapped_type &val);
+  void erase(iterator pos);
+  void swap(map &other);
+  void merge(map &other);
 
   mapped_type &at(const key_type &key);
+  const mapped_type &operator[](const key_type &key) const;
   mapped_type &operator[](const key_type &key);
 };
 
@@ -96,9 +113,17 @@ template <typename K, typename M>
 typename map<K, M>::mapped_type &map<K, M>::at(const key_type &key) {
   auto pair_it = tree_.search(key);
 
-  if (pair_it == typename tree<key_type, mapped_type>::iterator{}) {
+  if (pair_it == tree_.end()) {
     throw std::out_of_range("map::at() - missing element");
   }
+
+  return (*pair_it).second;
+}
+
+template <typename K, typename M>
+const typename map<K, M>::mapped_type &map<K, M>::operator[](
+    const key_type &key) const {
+  auto pair_it = tree_.search(key);
 
   return (*pair_it).second;
 }
@@ -107,12 +132,33 @@ template <typename K, typename M>
 typename map<K, M>::mapped_type &map<K, M>::operator[](const key_type &key) {
   auto pair_it = tree_.search(key);
 
-  return (*pair_it).second;
+  if (pair_it == tree_.end()) {
+    pair_it = tree_.insert({key, mapped_type{}});
+    ++size_;
+  }
+
+  return *pair_it;
+}
+
+template <typename K, typename M>
+void map<K, M>::clear() {
+  size_ = 0;
+  tree_.clear();
 }
 
 template <typename K, typename M>
 typename map<K, M>::iterator map<K, M>::begin() {
   return tree_.begin();
+}
+
+template <typename K, typename M>
+typename map<K, M>::iterator map<K, M>::end() {
+  return tree_.end();
+}
+
+template <typename K, typename M>
+bool map<K, M>::empty() {
+  return (begin() == end()) ? true : false;
 }
 
 }  // namespace s21
