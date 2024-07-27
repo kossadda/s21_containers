@@ -13,14 +13,15 @@
 #include "./../s21_containers.h"
 #include <map>
 
-using m = s21::map<int, std::string>;
+using m = std::map<int, std::string>;
 using p = std::pair<int, std::string>;
 using tree = s21::tree<int, int>;
 using vector = s21::vector<int>;
 
 int main() {
-  m map{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
+  m kek{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
 
+  m map;
   map[100] = "hundred";
   map[125] = "hundred twenty five";
   map[7] = "seven";
@@ -29,16 +30,17 @@ int main() {
   map[0] = "zero";
   map[-10] = "minus ten";
 
-  m::iterator it{map.begin()};
+  kek.merge(map);
 
-  *it++ = "GGWP";
-
-  for(auto i : map) {
-    std::cout << i << std::endl;
+  for(auto i : kek) {
+    std::cout << i.first << " : " << i.second << std::endl;
   }
 
-  map.clear();
-  std::cout << map.empty() << std::endl;
+  std::cout << std::endl;
+
+  for(auto i : map) {
+    std::cout << i.first << " : " << i.second << std::endl;
+  }
 
   return 0;
 }
