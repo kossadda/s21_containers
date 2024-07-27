@@ -29,11 +29,9 @@ int main() {
   map[0] = "zero";
   map[-10] = "minus ten";
 
-  m::iterator it = map.begin();
+  m::iterator it{map.begin()};
 
-  m::const_iterator iit{it};
-
-  *it = "JJUFHUIDSHFYUIHUIHDF";
+  *it++ = "GGWP";
 
   for(auto i : map) {
     std::cout << i << std::endl;

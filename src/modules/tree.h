@@ -53,6 +53,7 @@ class tree {
   using iterator = TreeIterator;  ///< For read/write elements
   using const_iterator = TreeConstIterator;  ///< For read elements
   using value_type = std::pair<K, V>;        ///< Key-map pair
+  using size_type = std::size_t;
 
  private:
   Node *root_{};      ///< Root of tree
@@ -158,12 +159,30 @@ class tree<K, V>::TreeIterator {
   iterator &operator=(const iterator &other) noexcept;
   iterator &operator--() noexcept;
   iterator &operator++() noexcept;
-  iterator operator+(const int shift) const noexcept;
-  iterator operator-(const int shift) const noexcept;
+  iterator operator--(int) noexcept;
+  iterator operator++(int) noexcept;
+  iterator operator+(const size_type shift) const noexcept;
+  iterator operator-(const size_type shift) const noexcept;
+  void operator+=(const size_type shift) noexcept;
+  void operator-=(const size_type shift) noexcept;
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
   mapped_type &operator*() noexcept;
 
+  /**
+   * @brief Converts the current iterator to a constant iterator.
+   *
+   * @details
+   * This conversion operator allows you to obtain a `const_iterator` from
+   * the current iterator. This is useful when you need to access elements
+   * in the container without modifying them. The returned `const_iterator`
+   * provides read-only access to the elements.
+   *
+   * @tparam K The type of keys stored in the tree.
+   * @tparam V The type of values stored in the tree.
+   * @return A `const_iterator` initialized with the same position and range
+   *         as the current iterator.
+   */
   operator const_iterator() const noexcept {
     return const_iterator{ptr_, first_, last_};
   }
@@ -186,8 +205,12 @@ class tree<K, V>::TreeConstIterator {
   const_iterator &operator=(const const_iterator &other) noexcept;
   const_iterator &operator--() noexcept;
   const_iterator &operator++() noexcept;
-  const_iterator operator+(const int shift) const noexcept;
-  const_iterator operator-(const int shift) const noexcept;
+  const_iterator operator--(int) noexcept;
+  const_iterator operator++(int) noexcept;
+  const_iterator operator+(const size_type shift) const noexcept;
+  const_iterator operator-(const size_type shift) const noexcept;
+  void operator+=(const size_type shift) noexcept;
+  void operator-=(const size_type shift) noexcept;
   bool operator==(const_iterator other) const noexcept;
   bool operator!=(const_iterator other) const noexcept;
   const mapped_type &operator*() const noexcept;
@@ -568,6 +591,7 @@ std::string tree<K, V>::structure() const noexcept {
  * @param[in,out] node A reference to the node pointer where the new node will
  * be created.
  * @param[in] parent The parent of the new node.
+ * @return Node* - a pointer to the newly created node.
  */
 template <typename K, typename V>
 typename tree<K, V>::Node *tree<K, V>::createNode(const value_type &pair,
@@ -888,7 +912,7 @@ typename tree<K, V>::Node *tree<K, V>::findMax(Node *node) noexcept {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] node The root node of the tree.
+ * @param[in] node The node from which to start searching for the minimum key.
  * @return Node* - the node with the minimum key.
  */
 template <typename K, typename V>
@@ -909,7 +933,7 @@ typename tree<K, V>::Node *tree<K, V>::findMin(Node *node) noexcept {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in,out] node The node to delete.
+ * @param[in,out] node The node to delete. It must have two children.
  */
 template <typename K, typename V>
 void tree<K, V>::deleteTwoChild(Node *&node) noexcept {
@@ -956,7 +980,7 @@ void tree<K, V>::deleteOneChild(Node *&node, Node *&child) noexcept {
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in,out] node The node to delete.
+ * @param[in,out] node The red node to delete. The node must have no children.
  */
 template <typename K, typename V>
 void tree<K, V>::deleteRedNoChild(Node *&node) noexcept {
@@ -1193,7 +1217,7 @@ void tree<K, V>::blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept {
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
  * @param[in] node The root node of the tree.
- * @param[in] indent The indentation level for printing.
+ * @param[in] indent The indentation level for printing (used for formatting).
  * @param[in] last Whether the node is the last child of its parent.
  * @return std::string - a string representation of the tree structure.
  */
@@ -1342,6 +1366,45 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator++() noexcept {
 }
 
 /**
+ * @brief Increments the iterator and returns the original position.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return An `iterator` representing the original position of the iterator
+ * before the increment.
+ */
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::iterator::operator++(int) noexcept {
+  iterator copy{*this};
+
+  ++*this;
+
+  return copy;
+}
+
+/**
+ * @brief Decrements the iterator and returns the original position.
+ *
+ * This post-decrement operator decrements the position of the current
+ * iterator by one, but returns the iterator's original position before
+ * the decrement. This is useful when you need to get the value at the
+ * current position before moving the iterator backward.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return An `iterator` representing the original position of the iterator
+ * before the decrement.
+ */
+template <typename K, typename V>
+typename tree<K, V>::iterator tree<K, V>::iterator::operator--(int) noexcept {
+  iterator copy{*this};
+
+  --*this;
+
+  return copy;
+}
+
+/**
  * @brief Addition operator for the tree iterator.
  *
  * @tparam K The type of keys stored in the tree.
@@ -1351,10 +1414,10 @@ typename tree<K, V>::iterator &tree<K, V>::iterator::operator++() noexcept {
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator tree<K, V>::iterator::operator+(
-    const int shift) const noexcept {
+    const size_type shift) const noexcept {
   iterator copy{*this};
 
-  for (int i = 0; i < shift; i++) {
+  for (size_type i = 0; i < shift; i++) {
     ++copy;
   }
 
@@ -1371,14 +1434,42 @@ typename tree<K, V>::iterator tree<K, V>::iterator::operator+(
  */
 template <typename K, typename V>
 typename tree<K, V>::iterator tree<K, V>::iterator::operator-(
-    const int shift) const noexcept {
+    const size_type shift) const noexcept {
   iterator copy{*this};
 
-  for (int i = 0; i < shift; i++) {
+  for (size_type i = 0; i < shift; i++) {
     --copy;
   }
 
   return copy;
+}
+
+/**
+ * @brief Advances the iterator by a specified number of positions.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to advance the iterator.
+ */
+template <typename K, typename V>
+void tree<K, V>::iterator::operator+=(const size_type shift) noexcept {
+  for (size_type i = 0; i < shift; i++) {
+    ++*this;
+  }
+}
+
+/**
+ * @brief Moves the iterator back by a specified number of positions.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to move the iterator backward.
+ */
+template <typename K, typename V>
+void tree<K, V>::iterator::operator-=(const size_type shift) noexcept {
+  for (size_type i = 0; i < shift; i++) {
+    --*this;
+  }
 }
 
 /**
@@ -1542,19 +1633,47 @@ tree<K, V>::const_iterator::operator++() noexcept {
 }
 
 /**
- * @brief Addition operator for the tree const_iterator.
+ * @brief Increments the constant iterator and returns the original position.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam V The type of values stored in the tree.
- * @param[in] shift The number of positions to shift.
- * @return const_iterator - the shifted const_iterator.
+ * @return A `const_iterator` representing the original position of the
+ * iterator before the increment.
+ */
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator++(
+    int) noexcept {
+  const_iterator copy{*this};
+
+  ++*this;
+
+  return copy;
+}
+
+template <typename K, typename V>
+typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator--(
+    int) noexcept {
+  const_iterator copy{*this};
+
+  --*this;
+
+  return copy;
+}
+
+/**
+ * @brief Decrements the constant iterator and returns the original position.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @return A `const_iterator` representing the original position of the
+ * iterator before the decrement.
  */
 template <typename K, typename V>
 typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator+(
-    const int shift) const noexcept {
+    const size_type shift) const noexcept {
   const_iterator copy{*this};
 
-  for (int i = 0; i < shift; i++) {
+  for (size_type i = 0; i < shift; i++) {
     ++copy;
   }
 
@@ -1571,14 +1690,42 @@ typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator+(
  */
 template <typename K, typename V>
 typename tree<K, V>::const_iterator tree<K, V>::const_iterator::operator-(
-    const int shift) const noexcept {
+    const size_type shift) const noexcept {
   const_iterator copy{*this};
 
-  for (int i = 0; i < shift; i++) {
+  for (size_type i = 0; i < shift; i++) {
     --copy;
   }
 
   return copy;
+}
+
+/**
+ * @brief Moves the const_iterator back by a specified number of positions.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to move the const_iterator backward.
+ */
+template <typename K, typename V>
+void tree<K, V>::const_iterator::operator+=(const size_type shift) noexcept {
+  for (size_type i = 0; i < shift; i++) {
+    ++*this;
+  }
+}
+
+/**
+ * @brief Advances the const_iterator by a specified number of positions.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam V The type of values stored in the tree.
+ * @param[in] shift The number of positions to advance the const_iterator.
+ */
+template <typename K, typename V>
+void tree<K, V>::const_iterator::operator-=(const size_type shift) noexcept {
+  for (size_type i = 0; i < shift; i++) {
+    --*this;
+  }
 }
 
 /**

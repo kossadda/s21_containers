@@ -157,6 +157,16 @@ typename map<K, M>::iterator map<K, M>::end() {
 }
 
 template <typename K, typename M>
+typename map<K, M>::const_iterator map<K, M>::cbegin() {
+  return tree_.cbegin();
+}
+
+template <typename K, typename M>
+typename map<K, M>::const_iterator map<K, M>::cend() {
+  return tree_.cend();
+}
+
+template <typename K, typename M>
 bool map<K, M>::empty() {
   return (begin() == end()) ? true : false;
 }
