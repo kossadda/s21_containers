@@ -85,6 +85,7 @@ class tree {
   iterator insert(const value_type &pair);
   iterator erase(const key_type &key) noexcept;
   iterator erase(const const_iterator it) noexcept;
+  void merge(tree &other);
   void clear() noexcept;
   std::string structure() const noexcept;
 
@@ -92,8 +93,10 @@ class tree {
   // Add/remove nodes
 
   Node *createNode(const value_type &pair, Node *&node, Node *parent = nullptr);
+  void insertNode(Node *insert, Node *&node, Node *parent = nullptr);
+  Node *extractNode(Node *node) noexcept;
   void cleanTree(Node *&node) noexcept;
-  void removeMemory(Node *&node, Node *ptr_copy) noexcept;
+  void removeConnect(Node *node) noexcept;
   void copyTree(Node *node);
 
   // Tree balancing
@@ -112,9 +115,8 @@ class tree {
 
   // Cases of node removal
 
-  void deleteTwoChild(Node *&node) noexcept;
-  void deleteOneChild(Node *&node, Node *&child) noexcept;
-  void deleteRedNoChild(Node *&node) noexcept;
+  Node *deleteTwoChild(Node *&node) noexcept;
+  Node *deleteOneChild(Node *&node, Node *&child) noexcept;
   void deleteBlackNoChild(Node *&node) noexcept;
 
   // Black no child node removal cases
@@ -516,41 +518,41 @@ typename tree<K, M>::iterator tree<K, M>::insert(const value_type &pair) {
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
+  iterator it = (node) ? iterator{node, root_, sentinel_} : end();
 
-  if (!node) {
-    return end();
+  if (node) {
+    delete extractNode(node);
   }
 
-  iterator ret_node = ++iterator{node, root_, sentinel_};
-
-  Node *left = node->left;
-  Node *right = node->right;
-
-  if (node->color == RED) {
-    if (!left && !right) {
-      deleteRedNoChild(node);
-    } else if (left && right) {
-      deleteTwoChild(node);
-    }
-  } else {
-    if (!left && !right) {
-      deleteBlackNoChild(node);
-    } else if (!left && right) {
-      deleteOneChild(node, node->right);
-    } else if (left && !right) {
-      deleteOneChild(node, node->left);
-    } else {
-      deleteTwoChild(node);
-    }
-  }
-
-  return ret_node;
+  return it;
 }
 
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::erase(
     const const_iterator it) noexcept {
-  return iterator{it.ptr_, it.first_, it.last_};
+  return erase((*it).first);
+}
+
+template <typename K, typename M>
+void tree<K, M>::merge(tree &other) {
+  auto it = other.begin();
+
+  while (it != other.end()) {
+    if (!findNode(root_, (*it).first)) {
+      Node *extracted = other.extractNode(findNode(other.root_, (*it).first));
+
+      if (extracted == other.root_) {
+        other.root_ = nullptr;
+        it = other.end();
+      } else {
+        it = other.begin();
+      }
+
+      insertNode(extracted, root_);
+    } else {
+      ++it;
+    }
+  }
 }
 
 /**
@@ -628,6 +630,88 @@ typename tree<K, M>::Node *tree<K, M>::createNode(const value_type &pair,
 }
 
 /**
+ * @brief Inserts a node into the red-black tree.
+ *
+ * @details
+ * This method inserts a given node into the red-black tree, maintaining the
+ * red-black tree properties. If the node is inserted successfully, it may
+ * require rebalancing the tree to maintain its properties.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @param[in] insert The node to insert.
+ * @param[in,out] node A reference to the node pointer where the new node will
+ * be inserted.
+ * @param[in] parent The parent of the new node.
+ */
+template <typename K, typename M>
+void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
+  if (!node) {
+    insert->color = RED;
+    insert->parent = parent;
+    insert->left = insert->right = nullptr;
+
+    node = insert;
+
+    if (node->parent && node->parent->color == RED) {
+      balancingTree(node);
+    }
+  } else {
+    if (insert->pair.first < node->pair.first) {
+      insertNode(insert, node->left, node);
+    } else {
+      insertNode(insert, node->right, node);
+    }
+  }
+
+  if (root_) {
+    root_->color = BLACK;
+  }
+}
+
+/**
+ * @brief Extracts a node from the red-black tree.
+ *
+ * @details
+ * This method extracts a given node from the red-black tree, maintaining the
+ * red-black tree properties. The method handles different cases based on the
+ * color of the node and the number of its children.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @param[in] node The node to extract.
+ * @return Node* - a pointer to the node that was extracted.
+ */
+template <typename K, typename M>
+typename tree<K, M>::Node *tree<K, M>::extractNode(Node *node) noexcept {
+  if (!node) {
+    return nullptr;
+  }
+
+  Node *to_del{node};
+
+  if (node->color == RED) {
+    if (!node->left && !node->right) {
+      removeConnect(node);
+    } else if (node->left && node->right) {
+      to_del = deleteTwoChild(node);
+    }
+  } else {
+    if (!node->left && !node->right) {
+      deleteBlackNoChild(node);
+    } else if (!node->left && node->right) {
+      to_del = deleteOneChild(node, node->right);
+    } else if (node->left && !node->right) {
+      to_del = deleteOneChild(node, node->left);
+    } else {
+      to_del = deleteTwoChild(node);
+    }
+  }
+
+  return to_del;
+}
+
+/**
  * @brief Cleans the tree by deleting all nodes.
  *
  * @tparam K The type of keys stored in the tree.
@@ -646,25 +730,35 @@ void tree<K, M>::cleanTree(Node *&node) noexcept {
 }
 
 /**
- * @brief Removes the memory of the given node.
+ * @brief Removes parents connect with given node.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
- * @param[in,out] parent The parent of the node to remove.
- * @param[in,out] ptr_copy The node to remove.
+ * @param[in,out] node Node to break connection with.
  */
 template <typename K, typename M>
-void tree<K, M>::removeMemory(Node *&parent, Node *ptr_copy) noexcept {
-  if (parent->left == ptr_copy) {
-    parent->left = nullptr;
-  } else {
-    parent->right = nullptr;
+void tree<K, M>::removeConnect(Node *node) noexcept {
+  if(node->parent) {
+    if (node->parent->left == node) {
+      node->parent->left = nullptr;
+    } else {
+      node->parent->right = nullptr;
+    }
   }
-
-  delete ptr_copy;
-  ptr_copy = nullptr;
 }
 
+/**
+ * @brief Copies the nodes from another red-black tree.
+ *
+ * @details
+ * This method recursively copies all the nodes from another red-black tree into
+ * the current tree. It inserts each node's key-value pair into the current tree,
+ * ensuring that the tree properties are maintained.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @param[in] node The root node of the tree to copy from.
+ */
 template <typename K, typename M>
 void tree<K, M>::copyTree(Node *node) {
   if (node) {
@@ -935,15 +1029,24 @@ typename tree<K, M>::Node *tree<K, M>::findMin(Node *node) noexcept {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief Deletes a node with two children.
+ * @brief Deletes a node with two children from the red-black tree.
+ *
+ * @details
+ * This method handles the deletion of a node that has two children. It finds
+ * the in-order successor or predecessor of the node to be deleted, swaps the
+ * values, and then deletes the successor or predecessor node. The method handles
+ * different cases based on the color of the node and the number of its children.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete. It must have two children.
+ * @return Node* - a pointer to the node that was actually deleted.
  */
 template <typename K, typename M>
-void tree<K, M>::deleteTwoChild(Node *&node) noexcept {
+typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
   Node *swap = findMax(node->left);
+  Node *to_del{swap};
+
   if (!(swap && !(swap->left && swap->right))) {
     swap = findMin(node->right);
   }
@@ -952,56 +1055,42 @@ void tree<K, M>::deleteTwoChild(Node *&node) noexcept {
 
   if (!swap->left && !swap->right) {
     if (swap->color == RED) {
-      deleteRedNoChild(swap);
+      removeConnect(swap);
     } else {
       deleteBlackNoChild(swap);
     }
   } else if (!swap->left && swap->right) {
-    deleteOneChild(swap, swap->right);
+    to_del = deleteOneChild(swap, swap->right);
   } else if (swap->left && !swap->right) {
-    deleteOneChild(swap, swap->left);
+    to_del = deleteOneChild(swap, swap->left);
   }
+
+  return to_del;
 }
 
 /**
- * @brief Deletes a node with one child.
+ * @brief Deletes a node with one child from the red-black tree.
+ *
+ * @details
+ * This method handles the deletion of a node that has exactly one child. It swaps
+ * the values of the node to be deleted with its child, and then removes the child
+ * node. This ensures that the tree properties are maintained.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
- * @param[in,out] node The node to delete.
+ * @param[in,out] node The node to delete. It must have exactly one child.
  * @param[in,out] child The child of the node to delete.
+ * @return Node* - a pointer to the node that was actually deleted.
  */
 template <typename K, typename M>
-void tree<K, M>::deleteOneChild(Node *&node, Node *&child) noexcept {
+typename tree<K, M>::Node *tree<K, M>::deleteOneChild(Node *&node,
+                                                      Node *&child) noexcept {
   Node *ch = child;
 
-  node->pair = child->pair;
+  std::swap(node->pair, child->pair);
   child = nullptr;
 
-  delete ch;
-}
-
-/**
- * @brief Deletes a red node with no children.
- *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
- * @param[in,out] node The red node to delete. The node must have no children.
- */
-template <typename K, typename M>
-void tree<K, M>::deleteRedNoChild(Node *&node) noexcept {
-  Node *parent{node->parent};
-
-  if (parent) {
-    if (parent->left == node) {
-      parent->left = nullptr;
-    } else {
-      parent->right = nullptr;
-    }
-  }
-
-  delete node;
-  node = nullptr;
+  return ch;
 }
 
 /**
@@ -1024,7 +1113,7 @@ void tree<K, M>::deleteBlackNoChild(Node *&node) noexcept {
   if (brother && parent->color == RED && brother->color == BLACK) {
     if (!brother->left && !brother->right) {
       std::swap(brother->color, parent->color);
-      removeMemory(parent, node);
+      removeConnect(node);
     } else if ((is_left && brother->right && brother->right->color == RED) ||
                (!is_left && brother->left && brother->left->color == RED)) {
       redParBlackSonRedLeft(node);
@@ -1072,7 +1161,7 @@ void tree<K, M>::redParBlackSonRedLeft(Node *&node) noexcept {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
 
-  removeMemory(parent, node);
+  removeConnect(node);
   (is_left) ? rotateLeft(brother->parent) : rotateRight(brother->parent);
   swapColors(brother);
 }
@@ -1091,7 +1180,7 @@ void tree<K, M>::redParBlackSonRedRight(Node *&node) noexcept {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
 
-  removeMemory(parent, node);
+  removeConnect(node);
   (is_left) ? rotateRight(brother) : rotateLeft(brother);
   std::swap(brother->color, brother->parent->color);
   (is_left) ? rotateLeft(parent) : rotateRight(parent);
@@ -1114,7 +1203,7 @@ void tree<K, M>::blackParRedSonBlackRight(Node *&node) noexcept {
   Node *grandson = (is_left) ? brother->left : brother->right;
 
   std::swap(brother->color, grandson->color);
-  removeMemory(parent, node);
+  removeConnect(node);
   (is_left) ? rotateLeft(parent) : rotateRight(parent);
 }
 
@@ -1131,7 +1220,7 @@ void tree<K, M>::blackParRedBrosBlackRightRedLeft(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
-  removeMemory(parent, node);
+  removeConnect(node);
   rotateLeft(brother->parent);
   std::swap(brother->color, parent->color);
   rotateLeft(parent);
@@ -1152,7 +1241,7 @@ void tree<K, M>::blackParBlackBrosBlackAll(Node *&node) noexcept {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
   brother->color = RED;
-  removeMemory(parent, node);
+  removeConnect(node);
 
   if (parent->color == BLACK) {
     fixDoubleBlack(parent);
@@ -1175,7 +1264,7 @@ void tree<K, M>::blackParBlackBrosRedRightGran(Node *&node) noexcept {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
 
-  removeMemory(parent, node);
+  removeConnect(node);
   (is_left) ? rotateRight(brother) : rotateLeft(brother);
   std::swap(brother->color, brother->parent->color);
   (is_left) ? rotateLeft(parent) : rotateRight(parent);
@@ -1195,7 +1284,7 @@ void tree<K, M>::blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept {
   Node *parent = node->parent;
   bool is_left = (parent->left == node) ? true : false;
 
-  removeMemory(parent, node);
+  removeConnect(node);
   if (is_left) {
     rotateLeft(parent);
     if (parent->parent && parent->parent->right) {
