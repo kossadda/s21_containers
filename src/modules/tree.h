@@ -85,7 +85,7 @@ class tree {
   iterator search(const key_type &key) const;
   iterator insert(const value_type &pair);
   iterator erase(const key_type &key) noexcept;
-  iterator erase(const const_iterator it) noexcept;
+  iterator erase(const_iterator it) noexcept;
   size_type size() const noexcept;
   void merge(tree &other);
   void clear() noexcept;
@@ -166,10 +166,10 @@ class tree<K, M>::TreeIterator {
   iterator &operator++() noexcept;
   iterator operator--(int) noexcept;
   iterator operator++(int) noexcept;
-  iterator operator+(const size_type shift) const noexcept;
-  iterator operator-(const size_type shift) const noexcept;
-  void operator+=(const size_type shift) noexcept;
-  void operator-=(const size_type shift) noexcept;
+  iterator operator+(size_type shift) const noexcept;
+  iterator operator-(size_type shift) const noexcept;
+  void operator+=(size_type shift) noexcept;
+  void operator-=(size_type shift) noexcept;
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
   std::pair<const key_type, mapped_type &> operator*() noexcept;
@@ -212,13 +212,14 @@ class tree<K, M>::TreeConstIterator {
   const_iterator &operator++() noexcept;
   const_iterator operator--(int) noexcept;
   const_iterator operator++(int) noexcept;
-  const_iterator operator+(const size_type shift) const noexcept;
-  const_iterator operator-(const size_type shift) const noexcept;
-  void operator+=(const size_type shift) noexcept;
-  void operator-=(const size_type shift) noexcept;
+  const_iterator operator+(size_type shift) const noexcept;
+  const_iterator operator-(size_type shift) const noexcept;
+  void operator+=(size_type shift) noexcept;
+  void operator-=(size_type shift) noexcept;
   bool operator==(const_iterator other) const noexcept;
   bool operator!=(const_iterator other) const noexcept;
   const value_type operator*() const noexcept;
+  iterator toIterator() const noexcept;
 };
 
 /**
@@ -234,11 +235,11 @@ class tree<K, M>::TreeConstIterator {
 template <typename K, typename M>
 class tree<K, M>::Node {
  public:
-  value_type pair;  ///< Node key
-  Colors color;     ///< Color of node (red/black)
-  Node *parent;     ///< Parent of this node
-  Node *left{};     ///< Left son of this node
-  Node *right{};    ///< Right son of this node
+  value_type *pair;  ///< Node key
+  Colors color;      ///< Color of node (red/black)
+  Node *parent;      ///< Parent of this node
+  Node *left{};      ///< Left son of this node
+  Node *right{};     ///< Right son of this node
 
   /**
    * @brief Constructs a new node.
@@ -251,7 +252,17 @@ class tree<K, M>::Node {
    * @param[in] p The parent of the node.
    */
   Node(const value_type &pair_, Colors color_ = RED, Node *parent_ = 0)
-      : pair{pair_}, color{color_}, parent{parent_} {}
+      : pair{new value_type{pair_}}, color{color_}, parent{parent_} {}
+
+  /**
+   * @brief Destructor. Destroys nodes pair.
+   */
+  ~Node() {
+    if (pair) {
+      delete pair;
+      pair = nullptr;
+    }
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -521,7 +532,7 @@ typename tree<K, M>::iterator tree<K, M>::insert(const value_type &pair) {
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
   Node *node = findNode(root_, key);
-  iterator it = (node) ? iterator{node, root_, sentinel_} : end();
+  iterator it = (node) ? ++iterator{node, root_, sentinel_} : end();
 
   if (node) {
     delete extractNode(node);
@@ -544,8 +555,7 @@ typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
  * end() if the erased node was the last node.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::erase(
-    const const_iterator it) noexcept {
+typename tree<K, M>::iterator tree<K, M>::erase(const_iterator it) noexcept {
   return erase((*it).first);
 }
 
@@ -588,6 +598,8 @@ void tree<K, M>::merge(tree &other) {
 
       if (extracted == other.root_) {
         other.root_ = nullptr;
+        delete other.sentinel_;
+        other.sentinel_ = nullptr;
         it = other.end();
       } else {
         it = other.begin();
@@ -661,7 +673,7 @@ typename tree<K, M>::Node *tree<K, M>::createNode(const value_type &pair,
       balancingTree(node);
     }
   } else {
-    if (pair.first < node->pair.first) {
+    if (pair.first < node->pair->first) {
       ret_node = createNode(pair, node->left, node);
     } else {
       ret_node = createNode(pair, node->right, node);
@@ -704,7 +716,7 @@ void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
       balancingTree(node);
     }
   } else {
-    if (insert->pair.first < node->pair.first) {
+    if (insert->pair->first < node->pair->first) {
       insertNode(insert, node->left, node);
     } else {
       insertNode(insert, node->right, node);
@@ -812,7 +824,7 @@ void tree<K, M>::removeConnect(Node *node) noexcept {
 template <typename K, typename M>
 void tree<K, M>::copyTree(Node *node) {
   if (node) {
-    insert(node->pair);
+    insert(*node->pair);
 
     copyTree(node->left);
     copyTree(node->right);
@@ -1031,9 +1043,9 @@ typename tree<K, M>::Node *tree<K, M>::findNode(
     return nullptr;
   }
 
-  if (node->pair.first > key) {
+  if (node->pair->first > key) {
     return findNode(node->left, key);
-  } else if (node->pair.first < key) {
+  } else if (node->pair->first < key) {
     return findNode(node->right, key);
   } else {
     return node;
@@ -1102,7 +1114,12 @@ typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
     swap = findMin(node->right);
   }
 
-  std::swap(swap->pair, node->pair);
+  value_type swap_copy{*swap->pair};
+
+  delete swap->pair;
+  swap->pair = new value_type{*node->pair};
+  delete node->pair;
+  node->pair = new value_type{swap_copy};
 
   if (!swap->left && !swap->right) {
     if (swap->color == RED) {
@@ -1138,7 +1155,13 @@ typename tree<K, M>::Node *tree<K, M>::deleteOneChild(Node *&node,
                                                       Node *&child) noexcept {
   Node *ch = child;
 
-  std::swap(node->pair, child->pair);
+  value_type node_copy{*node->pair};
+
+  delete node->pair;
+  node->pair = new value_type{*child->pair};
+  delete child->pair;
+  child->pair = new value_type{node_copy};
+
   child = nullptr;
 
   return ch;
@@ -1384,12 +1407,12 @@ std::string tree<K, M>::printNodes(const Node *node, int indent,
     int reserve = 50;
     char *char_str = new char[reserve]{};
 
-    std::snprintf(char_str, reserve, "%d", node->pair.first);
+    std::snprintf(char_str, reserve, "%d", node->pair->first);
     str += std::string(char_str);
     str += "}\n";
 
     if (char_str) {
-      delete char_str;
+      delete[] char_str;
     }
 
     str += printNodes(node->left, indent + 4, false);
@@ -1563,7 +1586,7 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator--(int) noexcept {
  */
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::iterator::operator+(
-    const size_type shift) const noexcept {
+    size_type shift) const noexcept {
   iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1583,7 +1606,7 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator+(
  */
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::iterator::operator-(
-    const size_type shift) const noexcept {
+    size_type shift) const noexcept {
   iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1601,7 +1624,7 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator-(
  * @param[in] shift The number of positions to advance the iterator.
  */
 template <typename K, typename M>
-void tree<K, M>::iterator::operator+=(const size_type shift) noexcept {
+void tree<K, M>::iterator::operator+=(size_type shift) noexcept {
   for (size_type i = 0; i < shift; i++) {
     ++*this;
   }
@@ -1615,7 +1638,7 @@ void tree<K, M>::iterator::operator+=(const size_type shift) noexcept {
  * @param[in] shift The number of positions to move the iterator backward.
  */
 template <typename K, typename M>
-void tree<K, M>::iterator::operator-=(const size_type shift) noexcept {
+void tree<K, M>::iterator::operator-=(size_type shift) noexcept {
   for (size_type i = 0; i < shift; i++) {
     --*this;
   }
@@ -1660,7 +1683,7 @@ bool tree<K, M>::iterator::operator!=(iterator other) const noexcept {
  */
 template <typename K, typename M>
 std::pair<const K, M &> tree<K, M>::iterator::operator*() noexcept {
-  return std::pair<const K, M &>{ptr_->pair.first, ptr_->pair.second};
+  return std::pair<const K, M &>{ptr_->pair->first, ptr_->pair->second};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1692,6 +1715,26 @@ template <typename K, typename M>
 tree<K, M>::const_iterator::TreeConstIterator(
     const const_iterator &other) noexcept
     : ptr_{other.ptr_}, first_{other.first_}, last_{other.last_} {}
+
+/**
+ * @brief Converts the constant iterator to a regular iterator.
+ *
+ * @details
+ * This method converts a constant iterator to a regular iterator. This is
+ * useful when you need to perform operations that modify the elements of the
+ * tree, which are not allowed with a constant iterator. The returned iterator
+ * will point to the same element as the constant iterator.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @return iterator - A regular iterator initialized with the same position and
+ * range as the constant iterator.
+ */
+template <typename K, typename M>
+typename tree<K, M>::iterator tree<K, M>::const_iterator::toIterator()
+    const noexcept {
+  return iterator{ptr_, first_, last_};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                        TREE CONST ITERATOR OPERATORS                       //
@@ -1819,7 +1862,7 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator--(
  */
 template <typename K, typename M>
 typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator+(
-    const size_type shift) const noexcept {
+    size_type shift) const noexcept {
   const_iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1839,7 +1882,7 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator+(
  */
 template <typename K, typename M>
 typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator-(
-    const size_type shift) const noexcept {
+    size_type shift) const noexcept {
   const_iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1857,7 +1900,7 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator-(
  * @param[in] shift The number of positions to move the const_iterator backward.
  */
 template <typename K, typename M>
-void tree<K, M>::const_iterator::operator+=(const size_type shift) noexcept {
+void tree<K, M>::const_iterator::operator+=(size_type shift) noexcept {
   for (size_type i = 0; i < shift; i++) {
     ++*this;
   }
@@ -1871,7 +1914,7 @@ void tree<K, M>::const_iterator::operator+=(const size_type shift) noexcept {
  * @param[in] shift The number of positions to advance the const_iterator.
  */
 template <typename K, typename M>
-void tree<K, M>::const_iterator::operator-=(const size_type shift) noexcept {
+void tree<K, M>::const_iterator::operator-=(size_type shift) noexcept {
   for (size_type i = 0; i < shift; i++) {
     --*this;
   }
@@ -1919,7 +1962,7 @@ bool tree<K, M>::const_iterator::operator!=(
 template <typename K, typename M>
 const typename tree<K, M>::value_type tree<K, M>::const_iterator::operator*()
     const noexcept {
-  return ptr_->pair;
+  return *ptr_->pair;
 }
 
 }  // namespace s21

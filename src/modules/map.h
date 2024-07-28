@@ -32,7 +32,7 @@ class map {
   using value_type = std::pair<key_type, mapped_type>;
   using pointer = value_type *;
   using reference = value_type &;
-  using const_reference = const reference;
+  using const_reference = const value_type &;
   using size_type = std::size_t;
   using iterator = MapIterator;
   using const_iterator = MapConstIterator;
@@ -66,8 +66,11 @@ class map {
   iterator_bool insert(const key_type &key, const mapped_type &obj);
   iterator_bool insert_or_assign(const key_type &key, const mapped_type &obj);
   iterator erase(const_iterator pos);
+  iterator erase(const_iterator first, const_iterator last);
+  size_type erase(const key_type &key);
   void swap(map &other);
   void merge(map &other);
+  bool conatains(const key_type &key) const noexcept;
 
   mapped_type &at(const key_type &key);
   const mapped_type &operator[](const key_type &key) const;
@@ -123,9 +126,7 @@ typename map<K, M>::mapped_type &map<K, M>::at(const key_type &key) {
 template <typename K, typename M>
 const typename map<K, M>::mapped_type &map<K, M>::operator[](
     const key_type &key) const {
-  auto pair_it = tree_.search(key);
-
-  return (*pair_it).second;
+  return (*tree_.search(key)).second;
 }
 
 template <typename K, typename M>
@@ -168,7 +169,7 @@ typename map<K, M>::const_iterator map<K, M>::cend() {
 
 template <typename K, typename M>
 bool map<K, M>::empty() {
-  return (tree_.begin() == tree_.end()) ? true : false;
+  return (!size_) ? true : false;
 }
 
 template <typename K, typename M>
@@ -179,18 +180,79 @@ typename map<K, M>::size_type map<K, M>::size() {
 template <typename K, typename M>
 typename map<K, M>::iterator map<K, M>::erase(const_iterator pos) {
   auto it = tree_.erase((*pos).first);
-
-  if (it == tree_.end()) {
-    --size;
-  }
+  size_ = tree_.size();
 
   return it;
 }
 
 template <typename K, typename M>
+typename map<K, M>::iterator map<K, M>::erase(const_iterator first,
+                                              const_iterator last) {
+  if (first == last) {
+    return first.toIterator();
+  } else if (first == begin() && last == end()) {
+    clear();
+    return end();
+  }
+
+  bool has_first{};
+  bool has_last{(last == cend()) ? true : false};
+
+  for (auto i = cbegin(); i != cend() && !(has_first && has_last); i++) {
+    if (first == i) {
+      if (!has_last || last == cend()) {
+        has_first = true;
+      }
+    } else if (last == i && has_first) {
+      has_last = true;
+    }
+  }
+
+  if (!has_first || !has_last) {
+    throw std::range_error("map::erase() - invalid map range");
+  }
+
+  key_type first_key = (*first).first;
+
+  iterator ret_it;
+
+  if (last == end()) {
+    for (auto it = cbegin(); it != cend(); it++) {
+      auto current = (*it).first;
+      if (current >= first_key) {
+        ret_it = tree_.erase(current);
+        it = cbegin();
+      }
+    }
+  } else {
+    key_type last_key = (*last).first;
+
+    for (auto it = cbegin(); it != cend(); it++) {
+      auto current = (*it).first;
+      if (current >= first_key && current < last_key) {
+        ret_it = tree_.erase(current);
+        it = cbegin();
+      }
+    }
+  }
+
+  size_ = tree_.size();
+
+  return ret_it;
+}
+
+template <typename K, typename M>
+typename map<K, M>::size_type map<K, M>::erase(const key_type &key) {
+  auto it = tree_.erase(key);
+  size_ = tree_.size();
+
+  return (it != tree_.end()) ? true : false;
+}
+
+template <typename K, typename M>
 typename map<K, M>::iterator_bool map<K, M>::insert(const_reference value) {
   auto it = tree_.insert(value);
-  ++size_;
+  size_ = tree_.size();
 
   return (it != tree_.end()) ? iterator_bool{it, true}
                              : iterator_bool{tree_.search(value.first), false};
@@ -200,7 +262,7 @@ template <typename K, typename M>
 typename map<K, M>::iterator_bool map<K, M>::insert(const key_type &key,
                                                     const mapped_type &obj) {
   auto it = tree_.insert({key, obj});
-  ++size_;
+  size_ = tree_.size();
 
   return (it != end()) ? iterator_bool{it, true}
                        : iterator_bool{tree_.search(key), false};
@@ -214,11 +276,12 @@ typename map<K, M>::iterator_bool map<K, M>::insert_or_assign(
 
   if (it == tree_.end()) {
     it = tree_.insert({key, obj});
-    ++size_;
     obj_exists = true;
   } else {
     (*it).second = obj;
   }
+
+  size_ = tree_.size();
 
   return iterator_bool{it, obj_exists};
 }
@@ -229,6 +292,17 @@ void map<K, M>::swap(map &other) {
   std::swap(tree_, other.tree_);
 }
 
+template <typename K, typename M>
+void map<K, M>::merge(map &other) {
+  tree_.merge(other.tree_);
+  size_ = tree_.size();
+  other.size_ = other.tree_.size();
+}
+
+template <typename K, typename M>
+bool map<K, M>::conatains(const key_type &key) const noexcept {
+  return (tree_.search(key) != tree_.end()) ? true : false;
+}
 
 }  // namespace s21
 

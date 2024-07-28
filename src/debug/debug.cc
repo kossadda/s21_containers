@@ -13,65 +13,46 @@
 #include "./../s21_containers.h"
 #include <map>
 
-using m = s21::map<int, int>;
-using p = std::pair<int, int>;
+using m = s21::map<const int, int>;
+using md = std::map<const int, int>;
+using p = std::pair<const int, int>;
 using tree = s21::tree<int, int>;
 using vector = s21::vector<int>;
 
 int main() {
-  tree t1{{5, 5}, {13, 13}, {1, 1}, {31, 31}, {4, 4}, {6, 6}, {22, 22}};
-  tree t2{{15, 15}, {9, 9},{13, 13}, {1, 1}, {7, 7}, {42, 42}, {21, 21}, {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
+  m s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {10, 10}, {20, 20}, {30, 30}, {40, 40}, {50, 50}};
 
-  t1.erase(31);
-  t1.merge(t2);
-  t1.insert({32, 32});
+  md std_m1 = {{1, 1}, {2, 2}, {3, 3}, {10, 10}, {20, 20}, {30, 30}, {40, 40}, {50, 50}};
 
-  std::cout << "\nSecond tree:\n";
-  for(auto i : t1) {
+  auto s21_it1 = s21_m1.begin();
+  auto std_it1 = std_m1.begin();
+  ++s21_it1;
+  ++std_it1;
+  ++s21_it1;
+  ++std_it1;
+  auto s21_it2{s21_it1};
+  auto std_it2{std_it1};
+  ++s21_it2;
+  ++std_it2;
+  ++s21_it2;
+  ++std_it2;
+
+  auto kk = --std_m1.end();
+  s21_m1.erase(s21_it1, --s21_m1.end());
+  std_m1.erase(std_it1, kk);
+
+
+  for(auto i : s21_m1) {
     std::cout << i.first << " : " << i.second << std::endl;
   }
-  std::cout << "SIZE: " << t1.size() << std::endl;
-
-  std::cout << "\nSecond tree:\n";
-  for(auto i : t2) {
-    std::cout << i.first << " : " << i.second << std::endl;
-  }
-  std::cout << "SIZE: " << t2.size() << std::endl;
-
-
-  // m kek{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
-
-  // m map;
-  // map[100] = "hundred";
-  // map[125] = "hundred twenty five";
-  // map[7] = "seven";
-  // map[9] = "nine";
-  // map[15] = "fifteen";
-  // map[0] = "zero";
-  // map[-1] = "minus ten";
-
-  // auto it = map.begin();
   
-  // kek.merge(map);
+  std::cout << "SIZE: " << s21_m1.size() << "\n\n";
+  
+  for(auto i : std_m1) {
+    std::cout << i.first << " : " << i.second << std::endl;
+  }
 
-  // std::cout << (*it).first << " : " << (*it).second << std::endl;
-
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-
-  // for(auto i : kek) {
-  //   std::cout << i.first << " : " << i.second << std::endl;
-  // }
-
-  // std::cout << std::endl;
-
-  // for(auto i : map) {
-  //   std::cout << i.first << " : " << i.second << std::endl;
-  // }
+  std::cout << "SIZE: " << std_m1.size() << "\n\n\n\n";
 
   return 0;
 }
