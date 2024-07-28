@@ -58,12 +58,13 @@ class tree {
  private:
   Node *root_{};      ///< Root of tree
   Node *sentinel_{};  ///< Dummy element
+  size_type size_{};  ///< Size of tree
   Uniq type_{};       ///< Determines whether to allow duplicates
 
  public:
   // Constructors/destructor
 
-  tree(Uniq type = UNIQUE) noexcept;
+  explicit tree(Uniq type = UNIQUE) noexcept;
   explicit tree(const value_type &pair, Uniq type = UNIQUE);
   tree(std::initializer_list<value_type> const &items, Uniq type = UNIQUE);
   tree(const tree &t);
@@ -85,6 +86,7 @@ class tree {
   iterator insert(const value_type &pair);
   iterator erase(const key_type &key) noexcept;
   iterator erase(const const_iterator it) noexcept;
+  size_type size() const noexcept;
   void merge(tree &other);
   void clear() noexcept;
   std::string structure() const noexcept;
@@ -345,6 +347,7 @@ template <typename K, typename M>
 tree<K, M>::tree(tree &&t)
     : root_{std::exchange(t.root_, nullptr)},
       sentinel_{std::exchange(t.sentinel_, nullptr)},
+      size_{std::exchange(t.size_, 0)},
       type_{t.type_} {}
 
 /**
@@ -527,12 +530,54 @@ typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
   return it;
 }
 
+/**
+ * @brief Erases the node pointed to by the constant iterator.
+ *
+ * @details
+ * This method erases the node pointed to by the constant iterator. It uses the
+ * key of the node to find and remove it from the tree.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @param[in] it The constant iterator pointing to the node to be erased.
+ * @return iterator - an iterator to the next node after the erased node, or
+ * end() if the erased node was the last node.
+ */
 template <typename K, typename M>
 typename tree<K, M>::iterator tree<K, M>::erase(
     const const_iterator it) noexcept {
   return erase((*it).first);
 }
 
+/**
+ * @brief Returns the number of elements in the tree.
+ *
+ * @details
+ * This method returns the number of elements currently stored in the red-black
+ * tree.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @return size_type - the number of elements in the tree.
+ */
+template <typename K, typename M>
+typename tree<K, M>::size_type tree<K, M>::size() const noexcept {
+  return size_;
+}
+
+/**
+ * @brief Merges another red-black tree into the current tree.
+ *
+ * @details
+ * This method merges the elements of another red-black tree into the current
+ * tree. It iterates through the other tree and inserts each unique element into
+ * the current tree. If an element already exists in the current tree, it is not
+ * inserted again.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ * @param[in,out] other The tree to merge into the current tree.
+ */
 template <typename K, typename M>
 void tree<K, M>::merge(tree &other) {
   auto it = other.begin();
@@ -610,6 +655,7 @@ typename tree<K, M>::Node *tree<K, M>::createNode(const value_type &pair,
   if (!node) {
     node = new Node{pair, RED, parent};
     ret_node = node;
+    ++size_;
 
     if (node->parent && node->parent->color == RED) {
       balancingTree(node);
@@ -651,6 +697,7 @@ void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
     insert->parent = parent;
     insert->left = insert->right = nullptr;
 
+    ++size_;
     node = insert;
 
     if (node->parent && node->parent->color == RED) {
@@ -708,6 +755,8 @@ typename tree<K, M>::Node *tree<K, M>::extractNode(Node *node) noexcept {
     }
   }
 
+  --size_;
+
   return to_del;
 }
 
@@ -726,6 +775,7 @@ void tree<K, M>::cleanTree(Node *&node) noexcept {
 
     delete node;
     node = nullptr;
+    --size_;
   }
 }
 
@@ -738,7 +788,7 @@ void tree<K, M>::cleanTree(Node *&node) noexcept {
  */
 template <typename K, typename M>
 void tree<K, M>::removeConnect(Node *node) noexcept {
-  if(node->parent) {
+  if (node->parent) {
     if (node->parent->left == node) {
       node->parent->left = nullptr;
     } else {
@@ -752,8 +802,8 @@ void tree<K, M>::removeConnect(Node *node) noexcept {
  *
  * @details
  * This method recursively copies all the nodes from another red-black tree into
- * the current tree. It inserts each node's key-value pair into the current tree,
- * ensuring that the tree properties are maintained.
+ * the current tree. It inserts each node's key-value pair into the current
+ * tree, ensuring that the tree properties are maintained.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
@@ -1034,8 +1084,9 @@ typename tree<K, M>::Node *tree<K, M>::findMin(Node *node) noexcept {
  * @details
  * This method handles the deletion of a node that has two children. It finds
  * the in-order successor or predecessor of the node to be deleted, swaps the
- * values, and then deletes the successor or predecessor node. The method handles
- * different cases based on the color of the node and the number of its children.
+ * values, and then deletes the successor or predecessor node. The method
+ * handles different cases based on the color of the node and the number of its
+ * children.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
@@ -1072,9 +1123,9 @@ typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
  * @brief Deletes a node with one child from the red-black tree.
  *
  * @details
- * This method handles the deletion of a node that has exactly one child. It swaps
- * the values of the node to be deleted with its child, and then removes the child
- * node. This ensures that the tree properties are maintained.
+ * This method handles the deletion of a node that has exactly one child. It
+ * swaps the values of the node to be deleted with its child, and then removes
+ * the child node. This ensures that the tree properties are maintained.
  *
  * @tparam K The type of keys stored in the tree.
  * @tparam M The type of values stored in the tree.
@@ -1325,17 +1376,20 @@ std::string tree<K, M>::printNodes(const Node *node, int indent,
     str = std::string(indent, ' ');
     if (last) {
       str += "R---";
-      str += (node->color == RED ? "{R:" : "{B:");
     } else {
       str += "L---";
-      str += (node->color == RED ? "{R:" : "{B:");
     }
-    char *char_str = static_cast<char *>(malloc(50));
-    std::snprintf(char_str, 50, "%d", node->pair.first);
+    str += (node->color == RED ? "{R:" : "{B:");
+
+    int reserve = 50;
+    char *char_str = new char[reserve]{};
+
+    std::snprintf(char_str, reserve, "%d", node->pair.first);
     str += std::string(char_str);
     str += "}\n";
+
     if (char_str) {
-      free(char_str);
+      delete char_str;
     }
 
     str += printNodes(node->left, indent + 4, false);

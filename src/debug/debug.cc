@@ -22,17 +22,22 @@ int main() {
   tree t1{{5, 5}, {13, 13}, {1, 1}, {31, 31}, {4, 4}, {6, 6}, {22, 22}};
   tree t2{{15, 15}, {9, 9},{13, 13}, {1, 1}, {7, 7}, {42, 42}, {21, 21}, {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
+  t1.erase(31);
   t1.merge(t2);
+  t1.insert({32, 32});
 
   std::cout << "\nSecond tree:\n";
   for(auto i : t1) {
     std::cout << i.first << " : " << i.second << std::endl;
   }
+  std::cout << "SIZE: " << t1.size() << std::endl;
 
   std::cout << "\nSecond tree:\n";
   for(auto i : t2) {
     std::cout << i.first << " : " << i.second << std::endl;
   }
+  std::cout << "SIZE: " << t2.size() << std::endl;
+
 
   // m kek{{5, "five"}, {13, "thirteen"}, {1, "one"}, {31, "thirty one"}};
 
