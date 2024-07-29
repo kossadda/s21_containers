@@ -11,10 +11,10 @@
 
 #include "./../main_test.h"
 
-using tree = s21::tree<int, int>;
-using pair = std::pair<int, int>;
+using tree = s21::tree<const int, const int>;
+using pair = std::pair<const int, const int>;
 using str = std::string;
-using init_list = std::initializer_list<int>;
+using init_list = std::initializer_list<const int>;
 
 TEST(tree, initializer_list_constructor) {
   std::initializer_list<pair> items = {{30, 3}, {40, 4}, {20, 2}, {10, 1}};

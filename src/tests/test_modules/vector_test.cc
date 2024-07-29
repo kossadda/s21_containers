@@ -14,7 +14,7 @@
 #include "./../main_test.h"
 
 using s21_vector = s21::vector<int>;
-using s21_iterator = s21::vector<int>::iterator;
+using s21_iterator = s21::vector<int>::const_iterator;
 
 using std_vector = std::vector<int>;
 using std_iterator = std::vector<int>::const_iterator;

@@ -183,8 +183,6 @@ class tree<K, M>::TreeIterator {
    * in the container without modifying them. The returned `const_iterator`
    * provides read-only access to the elements.
    *
-   * @tparam K The type of keys stored in the tree.
-   * @tparam M The type of values stored in the tree.
    * @return A `const_iterator` initialized with the same position and range
    *         as the current iterator.
    */
@@ -193,6 +191,19 @@ class tree<K, M>::TreeIterator {
   }
 };
 
+/**
+ * @brief An iterator for the red-black tree that provides read-only access to
+ * elements.
+ *
+ * @details
+ * This class represents a constant iterator for the red-black tree. It allows
+ * traversal of the tree and read-only access to its elements. The
+ * `TreeConstIterator` is used to iterate over the elements in the tree without
+ * modifying them.
+ *
+ * @tparam K The type of keys stored in the tree.
+ * @tparam M The type of values stored in the tree.
+ */
 template <typename K, typename M>
 class tree<K, M>::TreeConstIterator {
  private:
@@ -244,8 +255,6 @@ class tree<K, M>::Node {
   /**
    * @brief Constructs a new node.
    *
-   * @tparam key_type The type of keys stored in the tree.
-   * @tparam mapped_type The type of values stored in the tree.
    * @param[in] k The key of the node.
    * @param[in] v The value of the node.
    * @param[in] c The color of the node.
@@ -275,8 +284,6 @@ class tree<K, M>::Node {
  * @details
  * This constructor defines the type of tree elements (unique, non-unique)
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] type Type of tree elements (unique/non-unique).
  */
 template <typename K, typename M>
@@ -289,8 +296,6 @@ tree<K, M>::tree(Uniq type) noexcept : type_{type} {}
  * This constructor initializes the tree with a single node containing the given
  * key and value.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] pair The pair of key/value for node.
  * @param[in] type Type of tree elements (unique/non-unique).
  */
@@ -308,8 +313,6 @@ tree<K, M>::tree(const value_type &pair, Uniq type) : type_{type} {
  * initializer list. It creates a new sentinel node and then inserts all
  * elements from the list into the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] items The initializer list of key-val pairs insert into the tree.
  * @param[in] type Type of tree elements (unique/non-unique).
  */
@@ -331,8 +334,6 @@ tree<K, M>::tree(std::initializer_list<value_type> const &items, Uniq type)
  * tree. It initializes the sentinel node and then inserts all elements from the
  * source tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] t The tree to copy from.
  */
 template <typename K, typename M>
@@ -350,8 +351,6 @@ tree<K, M>::tree(const tree &t) : type_{t.type_} {
  * It takes ownership of the root and sentinel nodes from the source tree,
  * leaving the source tree in a valid but unspecified state.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] t The tree to move from.
  */
 template <typename K, typename M>
@@ -369,8 +368,6 @@ tree<K, M>::tree(tree &&t)
  * It first cleans up the current tree and then moves the elements from the
  * source tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] t The tree to move from.
  * @return tree<K, M>& - reference to the assigned tree.
  */
@@ -394,8 +391,6 @@ tree<K, M> &tree<K, M>::operator=(tree &&t) {
  * It first cleans up the current tree and then copies the elements from the
  * source tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] t The tree to copy from.
  * @return tree<K, M>& - reference to the assigned tree.
  */
@@ -435,8 +430,6 @@ tree<K, M>::~tree() {
 /**
  * @brief Returns an iterator to the beginning of the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator - an iterator to the beginning of the tree.
  */
 template <typename K, typename M>
@@ -447,8 +440,6 @@ typename tree<K, M>::iterator tree<K, M>::begin() const noexcept {
 /**
  * @brief Returns an iterator to the end of the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator - an iterator to the end of the tree.
  */
 template <typename K, typename M>
@@ -459,8 +450,6 @@ typename tree<K, M>::iterator tree<K, M>::end() const noexcept {
 /**
  * @brief Returns an iterator to the beginning of the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator - an iterator to the beginning of the tree.
  */
 template <typename K, typename M>
@@ -471,8 +460,6 @@ typename tree<K, M>::const_iterator tree<K, M>::cbegin() const noexcept {
 /**
  * @brief Returns an iterator to the end of the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator - an iterator to the end of the tree.
  */
 template <typename K, typename M>
@@ -487,8 +474,6 @@ typename tree<K, M>::const_iterator tree<K, M>::cend() const noexcept {
 /**
  * @brief Searches for a value associated with a given key.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] key The key to search for.
  * @return value_type - pointer to pair associated with the key, or a
  * nullptr if the key is not found.
@@ -503,8 +488,6 @@ typename tree<K, M>::iterator tree<K, M>::search(const key_type &key) const {
 /**
  * @brief Inserts a new node with the given key and value into the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] pair The pair of key/value for node.
  */
 template <typename K, typename M>
@@ -525,8 +508,6 @@ typename tree<K, M>::iterator tree<K, M>::insert(const value_type &pair) {
 /**
  * @brief Removes the node with the given key from the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] key The key of the node to remove.
  */
 template <typename K, typename M>
@@ -548,8 +529,6 @@ typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
  * This method erases the node pointed to by the constant iterator. It uses the
  * key of the node to find and remove it from the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] it The constant iterator pointing to the node to be erased.
  * @return iterator - an iterator to the next node after the erased node, or
  * end() if the erased node was the last node.
@@ -566,8 +545,6 @@ typename tree<K, M>::iterator tree<K, M>::erase(const_iterator it) noexcept {
  * This method returns the number of elements currently stored in the red-black
  * tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return size_type - the number of elements in the tree.
  */
 template <typename K, typename M>
@@ -584,8 +561,6 @@ typename tree<K, M>::size_type tree<K, M>::size() const noexcept {
  * the current tree. If an element already exists in the current tree, it is not
  * inserted again.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] other The tree to merge into the current tree.
  */
 template <typename K, typename M>
@@ -615,8 +590,6 @@ void tree<K, M>::merge(tree &other) {
 /**
  * @brief Cleans the tree by deleting all nodes.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  */
 template <typename K, typename M>
 void tree<K, M>::clear() noexcept {
@@ -633,8 +606,6 @@ void tree<K, M>::clear() noexcept {
 /**
  * @brief Returns a string representation of the tree structure.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return std::string - a string representation of the tree structure.
  */
 template <typename K, typename M>
@@ -651,8 +622,6 @@ std::string tree<K, M>::structure() const noexcept {
 /**
  * @brief Creates a new node with the given key and value.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] pair The pair of key/value for node.
  * @param[in,out] node A reference to the node pointer where the new node will
  * be created.
@@ -695,8 +664,6 @@ typename tree<K, M>::Node *tree<K, M>::createNode(const value_type &pair,
  * red-black tree properties. If the node is inserted successfully, it may
  * require rebalancing the tree to maintain its properties.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] insert The node to insert.
  * @param[in,out] node A reference to the node pointer where the new node will
  * be inserted.
@@ -736,8 +703,6 @@ void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
  * red-black tree properties. The method handles different cases based on the
  * color of the node and the number of its children.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The node to extract.
  * @return Node* - a pointer to the node that was extracted.
  */
@@ -775,8 +740,6 @@ typename tree<K, M>::Node *tree<K, M>::extractNode(Node *node) noexcept {
 /**
  * @brief Cleans the tree by deleting all nodes.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The root node of the tree.
  */
 template <typename K, typename M>
@@ -794,8 +757,6 @@ void tree<K, M>::cleanTree(Node *&node) noexcept {
 /**
  * @brief Removes parents connect with given node.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node Node to break connection with.
  */
 template <typename K, typename M>
@@ -817,8 +778,6 @@ void tree<K, M>::removeConnect(Node *node) noexcept {
  * the current tree. It inserts each node's key-value pair into the current
  * tree, ensuring that the tree properties are maintained.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The root node of the tree to copy from.
  */
 template <typename K, typename M>
@@ -838,8 +797,6 @@ void tree<K, M>::copyTree(Node *node) {
 /**
  * @brief Balances the tree after inserting a new node.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The newly inserted node.
  */
 template <typename K, typename M>
@@ -880,8 +837,6 @@ void tree<K, M>::balancingTree(Node *node) noexcept {
 /**
  * @brief Fixes a double black violation.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node with the double black violation.
  */
 template <typename K, typename M>
@@ -940,8 +895,6 @@ void tree<K, M>::fixDoubleBlack(Node *&node) noexcept {
 /**
  * @brief Performs a left rotation at the given node.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] old_root The node at which to perform the rotation.
  */
 template <typename K, typename M>
@@ -969,8 +922,6 @@ void tree<K, M>::rotateLeft(Node *old_root) noexcept {
 /**
  * @brief Performs a right rotation at the given node.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] old_root The node at which to perform the rotation.
  */
 template <typename K, typename M>
@@ -998,8 +949,6 @@ void tree<K, M>::rotateRight(Node *old_root) noexcept {
 /**
  * @brief Swaps the colors of the given node and its children.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The node at which to swap colors.
  */
 template <typename K, typename M>
@@ -1029,8 +978,6 @@ void tree<K, M>::swapColors(Node *node) noexcept {
 /**
  * @brief Finds the node with the given key.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @param[in] key The key to search for.
  * @return Node* - the node with the given key, or nullptr if the key is not
@@ -1055,8 +1002,6 @@ typename tree<K, M>::Node *tree<K, M>::findNode(
 /**
  * @brief Finds the node with the maximum key in the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @return Node* - the node with the maximum key.
  */
@@ -1072,8 +1017,6 @@ typename tree<K, M>::Node *tree<K, M>::findMax(Node *node) noexcept {
 /**
  * @brief Finds the node with the minimum key in the tree.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The node from which to start searching for the minimum key.
  * @return Node* - the node with the minimum key.
  */
@@ -1100,8 +1043,6 @@ typename tree<K, M>::Node *tree<K, M>::findMin(Node *node) noexcept {
  * handles different cases based on the color of the node and the number of its
  * children.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete. It must have two children.
  * @return Node* - a pointer to the node that was actually deleted.
  */
@@ -1144,8 +1085,6 @@ typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
  * swaps the values of the node to be deleted with its child, and then removes
  * the child node. This ensures that the tree properties are maintained.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete. It must have exactly one child.
  * @param[in,out] child The child of the node to delete.
  * @return Node* - a pointer to the node that was actually deleted.
@@ -1170,8 +1109,6 @@ typename tree<K, M>::Node *tree<K, M>::deleteOneChild(Node *&node,
 /**
  * @brief Deletes a black node with no children.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1225,8 +1162,6 @@ void tree<K, M>::deleteBlackNoChild(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a red parent and a black
  * brother with a red left child.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1244,8 +1179,6 @@ void tree<K, M>::redParBlackSonRedLeft(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a red parent and a black
  * brother with a red right child.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1265,8 +1198,6 @@ void tree<K, M>::redParBlackSonRedRight(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a red
  * brother with a black right child.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1285,8 +1216,6 @@ void tree<K, M>::blackParRedSonBlackRight(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a red
  * brother with a black right child and a red left child.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1305,8 +1234,6 @@ void tree<K, M>::blackParRedBrosBlackRightRedLeft(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with no children.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1328,8 +1255,6 @@ void tree<K, M>::blackParBlackBrosBlackAll(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with a red right grandchild.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1349,8 +1274,6 @@ void tree<K, M>::blackParBlackBrosRedRightGran(Node *&node) noexcept {
  * @brief Handles the case where the node to delete has a black parent and a
  * black brother with a red left child or all grandchildren.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in,out] node The node to delete.
  */
 template <typename K, typename M>
@@ -1383,8 +1306,6 @@ void tree<K, M>::blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept {
 /**
  * @brief Prints the nodes of the tree in a structured format.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The root node of the tree.
  * @param[in] indent The indentation level for printing (used for formatting).
  * @param[in] last Whether the node is the last child of its parent.
@@ -1429,8 +1350,6 @@ std::string tree<K, M>::printNodes(const Node *node, int indent,
 /**
  * @brief Constructs a tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The node to which the iterator points.
  * @param[in] root The root node of the tree.
  * @param[in] sentinel The sentinel node of the tree.
@@ -1443,8 +1362,6 @@ tree<K, M>::iterator::TreeIterator(Node *node, Node *root,
 /**
  * @brief Copy constructor for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The iterator to copy from.
  */
 template <typename K, typename M>
@@ -1458,8 +1375,6 @@ tree<K, M>::iterator::TreeIterator(const iterator &other) noexcept
 /**
  * @brief Assignment operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The iterator to assign from.
  * @return iterator& - reference to the assigned iterator.
  */
@@ -1476,8 +1391,6 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator=(
 /**
  * @brief Pre-decrement operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator& - reference to the decremented iterator.
  */
 template <typename K, typename M>
@@ -1509,8 +1422,6 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator--() noexcept {
 /**
  * @brief Pre-increment operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator& - reference to the incremented iterator.
  */
 template <typename K, typename M>
@@ -1540,8 +1451,6 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator++() noexcept {
 /**
  * @brief Increments the iterator and returns the original position.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return An `iterator` representing the original position of the iterator
  * before the increment.
  */
@@ -1562,8 +1471,6 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator++(int) noexcept {
  * the decrement. This is useful when you need to get the value at the
  * current position before moving the iterator backward.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return An `iterator` representing the original position of the iterator
  * before the decrement.
  */
@@ -1579,8 +1486,6 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator--(int) noexcept {
 /**
  * @brief Addition operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to shift.
  * @return iterator - the shifted iterator.
  */
@@ -1599,8 +1504,6 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator+(
 /**
  * @brief Addition operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to shift.
  * @return iterator - the shifted iterator.
  */
@@ -1619,8 +1522,6 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator-(
 /**
  * @brief Advances the iterator by a specified number of positions.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to advance the iterator.
  */
 template <typename K, typename M>
@@ -1633,8 +1534,6 @@ void tree<K, M>::iterator::operator+=(size_type shift) noexcept {
 /**
  * @brief Moves the iterator back by a specified number of positions.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to move the iterator backward.
  */
 template <typename K, typename M>
@@ -1647,8 +1546,6 @@ void tree<K, M>::iterator::operator-=(size_type shift) noexcept {
 /**
  * @brief Equality comparison operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The iterator to compare with.
  * @return true if the iterators are equal, false otherwise.
  */
@@ -1662,8 +1559,6 @@ bool tree<K, M>::iterator::operator==(iterator other) const noexcept {
 /**
  * @brief Inequality comparison operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The iterator to compare with.
  * @return true if the iterators are not equal, false otherwise.
  */
@@ -1677,8 +1572,6 @@ bool tree<K, M>::iterator::operator!=(iterator other) const noexcept {
 /**
  * @brief Arrow operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return value_type & - reference to pair in current node.
  */
 template <typename K, typename M>
@@ -1693,8 +1586,6 @@ std::pair<const K, M &> tree<K, M>::iterator::operator*() noexcept {
 /**
  * @brief Constructs a tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] node The node to which the const_iterator points.
  * @param[in] root The root node of the tree.
  * @param[in] sentinel The sentinel node of the tree.
@@ -1707,8 +1598,6 @@ tree<K, M>::const_iterator::TreeConstIterator(Node *node, Node *root,
 /**
  * @brief Copy constructor for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The const_iterator to copy from.
  */
 template <typename K, typename M>
@@ -1725,8 +1614,6 @@ tree<K, M>::const_iterator::TreeConstIterator(
  * tree, which are not allowed with a constant iterator. The returned iterator
  * will point to the same element as the constant iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return iterator - A regular iterator initialized with the same position and
  * range as the constant iterator.
  */
@@ -1743,8 +1630,6 @@ typename tree<K, M>::iterator tree<K, M>::const_iterator::toIterator()
 /**
  * @brief Assignment operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The const_iterator to assign from.
  * @return const_iterator& - reference to the assigned const_iterator.
  */
@@ -1761,8 +1646,6 @@ typename tree<K, M>::const_iterator &tree<K, M>::const_iterator::operator=(
 /**
  * @brief Pre-decrement operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return const_iterator& - reference to the decremented const_iterator.
  */
 template <typename K, typename M>
@@ -1795,8 +1678,6 @@ tree<K, M>::const_iterator::operator--() noexcept {
 /**
  * @brief Pre-increment operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return const_iterator& - reference to the incremented const_iterator.
  */
 template <typename K, typename M>
@@ -1827,8 +1708,6 @@ tree<K, M>::const_iterator::operator++() noexcept {
 /**
  * @brief Increments the constant iterator and returns the original position.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return A `const_iterator` representing the original position of the
  * iterator before the increment.
  */
@@ -1855,8 +1734,6 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator--(
 /**
  * @brief Decrements the constant iterator and returns the original position.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return A `const_iterator` representing the original position of the
  * iterator before the decrement.
  */
@@ -1875,8 +1752,6 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator+(
 /**
  * @brief Addition operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to shift.
  * @return const_iterator - the shifted const_iterator.
  */
@@ -1895,8 +1770,6 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator-(
 /**
  * @brief Moves the const_iterator back by a specified number of positions.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to move the const_iterator backward.
  */
 template <typename K, typename M>
@@ -1909,8 +1782,6 @@ void tree<K, M>::const_iterator::operator+=(size_type shift) noexcept {
 /**
  * @brief Advances the const_iterator by a specified number of positions.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] shift The number of positions to advance the const_iterator.
  */
 template <typename K, typename M>
@@ -1923,8 +1794,6 @@ void tree<K, M>::const_iterator::operator-=(size_type shift) noexcept {
 /**
  * @brief Equality comparison operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The const_iterator to compare with.
  * @return true if the const_iterators are equal, false otherwise.
  */
@@ -1939,8 +1808,6 @@ bool tree<K, M>::const_iterator::operator==(
 /**
  * @brief Inequality comparison operator for the tree const_iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @param[in] other The const_iterator to compare with.
  * @return true if the const_iterators are not equal, false otherwise.
  */
@@ -1955,8 +1822,6 @@ bool tree<K, M>::const_iterator::operator!=(
 /**
  * @brief Arrow operator for the tree iterator.
  *
- * @tparam K The type of keys stored in the tree.
- * @tparam M The type of values stored in the tree.
  * @return value_type & - reference to pair in current node.
  */
 template <typename K, typename M>

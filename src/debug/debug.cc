@@ -46,13 +46,13 @@ int main() {
     std::cout << i.first << " : " << i.second << std::endl;
   }
   
-  std::cout << "SIZE: " << s21_m1.size() << "\n\n";
+  std::cout << "SIZE: " << s21_m1.max_size() << "\n\n";
   
   for(auto i : std_m1) {
     std::cout << i.first << " : " << i.second << std::endl;
   }
 
-  std::cout << "SIZE: " << std_m1.size() << "\n\n\n\n";
+  std::cout << "SIZE: " << std_m1.max_size() << "\n\n\n\n";
 
   return 0;
 }

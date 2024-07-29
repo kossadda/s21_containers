@@ -221,7 +221,6 @@ vector<V>::vector(size_type n, const_reference value)
  * @details
  * Initializes the vector with the elements from the initializer list.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] items The initializer list containing elements.
  */
 template <typename V>
@@ -236,7 +235,6 @@ vector<V>::vector(const std::initializer_list<value_type> &items)
  * @details
  * Constructs a vector by copying another vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] v The vector to copy.
  */
 template <typename V>
@@ -251,7 +249,6 @@ vector<V>::vector(const vector &v)
  * @details
  * Constructs a vector by moving another vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[out] v The vector to move.
  */
 template <typename V>
@@ -266,7 +263,6 @@ vector<V>::vector(vector &&v) noexcept
  * @details
  * Destroys the vector and frees allocated memory.
  *
- * @tparam V The type of elements stored in the vector.
  */
 template <typename V>
 vector<V>::~vector() noexcept {
@@ -279,7 +275,6 @@ vector<V>::~vector() noexcept {
  * @details
  * Assigns the contents of another vector to this vector using move semantics.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[out] v The vector to move.
  * @return vector& - reference to the assigned vector.
  */
@@ -310,7 +305,6 @@ vector<V> &vector<V>::operator=(const vector &v) {
 /**
  * @brief Returns an iterator to the beginning of the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return iterator - an iterator to the beginning of the vector.
  */
 template <typename V>
@@ -321,7 +315,6 @@ typename vector<V>::iterator vector<V>::begin() const noexcept {
 /**
  * @brief Returns an iterator to the end of the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return iterator - an iterator to the end of the vector.
  */
 template <typename V>
@@ -332,7 +325,6 @@ typename vector<V>::iterator vector<V>::end() const noexcept {
 /**
  * @brief Returns a const_iterator to the beginning of the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return const_iterator - const_iterator to the beginning of the vector.
  */
 template <typename V>
@@ -343,7 +335,6 @@ typename vector<V>::const_iterator vector<V>::cbegin() const noexcept {
 /**
  * @brief Returns a const_iterator to the end of the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return const_iterator - const_iterator to the end of the vector.
  */
 template <typename V>
@@ -358,7 +349,6 @@ typename vector<V>::const_iterator vector<V>::cend() const noexcept {
 /**
  * @brief Checks if the vector is empty.
  *
- * @tparam V The type of elements stored in the vector.
  * @return true if the vector is empty, false otherwise.
  */
 template <typename V>
@@ -369,7 +359,6 @@ bool vector<V>::empty() const noexcept {
 /**
  * @brief Returns the number of elements in the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return size_type - the number of elements in the vector.
  */
 template <typename V>
@@ -380,7 +369,6 @@ typename vector<V>::size_type vector<V>::size() const noexcept {
 /**
  * @brief Returns the maximum number of elements the vector can hold.
  *
- * @tparam V The type of elements stored in the vector.
  * @return size_type - the maximum number of elements.
  */
 template <typename V>
@@ -391,7 +379,6 @@ typename vector<V>::size_type vector<V>::max_size() const noexcept {
 /**
  * @brief Reserves memory for the specified number of elements.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] size The number of elements to reserve memory for.
  * @throw std::length_error - if the reserve size greater than max_size().
  */
@@ -413,7 +400,6 @@ void vector<V>::reserve(size_type size) {
 /**
  * @brief Returns the current capacity of the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return size_type - the current capacity.
  */
 template <typename V>
@@ -424,7 +410,6 @@ typename vector<V>::size_type vector<V>::capacity() const noexcept {
 /**
  * @brief Reduces the capacity of the vector to fit its size.
  *
- * @tparam V The type of elements stored in the vector.
  */
 template <typename V>
 void vector<V>::shrink_to_fit() {
@@ -444,7 +429,6 @@ void vector<V>::shrink_to_fit() {
 /**
  * @brief Returns a reference to the element at the specified position.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] pos The position of the element.
  * @return reference - a reference to the element at the specified position.
  * @throw std::out_of_range - if element position out of vector range.
@@ -461,7 +445,6 @@ typename vector<V>::reference vector<V>::at(size_type pos) const {
 /**
  * @brief Returns a reference to the element at the specified position.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] pos The position of the element.
  * @return reference - a reference to the element at the specified position.
  */
@@ -474,7 +457,6 @@ typename vector<V>::reference vector<V>::operator[](
 /**
  * @brief Returns a reference to the first element in the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return const_reference - a reference to the first element.
  */
 template <typename V>
@@ -485,7 +467,6 @@ typename vector<V>::const_reference vector<V>::front() const noexcept {
 /**
  * @brief Returns a reference to the last element in the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return const_reference - a reference to the last element.
  */
 template <typename V>
@@ -496,7 +477,6 @@ typename vector<V>::const_reference vector<V>::back() const noexcept {
 /**
  * @brief Returns a pointer to the first element in the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return pointer - a pointer to the first element.
  */
 template <typename V>
@@ -516,7 +496,6 @@ typename vector<V>::pointer vector<V>::data() const noexcept {
  * unchanged, and the memory allocated for the elements is still available for
  * reuse.
  *
- * @tparam V The type of elements stored in the vector.
  */
 template <typename V>
 void vector<V>::clear() noexcept {
@@ -534,7 +513,6 @@ void vector<V>::clear() noexcept {
  * moved to make space for the new elements, and the size of the vector is
  * updated accordingly.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] pos Iterator position at which to insert the new elements.
  * @param[in] value The value to insert.
  * @param[in] count The number of copies of value to insert.
@@ -572,7 +550,6 @@ typename vector<V>::const_iterator vector<V>::insert(const_iterator pos,
  * This function removes elements in the range [pos, last_pos). If last_pos is
  * not provided, it removes the single element at the position pos.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] pos An iterator pointing to the first element to be removed.
  * @param[in] last_pos An iterator pointing to one past the last element to be
  * removed. Defaults to nullptr.
@@ -610,7 +587,6 @@ void vector<V>::erase(const_iterator pos, const_iterator last_pos) {
  * constructed in place using placement new, avoiding the use of the
  * assignment operator.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[in] value The value to be added to the end of the vector.
  */
 template <typename V>
@@ -631,7 +607,6 @@ void vector<V>::push_back(const_reference value) {
  * allocated for the elements,it only decreases the size of the vector. The
  * capacity remains unchanged.
  *
- * @tparam V The type of elements stored in the vector.
  */
 template <typename V>
 void vector<V>::pop_back() noexcept {
@@ -647,7 +622,6 @@ void vector<V>::pop_back() noexcept {
  * other. It performs the swap by exchanging the internal pointers and metadata,
  * making the operation very efficient.
  *
- * @tparam V The type of elements stored in the vector.
  * @param[out] other The vector to swap contents with.
  */
 template <typename V>
@@ -664,7 +638,6 @@ void vector<V>::swap(vector &other) noexcept {
 /**
  * @brief Allocates memory for the vector.
  *
- * @tparam V The type of elements stored in the vector.
  * @return pointer A pointer to the allocated memory.
  * @throw std::bad_alloc - if the allocation failed.
  */
@@ -680,7 +653,6 @@ typename vector<V>::pointer vector<V>::allocateMemory(size_type size,
 /**
  * @brief Frees the memory allocated for the vector.
  *
- * @tparam V The type of elements stored in the vector.
  */
 template <typename V>
 void vector<V>::freeMemory() noexcept {
@@ -703,7 +675,6 @@ void vector<V>::freeMemory() noexcept {
  * Takes a pointer to value_type as input and converts it to an object of type
  * const_iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] ptr Pointer to the element.
  */
 template <typename V>
@@ -712,7 +683,6 @@ vector<V>::const_iterator::VectorConstIterator(const pointer ptr) : ptr_{ptr} {}
 /**
  * @brief Copy constructor from other const_iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The const_iterator to copy from.
  */
 template <typename V>
@@ -731,7 +701,6 @@ vector<V>::const_iterator::VectorConstIterator(const const_iterator &other)
  * that require a raw pointer, while the const_iterator provides a more
  * convenient and type-safe way to access and traverse elements of the vector.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return pointer - a raw pointer to the underlying element of type value_type
  * that the const_iterator points to.
  */
@@ -743,7 +712,6 @@ vector<V>::const_iterator::operator V *() const noexcept {
 /**
  * @brief Dereference operator for constant access.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return const_reference - reference to the value pointed by the
  * const_iterator.
  * @throw std::invalid_argument - if the const_iterator is empty.
@@ -762,7 +730,6 @@ typename vector<V>::const_reference vector<V>::const_iterator::operator*()
 /**
  * @brief Assignment operator from other const_iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The const_iterator to assign from.
  * @return const_iterator - reference to the updated const_iterator.
  */
@@ -777,7 +744,6 @@ typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
 /**
  * @brief Assignment operator from a pointer.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] ptr Pointer to the element.
  * @return const_iterator - reference to the updated const_iterator.
  */
@@ -792,7 +758,6 @@ typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
 /**
  * @brief Pre-decrement operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated const_iterator.
  */
 template <typename V>
@@ -806,7 +771,6 @@ vector<V>::const_iterator::operator--() noexcept {
 /**
  * @brief Post-decrement operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return const_iterator - copy of the const_iterator before the decrement.
  */
 template <typename V>
@@ -821,7 +785,6 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator--(
 /**
  * @brief Pre-increment operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated const_iterator.
  */
 template <typename V>
@@ -835,7 +798,6 @@ vector<V>::const_iterator::operator++() noexcept {
 /**
  * @brief Post-increment operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return const_iterator - copy of the const_iterator before the increment.
  */
 template <typename V>
@@ -851,7 +813,6 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator++(
  * @brief Subtraction operator for shifting the const_iterator by a given number
  * of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  * @return const_iterator - new const_iterator shifted by the specified
  * positions.
@@ -868,7 +829,6 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator-(
 /**
  * @brief Difference operator to calculate the distance between two iterators.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other const_iterator to calculate the distance from.
  * @return size_type - distance between the iterators.
  */
@@ -882,7 +842,6 @@ typename vector<V>::size_type vector<V>::const_iterator::operator-(
  * @brief Addition operator for shifting the const_iterator by a given number of
  * positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  * @return const_iterator - new const_iterator shifted by the specified
  * positions.
@@ -900,7 +859,6 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator+(
  * @brief Subtraction assignment operator to shift the const_iterator by a given
  * number of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  */
 template <typename V>
@@ -912,7 +870,6 @@ void vector<V>::const_iterator::operator-=(const int shift) noexcept {
  * @brief Addition assignment operator to shift the const_iterator by a given
  * number of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  */
 template <typename V>
@@ -923,7 +880,6 @@ void vector<V>::const_iterator::operator+=(const int shift) noexcept {
 /**
  * @brief Equality comparison operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other const_iterator to compare with.
  * @return true - if the iterators are equal.
  * @return false - if the iterators are not equal.
@@ -937,7 +893,6 @@ bool vector<V>::const_iterator::operator==(
 /**
  * @brief Inequality comparison operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other const_iterator to compare with.
  * @return true - if the iterators are not equal.
  * @return false - if the iterators are equal.
@@ -959,7 +914,6 @@ bool vector<V>::const_iterator::operator!=(
  * Takes a pointer to value_type as input and converts it to an object of type
  * iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] ptr Pointer to the element.
  */
 template <typename V>
@@ -968,7 +922,6 @@ vector<V>::iterator::VectorIterator(const pointer ptr) : ptr_{ptr} {}
 /**
  * @brief Copy constructor from other iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The iterator to copy from.
  */
 template <typename V>
@@ -986,19 +939,17 @@ vector<V>::iterator::VectorIterator(const iterator &other) : ptr_{other.ptr_} {}
  * that require a raw pointer, while the iterator provides a more
  * convenient and type-safe way to access and traverse elements of the vector.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return pointer - a raw pointer to the underlying element of type value_type
  * that the iterator points to.
  */
-template <typename V>
-vector<V>::iterator::operator V *() const noexcept {
-  return ptr_;
-}
+// template <typename V>
+// vector<V>::iterator::operator V *() const noexcept {
+//   return ptr_;
+// }
 
 /**
  * @brief Assignment operator from other iterator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The iterator to assign from.
  * @return iterator - reference to the updated iterator.
  */
@@ -1013,7 +964,6 @@ typename vector<V>::iterator &vector<V>::iterator::operator=(
 /**
  * @brief Assignment operator from a pointer.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] ptr Pointer to the element.
  * @return iterator - reference to the updated iterator.
  */
@@ -1028,7 +978,6 @@ typename vector<V>::iterator &vector<V>::iterator::operator=(
 /**
  * @brief Pre-decrement operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated iterator.
  */
 template <typename V>
@@ -1041,7 +990,6 @@ typename vector<V>::iterator &vector<V>::iterator::operator--() noexcept {
 /**
  * @brief Post-decrement operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return iterator - copy of the iterator before the decrement.
  */
 template <typename V>
@@ -1055,7 +1003,6 @@ typename vector<V>::iterator vector<V>::iterator::operator--(int) noexcept {
 /**
  * @brief Pre-increment operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the updated iterator.
  */
 template <typename V>
@@ -1068,7 +1015,6 @@ typename vector<V>::iterator &vector<V>::iterator::operator++() noexcept {
 /**
  * @brief Post-increment operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return iterator - copy of the iterator before the increment.
  */
 template <typename V>
@@ -1083,7 +1029,6 @@ typename vector<V>::iterator vector<V>::iterator::operator++(int) noexcept {
  * @brief Subtraction operator for shifting the iterator by a given number
  * of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  * @return iterator - new iterator shifted by the specified
  * positions.
@@ -1100,7 +1045,6 @@ typename vector<V>::iterator vector<V>::iterator::operator-(
 /**
  * @brief Difference operator to calculate the distance between two iterators.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other iterator to calculate the distance from.
  * @return size_type - distance between the iterators.
  */
@@ -1114,7 +1058,6 @@ typename vector<V>::size_type vector<V>::iterator::operator-(
  * @brief Addition operator for shifting the iterator by a given number of
  * positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  * @return iterator - new iterator shifted by the specified
  * positions.
@@ -1132,7 +1075,6 @@ typename vector<V>::iterator vector<V>::iterator::operator+(
  * @brief Subtraction assignment operator to shift the iterator by a given
  * number of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  */
 template <typename V>
@@ -1144,7 +1086,6 @@ void vector<V>::iterator::operator-=(const int shift) noexcept {
  * @brief Addition assignment operator to shift the iterator by a given
  * number of positions.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] shift Number of positions to shift.
  */
 template <typename V>
@@ -1155,7 +1096,6 @@ void vector<V>::iterator::operator+=(const int shift) noexcept {
 /**
  * @brief Equality comparison operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other iterator to compare with.
  * @return true - if the iterators are equal.
  * @return false - if the iterators are not equal.
@@ -1168,7 +1108,6 @@ bool vector<V>::iterator::operator==(iterator other) const noexcept {
 /**
  * @brief Inequality comparison operator.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @param[in] other The other iterator to compare with.
  * @return true - if the iterators are not equal.
  * @return false - if the iterators are equal.
@@ -1181,7 +1120,6 @@ bool vector<V>::iterator::operator!=(iterator other) const noexcept {
 /**
  * @brief Dereference operator for non-constant access.
  *
- * @tparam value_type The type of the elements to be iterated over.
  * @return reference - reference to the value pointed by the iterator.
  * @throw std::invalid_argument - if the iterator is empty.
  */
