@@ -953,11 +953,11 @@ TEST(tree, insert_nonunique) {
   EXPECT_EQ(it, t1.end());
 }
 
-TEST(tree, search) {
+TEST(tree, find) {
   tree t1{{15, 15}, {9, 9},   {13, 13}, {1, 1}, {7, 7}, {42, 42},  {21, 21},
           {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
-  auto it = t1.search(45);
+  auto it = t1.find(45);
 
   EXPECT_EQ((*(it - 1)).first, 42);
   EXPECT_EQ((*it).first, 45);
@@ -969,7 +969,7 @@ TEST(tree, erase_by_key) {
           {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
   auto next_it = t1.erase(45);
-  auto it = t1.search(42);
+  auto it = t1.find(42);
 
   EXPECT_EQ((*it).first, 42);
   EXPECT_EQ((*(it + 1)).first, 100);
@@ -980,8 +980,8 @@ TEST(tree, erase_by_iterator) {
   tree t1{{15, 15}, {9, 9},   {13, 13}, {1, 1}, {7, 7}, {42, 42},  {21, 21},
           {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
-  t1.erase(t1.search(45));
-  auto it = t1.search(42);
+  t1.erase(t1.find(45));
+  auto it = t1.find(42);
 
   EXPECT_EQ((*it).first, 42);
   EXPECT_EQ((*(it + 1)).first, 100);

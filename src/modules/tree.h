@@ -39,11 +39,11 @@ class tree {
   // Container types
 
   struct Node;
-  class TreeIterator;
-  class TreeConstIterator;
   enum Colors { RED, BLACK };
 
  public:
+  class TreeIterator;
+  class TreeConstIterator;
   enum Uniq { UNIQUE, NON_UNIQUE };
 
   // Type aliases
@@ -82,10 +82,11 @@ class tree {
 
   // Working with tree
 
-  iterator search(const key_type &key) const;
+  iterator find(const key_type &key) const;
   iterator insert(const value_type &pair);
   iterator erase(const key_type &key) noexcept;
   iterator erase(const_iterator it) noexcept;
+  iterator erase(const_iterator first, const_iterator last);
   size_type size() const noexcept;
   void merge(tree &other);
   void clear() noexcept;
@@ -149,18 +150,20 @@ class tree {
  */
 template <typename K, typename M>
 class tree<K, M>::TreeIterator {
- private:
+ protected:
   Node *ptr_{};    ///< Pointer to the current node
   Node *first_{};  ///< Pointer to the lowest node
   Node *last_{};   ///< Pointer to a dummy node
 
  public:
   // Constructors
+
   TreeIterator() noexcept = default;
   TreeIterator(Node *node, Node *root, Node *sentinel) noexcept;
   TreeIterator(const iterator &other) noexcept;
 
   // Operators
+
   iterator &operator=(const iterator &other) noexcept;
   iterator &operator--() noexcept;
   iterator &operator++() noexcept;
@@ -206,18 +209,20 @@ class tree<K, M>::TreeIterator {
  */
 template <typename K, typename M>
 class tree<K, M>::TreeConstIterator {
- private:
+ protected:
   Node *ptr_{};    ///< Pointer to the current node
   Node *first_{};  ///< Pointer to the lowest node
   Node *last_{};   ///< Pointer to a dummy node
 
  public:
   // Constructors
+
   TreeConstIterator() noexcept = default;
   TreeConstIterator(Node *node, Node *root, Node *sentinel) noexcept;
   TreeConstIterator(const const_iterator &other) noexcept;
 
   // Operators
+
   const_iterator &operator=(const const_iterator &other) noexcept;
   const_iterator &operator--() noexcept;
   const_iterator &operator++() noexcept;
@@ -479,7 +484,7 @@ typename tree<K, M>::const_iterator tree<K, M>::cend() const noexcept {
  * nullptr if the key is not found.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::search(const key_type &key) const {
+typename tree<K, M>::iterator tree<K, M>::find(const key_type &key) const {
   Node *find = findNode(root_, key);
 
   return (find) ? iterator{find, root_, sentinel_} : end();
@@ -539,6 +544,76 @@ typename tree<K, M>::iterator tree<K, M>::erase(const_iterator it) noexcept {
 }
 
 /**
+ * @brief Erases the elements in the specified range.
+ *
+ * @details
+ * This method removes the elements in the range [first, last) from the tree.
+ *
+ * @param[in] first The position of the first element to erase.
+ * @param[in] last The position following the last element to erase.
+ * @return iterator - an iterator to the element following the last erased
+ * element, or end() if the last erased element was the last element.
+ * @throws std::range_error if the range is invalid.
+ */
+template <typename K, typename M>
+typename tree<K, M>::iterator tree<K, M>::erase(const_iterator first,
+                                                const_iterator last) {
+  if (first == last) {
+    return first.toIterator();
+  } else if (first == begin() && last == end()) {
+    clear();
+    return end();
+  }
+
+  bool has_first{};
+  bool has_last{(last == cend()) ? true : false};
+
+  for (auto i = cbegin(); i != cend() && !(has_first && has_last); i++) {
+    if (first == i) {
+      if (!has_last || last == cend()) {
+        has_first = true;
+      }
+    } else if (last == i && has_first) {
+      has_last = true;
+    }
+  }
+
+  if (!has_first || !has_last) {
+    throw std::range_error("map::erase() - invalid map range");
+  }
+
+  key_type first_key = (*first).first;
+
+  iterator ret_it;
+
+  if (last == end()) {
+    ret_it = --find((*first).first);
+
+    for (auto it = cbegin(); it != cend(); it++) {
+      auto current = (*it).first;
+
+      if (current >= first_key) {
+        erase(current);
+        it = cbegin();
+      }
+    }
+  } else {
+    key_type last_key = (*last).first;
+    ret_it = --find(last_key);
+
+    for (auto it = cbegin(); it != cend(); it++) {
+      auto current = (*it).first;
+      if (current >= first_key && current < last_key) {
+        erase(current);
+        it = cbegin();
+      }
+    }
+  }
+
+  return ret_it;
+}
+
+/**
  * @brief Returns the number of elements in the tree.
  *
  * @details
@@ -589,7 +664,6 @@ void tree<K, M>::merge(tree &other) {
 
 /**
  * @brief Cleans the tree by deleting all nodes.
- *
  */
 template <typename K, typename M>
 void tree<K, M>::clear() noexcept {
@@ -610,9 +684,7 @@ void tree<K, M>::clear() noexcept {
  */
 template <typename K, typename M>
 std::string tree<K, M>::structure() const noexcept {
-  std::string str = printNodes(root_);
-
-  return str;
+  return printNodes(root_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

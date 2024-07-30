@@ -12,47 +12,32 @@
 
 #include "./../s21_containers.h"
 #include <map>
+#include <set>
 
-using m = s21::map<const int, int>;
-using md = std::map<const int, int>;
-using p = std::pair<const int, int>;
+using map = s21::map<const int, int>;
+using set = s21::set<const int>;
+using smap = std::map<const int, int>;
 using tree = s21::tree<int, int>;
 using vector = s21::vector<int>;
+using sset = std::set<int>;
 
 int main() {
-  m s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {10, 10}, {20, 20}, {30, 30}, {40, 40}, {50, 50}};
+  set s{12, 2, 13, 44, 35};
+  sset ss{12, 2, 13, 44, 35};
 
-  md std_m1 = {{1, 1}, {2, 2}, {3, 3}, {10, 10}, {20, 20}, {30, 30}, {40, 40}, {50, 50}};
-
-  auto s21_it1 = s21_m1.begin();
-  auto std_it1 = std_m1.begin();
-  ++s21_it1;
-  ++std_it1;
-  ++s21_it1;
-  ++std_it1;
-  auto s21_it2{s21_it1};
-  auto std_it2{std_it1};
-  ++s21_it2;
-  ++std_it2;
-  ++s21_it2;
-  ++std_it2;
-
-  auto kk = --std_m1.end();
-  s21_m1.erase(s21_it1, --s21_m1.end());
-  std_m1.erase(std_it1, kk);
-
-
-  for(auto i : s21_m1) {
-    std::cout << i.first << " : " << i.second << std::endl;
+  for(auto i : s) {
+    std::cout << i << " ";
   }
-  
-  std::cout << "SIZE: " << s21_m1.max_size() << "\n\n";
-  
-  for(auto i : std_m1) {
-    std::cout << i.first << " : " << i.second << std::endl;
-  }
+  std::cout << "\n\n";
+  std::cout << s.max_size() << "\n\n";
 
-  std::cout << "SIZE: " << std_m1.max_size() << "\n\n\n\n";
+
+  for(auto i : ss) {
+    std::cout << i << " ";
+  }
+  std::cout << "\n\n";
+  std::cout << ss.max_size() << "\n\n";
+
 
   return 0;
 }

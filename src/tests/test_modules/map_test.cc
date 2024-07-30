@@ -138,16 +138,22 @@ TEST(MapTest, Erase) {
 
   auto s21_it = s21_m.begin();
   auto std_it = std_m.begin();
+
   s21_m.erase(s21_it);
   std_m.erase(std_it);
+
   compare(s21_m, std_m);
 
   s21_it = s21_m.begin();
   ++s21_it;
   std_it = std_m.begin();
   ++std_it;
-  s21_m.erase(s21_it);
-  std_m.erase(std_it);
+
+  auto s21_check = s21_m.erase(s21_it);
+  auto std_check = std_m.erase(std_it);
+
+  EXPECT_EQ((*s21_check).first, (*std_check).first);
+
   compare(s21_m, std_m);
 }
 
@@ -171,8 +177,10 @@ TEST(MapTest, EraseRange_1) {
   ++std_it_end;
   ++std_it_end;
 
-  s21_m.erase(s21_it_begin, s21_it_end);
-  std_m.erase(std_it_begin, std_it_end);
+  auto s21_it = s21_m.erase(s21_it_begin, s21_it_end);
+  auto std_it = std_m.erase(std_it_begin, std_it_end);
+
+  EXPECT_EQ((*s21_it).first, (*std_it).first);
 
   compare(s21_m, std_m);
 }
@@ -191,8 +199,10 @@ TEST(MapTest, EraseRange_2) {
   auto std_it_end = std_it_begin;
   ++std_it_end;
 
-  s21_m.erase(s21_it_begin, s21_it_end);
-  std_m.erase(std_it_begin, std_it_end);
+  auto s21_it = s21_m.erase(s21_it_begin, s21_it_end);
+  auto std_it = std_m.erase(std_it_begin, std_it_end);
+
+  EXPECT_EQ((*s21_it).first, (*std_it).first);
 
   compare(s21_m, std_m);
 }
@@ -260,6 +270,14 @@ TEST(MapTest, Clear) {
   compare(s21_m, std_m);
 }
 
+TEST(MapTest, Contains) {
+  s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+  std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+
+  compare(s21_m, std_m);
+  EXPECT_FALSE(s21_m.conatains(6));
+}
+
 TEST(MapTest, At) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
@@ -269,18 +287,18 @@ TEST(MapTest, At) {
   EXPECT_THROW(std_m.at(6), std::out_of_range);
 }
 
-// TEST(MapTest, OperatorBracket) {
-//   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
-//   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+TEST(MapTest, OperatorBracket) {
+  s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+  std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
-//   compare(s21_m, std_m);
-//   s21_m[6] = 6;
-//   std_m[6] = 6;
-//   compare(s21_m, std_m);
-//   s21_m[3] = 11;
-//   std_m[3] = 11;
-//   compare(s21_m, std_m);
-// }
+  compare(s21_m, std_m);
+  s21_m[6] = 6;
+  std_m[6] = 6;
+  compare(s21_m, std_m);
+  s21_m[3] = 11;
+  std_m[3] = 11;
+  compare(s21_m, std_m);
+}
 
 TEST(MapTest, Swap) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}};
