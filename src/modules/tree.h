@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -88,6 +89,7 @@ class tree {
   iterator erase(const_iterator it) noexcept;
   iterator erase(const_iterator first, const_iterator last);
   size_type size() const noexcept;
+  size_type max_size() const noexcept;
   void merge(tree &other);
   void clear() noexcept;
   std::string structure() const noexcept;
@@ -271,12 +273,7 @@ class tree<K, M>::Node {
   /**
    * @brief Destructor. Destroys nodes pair.
    */
-  ~Node() {
-    if (pair) {
-      delete pair;
-      pair = nullptr;
-    }
-  }
+  ~Node() { delete pair; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -438,7 +435,7 @@ tree<K, M>::~tree() {
  * @return iterator - an iterator to the beginning of the tree.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::begin() const noexcept {
+auto tree<K, M>::begin() const noexcept -> iterator {
   return iterator{findMin(root_), root_, sentinel_};
 }
 
@@ -448,7 +445,7 @@ typename tree<K, M>::iterator tree<K, M>::begin() const noexcept {
  * @return iterator - an iterator to the end of the tree.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::end() const noexcept {
+auto tree<K, M>::end() const noexcept -> iterator {
   return iterator{sentinel_, root_, findMax(root_)};
 }
 
@@ -458,7 +455,7 @@ typename tree<K, M>::iterator tree<K, M>::end() const noexcept {
  * @return iterator - an iterator to the beginning of the tree.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::cbegin() const noexcept {
+auto tree<K, M>::cbegin() const noexcept -> const_iterator {
   return const_iterator{findMin(root_), root_, sentinel_};
 }
 
@@ -468,7 +465,7 @@ typename tree<K, M>::const_iterator tree<K, M>::cbegin() const noexcept {
  * @return iterator - an iterator to the end of the tree.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::cend() const noexcept {
+auto tree<K, M>::cend() const noexcept -> const_iterator {
   return const_iterator{sentinel_, root_, findMax(root_)};
 }
 
@@ -484,7 +481,7 @@ typename tree<K, M>::const_iterator tree<K, M>::cend() const noexcept {
  * nullptr if the key is not found.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::find(const key_type &key) const {
+auto tree<K, M>::find(const key_type &key) const -> iterator {
   Node *find = findNode(root_, key);
 
   return (find) ? iterator{find, root_, sentinel_} : end();
@@ -496,7 +493,7 @@ typename tree<K, M>::iterator tree<K, M>::find(const key_type &key) const {
  * @param[in] pair The pair of key/value for node.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::insert(const value_type &pair) {
+auto tree<K, M>::insert(const value_type &pair) -> iterator {
   if (type_ == UNIQUE && findNode(root_, pair.first)) {
     return end();
   }
@@ -516,7 +513,7 @@ typename tree<K, M>::iterator tree<K, M>::insert(const value_type &pair) {
  * @param[in] key The key of the node to remove.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
+auto tree<K, M>::erase(const key_type &key) noexcept -> iterator {
   Node *node = findNode(root_, key);
   iterator it = (node) ? ++iterator{node, root_, sentinel_} : end();
 
@@ -539,7 +536,7 @@ typename tree<K, M>::iterator tree<K, M>::erase(const key_type &key) noexcept {
  * end() if the erased node was the last node.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::erase(const_iterator it) noexcept {
+auto tree<K, M>::erase(const_iterator it) noexcept -> iterator {
   return erase((*it).first);
 }
 
@@ -556,8 +553,7 @@ typename tree<K, M>::iterator tree<K, M>::erase(const_iterator it) noexcept {
  * @throws std::range_error if the range is invalid.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::erase(const_iterator first,
-                                                const_iterator last) {
+auto tree<K, M>::erase(const_iterator first, const_iterator last) -> iterator {
   if (first == last) {
     return first.toIterator();
   } else if (first == begin() && last == end()) {
@@ -623,8 +619,18 @@ typename tree<K, M>::iterator tree<K, M>::erase(const_iterator first,
  * @return size_type - the number of elements in the tree.
  */
 template <typename K, typename M>
-typename tree<K, M>::size_type tree<K, M>::size() const noexcept {
+auto tree<K, M>::size() const noexcept -> size_type {
   return size_;
+}
+
+/**
+ * @brief Returns the maximum number of elements the tree can hold.
+ *
+ * @return size_type - the maximum number of elements.
+ */
+template <typename K, typename M>
+auto tree<K, M>::max_size() const noexcept -> size_type {
+  return std::numeric_limits<size_type>::max() / sizeof(Node) / 2;
 }
 
 /**
@@ -701,8 +707,8 @@ std::string tree<K, M>::structure() const noexcept {
  * @return Node* - a pointer to the newly created node.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::createNode(const value_type &pair,
-                                                  Node *&node, Node *parent) {
+auto tree<K, M>::createNode(const value_type &pair, Node *&node, Node *parent)
+    -> Node * {
   Node *ret_node{root_};
 
   if (!node) {
@@ -779,7 +785,7 @@ void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
  * @return Node* - a pointer to the node that was extracted.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::extractNode(Node *node) noexcept {
+auto tree<K, M>::extractNode(Node *node) noexcept -> Node * {
   if (!node) {
     return nullptr;
   }
@@ -1056,8 +1062,8 @@ void tree<K, M>::swapColors(Node *node) noexcept {
  * found.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::findNode(
-    Node *node, const key_type &key) const noexcept {
+auto tree<K, M>::findNode(Node *node, const key_type &key) const noexcept
+    -> Node * {
   if (!node) {
     return nullptr;
   }
@@ -1078,7 +1084,7 @@ typename tree<K, M>::Node *tree<K, M>::findNode(
  * @return Node* - the node with the maximum key.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::findMax(Node *node) noexcept {
+auto tree<K, M>::findMax(Node *node) noexcept -> Node * {
   while (node && node->right) {
     node = node->right;
   }
@@ -1093,7 +1099,7 @@ typename tree<K, M>::Node *tree<K, M>::findMax(Node *node) noexcept {
  * @return Node* - the node with the minimum key.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::findMin(Node *node) noexcept {
+auto tree<K, M>::findMin(Node *node) noexcept -> Node * {
   while (node && node->left) {
     node = node->left;
   }
@@ -1119,7 +1125,7 @@ typename tree<K, M>::Node *tree<K, M>::findMin(Node *node) noexcept {
  * @return Node* - a pointer to the node that was actually deleted.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
+auto tree<K, M>::deleteTwoChild(Node *&node) noexcept -> Node * {
   Node *swap = findMax(node->left);
   Node *to_del{swap};
 
@@ -1162,8 +1168,7 @@ typename tree<K, M>::Node *tree<K, M>::deleteTwoChild(Node *&node) noexcept {
  * @return Node* - a pointer to the node that was actually deleted.
  */
 template <typename K, typename M>
-typename tree<K, M>::Node *tree<K, M>::deleteOneChild(Node *&node,
-                                                      Node *&child) noexcept {
+auto tree<K, M>::deleteOneChild(Node *&node, Node *&child) noexcept -> Node * {
   Node *ch = child;
 
   value_type node_copy{*node->pair};
@@ -1451,8 +1456,8 @@ tree<K, M>::iterator::TreeIterator(const iterator &other) noexcept
  * @return iterator& - reference to the assigned iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator &tree<K, M>::iterator::operator=(
-    const iterator &other) noexcept {
+auto tree<K, M>::iterator::operator=(const iterator &other) noexcept
+    -> iterator & {
   ptr_ = other.ptr_;
   first_ = other.first_;
   last_ = other.last_;
@@ -1466,7 +1471,7 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator=(
  * @return iterator& - reference to the decremented iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator &tree<K, M>::iterator::operator--() noexcept {
+auto tree<K, M>::iterator::operator--() noexcept -> iterator & {
   Node *max_node = findMax(first_);
 
   if (last_ == max_node) {
@@ -1497,7 +1502,7 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator--() noexcept {
  * @return iterator& - reference to the incremented iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator &tree<K, M>::iterator::operator++() noexcept {
+auto tree<K, M>::iterator::operator++() noexcept -> iterator & {
   Node *max_node = findMax(first_);
 
   if (ptr_ == max_node) {
@@ -1527,7 +1532,7 @@ typename tree<K, M>::iterator &tree<K, M>::iterator::operator++() noexcept {
  * before the increment.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::iterator::operator++(int) noexcept {
+auto tree<K, M>::iterator::operator++(int) noexcept -> iterator {
   iterator copy{*this};
 
   ++*this;
@@ -1547,7 +1552,7 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator++(int) noexcept {
  * before the decrement.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::iterator::operator--(int) noexcept {
+auto tree<K, M>::iterator::operator--(int) noexcept -> iterator {
   iterator copy{*this};
 
   --*this;
@@ -1562,8 +1567,8 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator--(int) noexcept {
  * @return iterator - the shifted iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::iterator::operator+(
-    size_type shift) const noexcept {
+auto tree<K, M>::iterator::operator+(size_type shift) const noexcept
+    -> iterator {
   iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1580,8 +1585,8 @@ typename tree<K, M>::iterator tree<K, M>::iterator::operator+(
  * @return iterator - the shifted iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::iterator::operator-(
-    size_type shift) const noexcept {
+auto tree<K, M>::iterator::operator-(size_type shift) const noexcept
+    -> iterator {
   iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1690,8 +1695,7 @@ tree<K, M>::const_iterator::TreeConstIterator(
  * range as the constant iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::iterator tree<K, M>::const_iterator::toIterator()
-    const noexcept {
+auto tree<K, M>::const_iterator::toIterator() const noexcept -> iterator {
   return iterator{ptr_, first_, last_};
 }
 
@@ -1706,8 +1710,8 @@ typename tree<K, M>::iterator tree<K, M>::const_iterator::toIterator()
  * @return const_iterator& - reference to the assigned const_iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator &tree<K, M>::const_iterator::operator=(
-    const const_iterator &other) noexcept {
+auto tree<K, M>::const_iterator::operator=(const const_iterator &other) noexcept
+    -> const_iterator & {
   ptr_ = other.ptr_;
   first_ = other.first_;
   last_ = other.last_;
@@ -1721,8 +1725,7 @@ typename tree<K, M>::const_iterator &tree<K, M>::const_iterator::operator=(
  * @return const_iterator& - reference to the decremented const_iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator &
-tree<K, M>::const_iterator::operator--() noexcept {
+auto tree<K, M>::const_iterator::operator--() noexcept -> const_iterator & {
   Node *max_node = findMax(first_);
 
   if (last_ == max_node) {
@@ -1753,8 +1756,7 @@ tree<K, M>::const_iterator::operator--() noexcept {
  * @return const_iterator& - reference to the incremented const_iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator &
-tree<K, M>::const_iterator::operator++() noexcept {
+auto tree<K, M>::const_iterator::operator++() noexcept -> const_iterator & {
   Node *max_node = findMax(first_);
 
   if (ptr_ == max_node) {
@@ -1784,8 +1786,7 @@ tree<K, M>::const_iterator::operator++() noexcept {
  * iterator before the increment.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator++(
-    int) noexcept {
+auto tree<K, M>::const_iterator::operator++(int) noexcept -> const_iterator {
   const_iterator copy{*this};
 
   ++*this;
@@ -1794,8 +1795,7 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator++(
 }
 
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator--(
-    int) noexcept {
+auto tree<K, M>::const_iterator::operator--(int) noexcept -> const_iterator {
   const_iterator copy{*this};
 
   --*this;
@@ -1810,8 +1810,8 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator--(
  * iterator before the decrement.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator+(
-    size_type shift) const noexcept {
+auto tree<K, M>::const_iterator::operator+(size_type shift) const noexcept
+    -> const_iterator {
   const_iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1828,8 +1828,8 @@ typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator+(
  * @return const_iterator - the shifted const_iterator.
  */
 template <typename K, typename M>
-typename tree<K, M>::const_iterator tree<K, M>::const_iterator::operator-(
-    size_type shift) const noexcept {
+auto tree<K, M>::const_iterator::operator-(size_type shift) const noexcept
+    -> const_iterator {
   const_iterator copy{*this};
 
   for (size_type i = 0; i < shift; i++) {
@@ -1897,8 +1897,8 @@ bool tree<K, M>::const_iterator::operator!=(
  * @return value_type & - reference to pair in current node.
  */
 template <typename K, typename M>
-const typename tree<K, M>::value_type tree<K, M>::const_iterator::operator*()
-    const noexcept {
+auto tree<K, M>::const_iterator::operator*() const noexcept
+    -> const value_type {
   return *ptr_->pair;
 }
 

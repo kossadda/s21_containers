@@ -13,6 +13,7 @@
 #define _S21_CONTAINERS_H_
 
 #include "./modules/map.h"
+#include "./modules/multiset.h"
 #include "./modules/set.h"
 #include "./modules/tree.h"
 #include "./modules/vector.h"

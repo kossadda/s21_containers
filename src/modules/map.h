@@ -159,7 +159,7 @@ map<K, M>::map(map &&m)
  * @return map<K, M>& - reference to the assigned map.
  */
 template <typename K, typename M>
-map<K, M> &map<K, M>::operator=(map &&m) {
+auto map<K, M>::operator=(map &&m) -> map & {
   if (this != &m) {
     tree_.clear();
     new (this) map{std::move(m)};
@@ -180,7 +180,7 @@ map<K, M> &map<K, M>::operator=(map &&m) {
  * @return map<K, M>& - reference to the assigned map.
  */
 template <typename K, typename M>
-map<K, M> &map<K, M>::operator=(const map &m) {
+auto map<K, M>::operator=(const map &m) -> map & {
   if (this != &m) {
     tree_.clear();
     new (this) map{m};
@@ -205,7 +205,7 @@ map<K, M> &map<K, M>::operator=(const map &m) {
  * @throws std::out_of_range if the key is not found.
  */
 template <typename K, typename M>
-typename map<K, M>::mapped_type &map<K, M>::at(const key_type &key) const {
+auto map<K, M>::at(const key_type &key) const -> mapped_type & {
   auto it = tree_.find(key);
 
   if (it == tree_.end()) {
@@ -227,8 +227,7 @@ typename map<K, M>::mapped_type &map<K, M>::at(const key_type &key) const {
  * @return mapped_type& - reference to the value associated with the key.
  */
 template <typename K, typename M>
-typename map<K, M>::mapped_type &map<K, M>::operator[](
-    const key_type &key) noexcept {
+auto map<K, M>::operator[](const key_type &key) noexcept -> mapped_type & {
   auto it = tree_.find(key);
 
   if (it == tree_.end()) {
@@ -252,8 +251,8 @@ typename map<K, M>::mapped_type &map<K, M>::operator[](
  * @throws std::out_of_range if the key is not found.
  */
 template <typename K, typename M>
-const typename map<K, M>::mapped_type &map<K, M>::operator[](
-    const key_type &key) const noexcept {
+auto map<K, M>::operator[](const key_type &key) const noexcept
+    -> const mapped_type & {
   return (*tree_.find(key)).second;
 }
 
@@ -270,7 +269,7 @@ const typename map<K, M>::mapped_type &map<K, M>::operator[](
  * @return iterator - an iterator to the beginning of the map.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator map<K, M>::begin() const noexcept {
+auto map<K, M>::begin() const noexcept -> iterator {
   return tree_.begin();
 }
 
@@ -284,7 +283,7 @@ typename map<K, M>::iterator map<K, M>::begin() const noexcept {
  * @return iterator - an iterator to the end of the map.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator map<K, M>::end() const noexcept {
+auto map<K, M>::end() const noexcept -> iterator {
   return tree_.end();
 }
 
@@ -297,7 +296,7 @@ typename map<K, M>::iterator map<K, M>::end() const noexcept {
  * @return const_iterator - a const iterator to the beginning of the map.
  */
 template <typename K, typename M>
-typename map<K, M>::const_iterator map<K, M>::cbegin() const noexcept {
+auto map<K, M>::cbegin() const noexcept -> const_iterator {
   return tree_.cbegin();
 }
 
@@ -311,7 +310,7 @@ typename map<K, M>::const_iterator map<K, M>::cbegin() const noexcept {
  * @return const_iterator - a const iterator to the end of the map.
  */
 template <typename K, typename M>
-typename map<K, M>::const_iterator map<K, M>::cend() const noexcept {
+auto map<K, M>::cend() const noexcept -> const_iterator {
   return tree_.cend();
 }
 
@@ -342,7 +341,7 @@ bool map<K, M>::empty() const noexcept {
  * @return size_type - the number of elements in the map.
  */
 template <typename K, typename M>
-typename map<K, M>::size_type map<K, M>::size() const noexcept {
+auto map<K, M>::size() const noexcept -> size_type {
   return size_;
 }
 
@@ -352,11 +351,8 @@ typename map<K, M>::size_type map<K, M>::size() const noexcept {
  * @return size_type - the maximum number of elements.
  */
 template <typename K, typename M>
-typename map<K, M>::size_type map<K, M>::max_size() const noexcept {
-  size_type num_of_ptr = 4;
-  size_type ptr_size = 8;
-  size_type node_size = num_of_ptr * ptr_size + sizeof(size_type);
-  return std::numeric_limits<size_type>::max() / sizeof(node_size) / 10;
+auto map<K, M>::max_size() const noexcept -> size_type {
+  return tree_.max_size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +385,7 @@ void map<K, M>::clear() {
  * and a bool indicating whether the insertion took place.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator_bool map<K, M>::insert(const_reference value) {
+auto map<K, M>::insert(const_reference value) -> iterator_bool {
   auto it = tree_.insert(value);
   size_ = tree_.size();
 
@@ -411,8 +407,8 @@ typename map<K, M>::iterator_bool map<K, M>::insert(const_reference value) {
  * and a bool indicating whether the insertion took place.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator_bool map<K, M>::insert(const key_type &key,
-                                                    const mapped_type &obj) {
+auto map<K, M>::insert(const key_type &key, const mapped_type &obj)
+    -> iterator_bool {
   auto it = tree_.insert({key, obj});
   size_ = tree_.size();
 
@@ -435,8 +431,8 @@ typename map<K, M>::iterator_bool map<K, M>::insert(const key_type &key,
  * assigned element and a bool indicating whether the insertion took place.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator_bool map<K, M>::insert_or_assign(
-    const key_type &key, const mapped_type &obj) {
+auto map<K, M>::insert_or_assign(const key_type &key, const mapped_type &obj)
+    -> iterator_bool {
   auto it = tree_.find(key);
   bool obj_exists{false};
 
@@ -462,7 +458,7 @@ typename map<K, M>::iterator_bool map<K, M>::insert_or_assign(
  * or end() if the erased element was the last element.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator map<K, M>::erase(const_iterator pos) {
+auto map<K, M>::erase(const_iterator pos) -> iterator {
   auto it = tree_.erase((*pos).first);
   size_ = tree_.size();
 
@@ -482,8 +478,7 @@ typename map<K, M>::iterator map<K, M>::erase(const_iterator pos) {
  * @throws std::range_error if the range is invalid.
  */
 template <typename K, typename M>
-typename map<K, M>::iterator map<K, M>::erase(const_iterator first,
-                                              const_iterator last) {
+auto map<K, M>::erase(const_iterator first, const_iterator last) -> iterator {
   iterator it = tree_.erase(first, last);
   size_ = tree_.size();
 
@@ -500,7 +495,7 @@ typename map<K, M>::iterator map<K, M>::erase(const_iterator first,
  * @return size_type - the number of elements erased.
  */
 template <typename K, typename M>
-typename map<K, M>::size_type map<K, M>::erase(const key_type &key) {
+auto map<K, M>::erase(const key_type &key) -> size_type {
   auto it = tree_.erase(key);
   size_ = tree_.size();
 

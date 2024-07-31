@@ -15,15 +15,15 @@
 #include <set>
 
 using map = s21::map<const int, int>;
-using set = s21::set<const int>;
+using set = s21::multiset<const int>;
 using smap = std::map<const int, int>;
 using tree = s21::tree<int, int>;
 using vector = s21::vector<int>;
-using sset = std::set<int>;
+using sset = std::multiset<int>;
 
 int main() {
-  set s{12, 2, 13, 44, 35};
-  sset ss{12, 2, 13, 44, 35};
+  set s{13, 2, 13, 12, 12, 44, 12, 2, 13, 44, 35, 2, 2};
+  sset ss{13, 2, 13, 12, 12, 44, 12, 2, 13, 44, 35, 2, 2};
 
   for(auto i : s) {
     std::cout << i << " ";

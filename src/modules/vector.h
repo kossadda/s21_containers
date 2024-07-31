@@ -100,8 +100,8 @@ class vector {
   // Vector Modifiers
 
   void clear() noexcept;
-  const_iterator insert(const_iterator pos, const_reference value,
-                        size_type count = 1);
+  iterator insert(const_iterator pos, const_reference value,
+                  size_type count = 1);
   void erase(const_iterator pos, const_iterator last_pos = const_iterator{});
   void push_back(const_reference value);
   void pop_back() noexcept;
@@ -279,7 +279,7 @@ vector<V>::~vector() noexcept {
  * @return vector& - reference to the assigned vector.
  */
 template <typename V>
-vector<V> &vector<V>::operator=(vector &&v) {
+auto vector<V>::operator=(vector &&v) -> vector & {
   if (this != &v) {
     freeMemory();
     new (this) vector{std::move(v)};
@@ -289,7 +289,7 @@ vector<V> &vector<V>::operator=(vector &&v) {
 }
 
 template <typename V>
-vector<V> &vector<V>::operator=(const vector &v) {
+auto vector<V>::operator=(const vector &v) -> vector & {
   if (this != &v) {
     freeMemory();
     new (this) vector{v};
@@ -308,7 +308,7 @@ vector<V> &vector<V>::operator=(const vector &v) {
  * @return iterator - an iterator to the beginning of the vector.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::begin() const noexcept {
+auto vector<V>::begin() const noexcept -> iterator {
   return iterator{arr_};
 }
 
@@ -318,7 +318,7 @@ typename vector<V>::iterator vector<V>::begin() const noexcept {
  * @return iterator - an iterator to the end of the vector.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::end() const noexcept {
+auto vector<V>::end() const noexcept -> iterator {
   return iterator{arr_ + size_};
 }
 
@@ -328,7 +328,7 @@ typename vector<V>::iterator vector<V>::end() const noexcept {
  * @return const_iterator - const_iterator to the beginning of the vector.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::cbegin() const noexcept {
+auto vector<V>::cbegin() const noexcept -> const_iterator {
   return const_iterator{arr_};
 }
 
@@ -338,7 +338,7 @@ typename vector<V>::const_iterator vector<V>::cbegin() const noexcept {
  * @return const_iterator - const_iterator to the end of the vector.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::cend() const noexcept {
+auto vector<V>::cend() const noexcept -> const_iterator {
   return const_iterator{arr_ + size_};
 }
 
@@ -362,7 +362,7 @@ bool vector<V>::empty() const noexcept {
  * @return size_type - the number of elements in the vector.
  */
 template <typename V>
-typename vector<V>::size_type vector<V>::size() const noexcept {
+auto vector<V>::size() const noexcept -> size_type {
   return size_;
 }
 
@@ -372,7 +372,7 @@ typename vector<V>::size_type vector<V>::size() const noexcept {
  * @return size_type - the maximum number of elements.
  */
 template <typename V>
-typename vector<V>::size_type vector<V>::max_size() const noexcept {
+auto vector<V>::max_size() const noexcept -> size_type {
   return std::numeric_limits<size_type>::max() / sizeof(value_type) / 2;
 }
 
@@ -403,7 +403,7 @@ void vector<V>::reserve(size_type size) {
  * @return size_type - the current capacity.
  */
 template <typename V>
-typename vector<V>::size_type vector<V>::capacity() const noexcept {
+auto vector<V>::capacity() const noexcept -> size_type {
   return capacity_;
 }
 
@@ -434,7 +434,7 @@ void vector<V>::shrink_to_fit() {
  * @throw std::out_of_range - if element position out of vector range.
  */
 template <typename V>
-typename vector<V>::reference vector<V>::at(size_type pos) const {
+auto vector<V>::at(size_type pos) const -> value_type & {
   if (pos >= size_) {
     throw std::out_of_range("vector::at() - pos out of vector range");
   }
@@ -449,8 +449,7 @@ typename vector<V>::reference vector<V>::at(size_type pos) const {
  * @return reference - a reference to the element at the specified position.
  */
 template <typename V>
-typename vector<V>::reference vector<V>::operator[](
-    size_type pos) const noexcept {
+auto vector<V>::operator[](size_type pos) const noexcept -> value_type & {
   return *(arr_ + pos);
 }
 
@@ -460,7 +459,7 @@ typename vector<V>::reference vector<V>::operator[](
  * @return const_reference - a reference to the first element.
  */
 template <typename V>
-typename vector<V>::const_reference vector<V>::front() const noexcept {
+auto vector<V>::front() const noexcept -> const_reference {
   return *arr_;
 }
 
@@ -470,7 +469,7 @@ typename vector<V>::const_reference vector<V>::front() const noexcept {
  * @return const_reference - a reference to the last element.
  */
 template <typename V>
-typename vector<V>::const_reference vector<V>::back() const noexcept {
+auto vector<V>::back() const noexcept -> const_reference {
   return *(arr_ + size_ - 1);
 }
 
@@ -480,7 +479,7 @@ typename vector<V>::const_reference vector<V>::back() const noexcept {
  * @return pointer - a pointer to the first element.
  */
 template <typename V>
-typename vector<V>::pointer vector<V>::data() const noexcept {
+auto vector<V>::data() const noexcept -> pointer {
   return arr_;
 }
 
@@ -521,9 +520,8 @@ void vector<V>::clear() noexcept {
  * @throw std::out_of_range - if pos is not a valid iterator within the vector.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::insert(const_iterator pos,
-                                                     const_reference value,
-                                                     size_type count) {
+auto vector<V>::insert(const_iterator pos, const_reference value,
+                       size_type count) -> iterator {
   if (pos < arr_ || pos > arr_ + size_) {
     throw std::out_of_range("vector::insert() - pos is not at vectors range");
   }
@@ -540,7 +538,7 @@ typename vector<V>::const_iterator vector<V>::insert(const_iterator pos,
 
   size_ = new_size;
 
-  return cbegin() + ins_pos;
+  return begin() + ins_pos;
 }
 
 /**
@@ -717,8 +715,7 @@ vector<V>::const_iterator::operator V *() const noexcept {
  * @throw std::invalid_argument - if the const_iterator is empty.
  */
 template <typename V>
-typename vector<V>::const_reference vector<V>::const_iterator::operator*()
-    const {
+auto vector<V>::const_iterator::operator*() const -> const_reference {
   if (!ptr_) {
     throw std::invalid_argument(
         "const_iterator::operator* - try to dereference an empty iterator");
@@ -734,8 +731,8 @@ typename vector<V>::const_reference vector<V>::const_iterator::operator*()
  * @return const_iterator - reference to the updated const_iterator.
  */
 template <typename V>
-typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
-    const const_iterator &other) noexcept {
+auto vector<V>::const_iterator::operator=(const const_iterator &other) noexcept
+    -> const_iterator & {
   ptr_ = other.ptr_;
 
   return *this;
@@ -748,8 +745,8 @@ typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
  * @return const_iterator - reference to the updated const_iterator.
  */
 template <typename V>
-typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
-    const pointer ptr) noexcept {
+auto vector<V>::const_iterator::operator=(const pointer ptr) noexcept
+    -> const_iterator & {
   ptr_ = ptr;
 
   return *this;
@@ -761,8 +758,7 @@ typename vector<V>::const_iterator &vector<V>::const_iterator::operator=(
  * @return reference - reference to the updated const_iterator.
  */
 template <typename V>
-typename vector<V>::const_iterator &
-vector<V>::const_iterator::operator--() noexcept {
+auto vector<V>::const_iterator::operator--() noexcept -> const_iterator & {
   ptr_--;
 
   return *this;
@@ -774,8 +770,7 @@ vector<V>::const_iterator::operator--() noexcept {
  * @return const_iterator - copy of the const_iterator before the decrement.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::const_iterator::operator--(
-    int) noexcept {
+auto vector<V>::const_iterator::operator--(int) noexcept -> const_iterator {
   const_iterator copy{*this};
   ptr_--;
 
@@ -788,8 +783,7 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator--(
  * @return reference - reference to the updated const_iterator.
  */
 template <typename V>
-typename vector<V>::const_iterator &
-vector<V>::const_iterator::operator++() noexcept {
+auto vector<V>::const_iterator::operator++() noexcept -> const_iterator & {
   ++ptr_;
 
   return *this;
@@ -801,8 +795,7 @@ vector<V>::const_iterator::operator++() noexcept {
  * @return const_iterator - copy of the const_iterator before the increment.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::const_iterator::operator++(
-    int) noexcept {
+auto vector<V>::const_iterator::operator++(int) noexcept -> const_iterator {
   const_iterator copy{*this};
   ++ptr_;
 
@@ -818,8 +811,8 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator++(
  * positions.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::const_iterator::operator-(
-    const int shift) const noexcept {
+auto vector<V>::const_iterator::operator-(const int shift) const noexcept
+    -> const_iterator {
   const_iterator copy{*this};
   copy.ptr_ -= shift;
 
@@ -833,8 +826,8 @@ typename vector<V>::const_iterator vector<V>::const_iterator::operator-(
  * @return size_type - distance between the iterators.
  */
 template <typename V>
-typename vector<V>::size_type vector<V>::const_iterator::operator-(
-    const const_iterator &other) const noexcept {
+auto vector<V>::const_iterator::operator-(
+    const const_iterator &other) const noexcept -> size_type {
   return (ptr_ > other.ptr_) ? ptr_ - other.ptr_ : other.ptr_ - ptr_;
 }
 
@@ -847,8 +840,8 @@ typename vector<V>::size_type vector<V>::const_iterator::operator-(
  * positions.
  */
 template <typename V>
-typename vector<V>::const_iterator vector<V>::const_iterator::operator+(
-    const int shift) const noexcept {
+auto vector<V>::const_iterator::operator+(const int shift) const noexcept
+    -> const_iterator {
   const_iterator copy{*this};
   copy.ptr_ += shift;
 
@@ -954,8 +947,8 @@ vector<V>::iterator::VectorIterator(const iterator &other) : ptr_{other.ptr_} {}
  * @return iterator - reference to the updated iterator.
  */
 template <typename V>
-typename vector<V>::iterator &vector<V>::iterator::operator=(
-    const iterator &other) noexcept {
+auto vector<V>::iterator::operator=(const iterator &other) noexcept
+    -> iterator & {
   ptr_ = other.ptr_;
 
   return *this;
@@ -968,8 +961,7 @@ typename vector<V>::iterator &vector<V>::iterator::operator=(
  * @return iterator - reference to the updated iterator.
  */
 template <typename V>
-typename vector<V>::iterator &vector<V>::iterator::operator=(
-    const pointer ptr) noexcept {
+auto vector<V>::iterator::operator=(const pointer ptr) noexcept -> iterator & {
   ptr_ = ptr;
 
   return *this;
@@ -981,7 +973,7 @@ typename vector<V>::iterator &vector<V>::iterator::operator=(
  * @return reference - reference to the updated iterator.
  */
 template <typename V>
-typename vector<V>::iterator &vector<V>::iterator::operator--() noexcept {
+auto vector<V>::iterator::operator--() noexcept -> iterator & {
   ptr_--;
 
   return *this;
@@ -993,7 +985,7 @@ typename vector<V>::iterator &vector<V>::iterator::operator--() noexcept {
  * @return iterator - copy of the iterator before the decrement.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::iterator::operator--(int) noexcept {
+auto vector<V>::iterator::operator--(int) noexcept -> iterator {
   iterator copy{*this};
   ptr_--;
 
@@ -1006,7 +998,7 @@ typename vector<V>::iterator vector<V>::iterator::operator--(int) noexcept {
  * @return reference - reference to the updated iterator.
  */
 template <typename V>
-typename vector<V>::iterator &vector<V>::iterator::operator++() noexcept {
+auto vector<V>::iterator::operator++() noexcept -> iterator & {
   ++ptr_;
 
   return *this;
@@ -1018,7 +1010,7 @@ typename vector<V>::iterator &vector<V>::iterator::operator++() noexcept {
  * @return iterator - copy of the iterator before the increment.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::iterator::operator++(int) noexcept {
+auto vector<V>::iterator::operator++(int) noexcept -> iterator {
   iterator copy{*this};
   ++ptr_;
 
@@ -1034,8 +1026,8 @@ typename vector<V>::iterator vector<V>::iterator::operator++(int) noexcept {
  * positions.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::iterator::operator-(
-    const int shift) const noexcept {
+auto vector<V>::iterator::operator-(const int shift) const noexcept
+    -> iterator {
   iterator copy{*this};
   copy.ptr_ -= shift;
 
@@ -1049,8 +1041,8 @@ typename vector<V>::iterator vector<V>::iterator::operator-(
  * @return size_type - distance between the iterators.
  */
 template <typename V>
-typename vector<V>::size_type vector<V>::iterator::operator-(
-    const iterator &other) const noexcept {
+auto vector<V>::iterator::operator-(const iterator &other) const noexcept
+    -> size_type {
   return (ptr_ > other.ptr_) ? ptr_ - other.ptr_ : other.ptr_ - ptr_;
 }
 
@@ -1063,8 +1055,8 @@ typename vector<V>::size_type vector<V>::iterator::operator-(
  * positions.
  */
 template <typename V>
-typename vector<V>::iterator vector<V>::iterator::operator+(
-    const int shift) const noexcept {
+auto vector<V>::iterator::operator+(const int shift) const noexcept
+    -> iterator {
   iterator copy{*this};
   copy.ptr_ += shift;
 
@@ -1124,7 +1116,7 @@ bool vector<V>::iterator::operator!=(iterator other) const noexcept {
  * @throw std::invalid_argument - if the iterator is empty.
  */
 template <typename V>
-typename vector<V>::reference vector<V>::iterator::operator*() {
+auto vector<V>::iterator::operator*() -> reference {
   if (!ptr_) {
     throw std::invalid_argument(
         "iterator::operator* - try to dereference an empty iterator");

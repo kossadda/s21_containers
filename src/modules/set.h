@@ -49,7 +49,6 @@ class set {
   using iterator = SetIterator;                ///< For read/write elements
   using const_iterator = SetConstIterator;     ///< For read elements
   using iterator_bool = std::pair<iterator, bool>;  ///< Pair iterator-bool
-  using pair = std::pair<K, K>;                     ///< Pair key-value
 
  private:
   tree<const key_type, const key_type> tree_{};  ///< Tree of elements
@@ -72,13 +71,13 @@ class set {
   const_iterator cbegin() const noexcept;
   const_iterator cend() const noexcept;
 
-  // Map Capacity
+  // Set Capacity
 
   bool empty() const noexcept;
   size_type size() const noexcept;
   size_type max_size() const noexcept;
 
-  // Map Modifiers
+  // Set Modifiers
 
   void clear();
   iterator_bool insert(const_reference value);
@@ -87,7 +86,7 @@ class set {
   void swap(set &other);
   void merge(set &other);
 
-  // Map Lookup
+  // Set Lookup
 
   iterator find(const key_type &key) const noexcept;
   bool conatains(const key_type &key) const noexcept;
@@ -255,22 +254,48 @@ set<K> &set<K>::operator=(const set &s) {
  * @return iterator - an iterator to the beginning of the set.
  */
 template <typename K>
-typename set<K>::iterator set<K>::begin() const noexcept {
+auto set<K>::begin() const noexcept -> iterator {
   return tree_.begin();
 }
 
+/**
+ * @brief Returns an iterator to the end of the set.
+ *
+ * @details
+ * This method returns an iterator to the element following the last element
+ * of the set.
+ *
+ * @return iterator - an iterator to the end of the set.
+ */
 template <typename K>
-typename set<K>::const_iterator set<K>::cbegin() const noexcept {
-  return tree_.cbegin();
-}
-
-template <typename K>
-typename set<K>::iterator set<K>::end() const noexcept {
+auto set<K>::end() const noexcept -> iterator {
   return tree_.end();
 }
 
+/**
+ * @brief Returns a const iterator to the beginning of the set.
+ *
+ * @details
+ * This method returns a const iterator to the first element of the set.
+ *
+ * @return const_iterator - a const iterator to the beginning of the set.
+ */
 template <typename K>
-typename set<K>::const_iterator set<K>::cend() const noexcept {
+auto set<K>::cbegin() const noexcept -> const_iterator {
+  return tree_.cbegin();
+}
+
+/**
+ * @brief Returns a const iterator to the end of the set.
+ *
+ * @details
+ * This method returns a const iterator to the element following the last
+ * element of the set.
+ *
+ * @return const_iterator - a const iterator to the end of the set.
+ */
+template <typename K>
+auto set<K>::cend() const noexcept -> const_iterator {
   return tree_.cend();
 }
 
@@ -301,7 +326,7 @@ bool set<K>::empty() const noexcept {
  * @return size_type - the number of elements in the set.
  */
 template <typename K>
-typename set<K>::size_type set<K>::size() const noexcept {
+auto set<K>::size() const noexcept -> size_type {
   return size_;
 }
 
@@ -311,7 +336,7 @@ typename set<K>::size_type set<K>::size() const noexcept {
  * @return size_type - the maximum number of elements.
  */
 template <typename K>
-typename set<K>::size_type set<K>::max_size() const noexcept {
+auto set<K>::max_size() const noexcept -> size_type {
   size_type num_of_ptr = 4;
   size_type ptr_size = 8;
   size_type node_size = num_of_ptr * ptr_size + sizeof(size_type);
@@ -347,7 +372,7 @@ void set<K>::clear() {
  * and a bool indicating whether the insertion took place.
  */
 template <typename K>
-typename set<K>::iterator_bool set<K>::insert(const_reference value) {
+auto set<K>::insert(const_reference value) -> iterator_bool {
   iterator it = tree_.insert({value, value});
   size_ = tree_.size();
 
@@ -366,7 +391,7 @@ typename set<K>::iterator_bool set<K>::insert(const_reference value) {
  * or end() if the erased element was the last element.
  */
 template <typename K>
-typename set<K>::iterator set<K>::erase(const_iterator pos) {
+auto set<K>::erase(const_iterator pos) -> iterator {
   iterator it = tree_.erase(*pos);
   size_ = tree_.size();
 
@@ -386,8 +411,7 @@ typename set<K>::iterator set<K>::erase(const_iterator pos) {
  * @throws std::range_error if the range is invalid.
  */
 template <typename K>
-typename set<K>::iterator set<K>::erase(const_iterator first,
-                                        const_iterator last) {
+auto set<K>::erase(const_iterator first, const_iterator last) -> iterator {
   iterator it = tree_.erase(first, last);
   size_ = tree_.size();
 
@@ -441,7 +465,7 @@ void set<K>::merge(set &other) {
  * `end()` if the key is not found.
  */
 template <typename K>
-typename set<K>::iterator set<K>::find(const key_type &key) const noexcept {
+auto set<K>::find(const key_type &key) const noexcept -> iterator {
   return tree_.find(key);
 }
 
@@ -472,8 +496,7 @@ bool set<K>::conatains(const key_type &key) const noexcept {
  * @return iterator& - reference to the assigned iterator.
  */
 template <typename K>
-typename set<K>::iterator &set<K>::iterator::operator=(
-    const iterator &other) noexcept {
+auto set<K>::iterator::operator=(const iterator &other) noexcept -> iterator & {
   this->ptr_ = other.ptr_;
   this->first_ = other.first_;
   this->last_ = other.last_;
@@ -487,7 +510,7 @@ typename set<K>::iterator &set<K>::iterator::operator=(
  * @return iterator& - reference to the incremented iterator.
  */
 template <typename K>
-typename set<K>::iterator &set<K>::iterator::operator++() noexcept {
+auto set<K>::iterator::operator++() noexcept -> iterator & {
   *this += 1;
 
   return *this;
@@ -499,7 +522,7 @@ typename set<K>::iterator &set<K>::iterator::operator++() noexcept {
  * @return iterator - the original iterator before the increment.
  */
 template <typename K>
-typename set<K>::iterator set<K>::iterator::operator++(int) noexcept {
+auto set<K>::iterator::operator++(int) noexcept -> iterator {
   iterator copy{*this};
 
   *this += 1;
@@ -513,7 +536,7 @@ typename set<K>::iterator set<K>::iterator::operator++(int) noexcept {
  * @return iterator& - reference to the decremented iterator.
  */
 template <typename K>
-typename set<K>::iterator &set<K>::iterator::operator--() noexcept {
+auto set<K>::iterator::operator--() noexcept -> iterator & {
   *this -= 1;
 
   return *this;
@@ -525,7 +548,7 @@ typename set<K>::iterator &set<K>::iterator::operator--() noexcept {
  * @return iterator - the original iterator before the decrement.
  */
 template <typename K>
-typename set<K>::iterator set<K>::iterator::operator--(int) noexcept {
+auto set<K>::iterator::operator--(int) noexcept -> iterator {
   iterator copy{*this};
 
   *this -= 1;
@@ -540,8 +563,7 @@ typename set<K>::iterator set<K>::iterator::operator--(int) noexcept {
  * @return iterator - the shifted iterator.
  */
 template <typename K>
-typename set<K>::iterator set<K>::iterator::operator+(
-    size_type shift) const noexcept {
+auto set<K>::iterator::operator+(size_type shift) const noexcept -> iterator {
   return _tree_it{*this} + shift;
 }
 
@@ -552,8 +574,7 @@ typename set<K>::iterator set<K>::iterator::operator+(
  * @return iterator - the shifted iterator.
  */
 template <typename K>
-typename set<K>::iterator set<K>::iterator::operator-(
-    size_type shift) const noexcept {
+auto set<K>::iterator::operator-(size_type shift) const noexcept -> iterator {
   return _tree_it{*this} - shift;
 }
 
@@ -563,7 +584,7 @@ typename set<K>::iterator set<K>::iterator::operator-(
  * @return reference - reference to the value at the current position.
  */
 template <typename K>
-typename set<K>::reference set<K>::iterator::operator*() noexcept {
+auto set<K>::iterator::operator*() noexcept -> reference {
   return (*this->ptr_->pair).first;
 }
 
@@ -578,8 +599,8 @@ typename set<K>::reference set<K>::iterator::operator*() noexcept {
  * @return const_iterator& - reference to the assigned const_iterator.
  */
 template <typename K>
-typename set<K>::const_iterator &set<K>::const_iterator::operator=(
-    const const_iterator &other) noexcept {
+auto set<K>::const_iterator::operator=(const const_iterator &other) noexcept
+    -> const_iterator & {
   this->ptr_ = other.ptr_;
   this->first_ = other.first_;
   this->last_ = other.last_;
@@ -593,7 +614,7 @@ typename set<K>::const_iterator &set<K>::const_iterator::operator=(
  * @return const_iterator& - reference to the incremented const_iterator.
  */
 template <typename K>
-typename set<K>::const_iterator &set<K>::const_iterator::operator++() noexcept {
+auto set<K>::const_iterator::operator++() noexcept -> const_iterator & {
   *this += 1;
 
   return *this;
@@ -605,8 +626,7 @@ typename set<K>::const_iterator &set<K>::const_iterator::operator++() noexcept {
  * @return const_iterator - the original const_iterator before the increment.
  */
 template <typename K>
-typename set<K>::const_iterator set<K>::const_iterator::operator++(
-    int) noexcept {
+auto set<K>::const_iterator::operator++(int) noexcept -> const_iterator {
   const_iterator copy{*this};
 
   *this += 1;
@@ -620,7 +640,7 @@ typename set<K>::const_iterator set<K>::const_iterator::operator++(
  * @return const_iterator& - reference to the decremented const_iterator.
  */
 template <typename K>
-typename set<K>::const_iterator &set<K>::const_iterator::operator--() noexcept {
+auto set<K>::const_iterator::operator--() noexcept -> const_iterator & {
   *this -= 1;
 
   return *this;
@@ -632,8 +652,7 @@ typename set<K>::const_iterator &set<K>::const_iterator::operator--() noexcept {
  * @return const_iterator - the original const_iterator before the decrement.
  */
 template <typename K>
-typename set<K>::const_iterator set<K>::const_iterator::operator--(
-    int) noexcept {
+auto set<K>::const_iterator::operator--(int) noexcept -> const_iterator {
   const_iterator copy{*this};
 
   *this -= 1;
@@ -648,8 +667,8 @@ typename set<K>::const_iterator set<K>::const_iterator::operator--(
  * @return const_iterator - the shifted const_iterator.
  */
 template <typename K>
-typename set<K>::const_iterator set<K>::const_iterator::operator+(
-    size_type shift) const noexcept {
+auto set<K>::const_iterator::operator+(size_type shift) const noexcept
+    -> const_iterator {
   return _tree_cit{*this} + shift;
 }
 
@@ -660,8 +679,8 @@ typename set<K>::const_iterator set<K>::const_iterator::operator+(
  * @return const_iterator - the shifted const_iterator.
  */
 template <typename K>
-typename set<K>::const_iterator set<K>::const_iterator::operator-(
-    size_type shift) const noexcept {
+auto set<K>::const_iterator::operator-(size_type shift) const noexcept
+    -> const_iterator {
   return _tree_cit{*this} - shift;
 }
 
@@ -672,8 +691,7 @@ typename set<K>::const_iterator set<K>::const_iterator::operator-(
  * position.
  */
 template <typename K>
-typename set<K>::const_reference set<K>::const_iterator::operator*()
-    const noexcept {
+auto set<K>::const_iterator::operator*() const noexcept -> const_reference {
   return (*this->ptr_->pair).first;
 }
 
