@@ -54,7 +54,6 @@ class map {
 
  private:
   tree<key_type, mapped_type> tree_{};  ///< Tree of elements
-  size_type size_{};                    ///< Size of map
 
  public:
   // Constructors/assignment operators/destructor
@@ -118,8 +117,7 @@ class map {
  * map.
  */
 template <typename K, typename M>
-map<K, M>::map(std::initializer_list<value_type> const &items)
-    : tree_{items}, size_{tree_.size()} {}
+map<K, M>::map(std::initializer_list<value_type> const &items) : tree_{items} {}
 
 /**
  * @brief Copy constructor for the map.
@@ -131,7 +129,7 @@ map<K, M>::map(std::initializer_list<value_type> const &items)
  * @param[in] m The map to copy from.
  */
 template <typename K, typename M>
-map<K, M>::map(const map &m) : tree_{m.tree_}, size_{m.size_} {}
+map<K, M>::map(const map &m) : tree_{m.tree_} {}
 
 /**
  * @brief Move constructor for the map.
@@ -144,8 +142,7 @@ map<K, M>::map(const map &m) : tree_{m.tree_}, size_{m.size_} {}
  * @param[in] m The map to move from.
  */
 template <typename K, typename M>
-map<K, M>::map(map &&m)
-    : tree_{std::move(m.tree_)}, size_{std::exchange(m.size_, 0)} {}
+map<K, M>::map(map &&m) : tree_{std::move(m.tree_)} {}
 
 /**
  * @brief Move assignment operator for the map.
@@ -232,7 +229,6 @@ auto map<K, M>::operator[](const key_type &key) noexcept -> mapped_type & {
 
   if (it == tree_.end()) {
     it = tree_.insert({key, mapped_type{}});
-    ++size_;
   }
 
   return (*it).second;
@@ -329,7 +325,7 @@ auto map<K, M>::cend() const noexcept -> const_iterator {
  */
 template <typename K, typename M>
 bool map<K, M>::empty() const noexcept {
-  return (!size_) ? true : false;
+  return (!tree_.size()) ? true : false;
 }
 
 /**
@@ -342,7 +338,7 @@ bool map<K, M>::empty() const noexcept {
  */
 template <typename K, typename M>
 auto map<K, M>::size() const noexcept -> size_type {
-  return size_;
+  return tree_.size();
 }
 
 /**
@@ -368,7 +364,6 @@ auto map<K, M>::max_size() const noexcept -> size_type {
  */
 template <typename K, typename M>
 void map<K, M>::clear() {
-  size_ = 0;
   tree_.clear();
 }
 
@@ -387,7 +382,6 @@ void map<K, M>::clear() {
 template <typename K, typename M>
 auto map<K, M>::insert(const_reference value) -> iterator_bool {
   auto it = tree_.insert(value);
-  size_ = tree_.size();
 
   return (it != tree_.end()) ? iterator_bool{it, true}
                              : iterator_bool{tree_.find(value.first), false};
@@ -410,7 +404,6 @@ template <typename K, typename M>
 auto map<K, M>::insert(const key_type &key, const mapped_type &obj)
     -> iterator_bool {
   auto it = tree_.insert({key, obj});
-  size_ = tree_.size();
 
   return (it != end()) ? iterator_bool{it, true}
                        : iterator_bool{tree_.find(key), false};
@@ -438,7 +431,6 @@ auto map<K, M>::insert_or_assign(const key_type &key, const mapped_type &obj)
 
   if (it == tree_.end()) {
     it = tree_.insert({key, obj});
-    size_ = tree_.size();
     obj_exists = true;
   } else {
     (*it).second = obj;
@@ -459,10 +451,7 @@ auto map<K, M>::insert_or_assign(const key_type &key, const mapped_type &obj)
  */
 template <typename K, typename M>
 auto map<K, M>::erase(const_iterator pos) -> iterator {
-  auto it = tree_.erase((*pos).first);
-  size_ = tree_.size();
-
-  return it;
+  return tree_.erase((*pos).first);
 }
 
 /**
@@ -479,10 +468,7 @@ auto map<K, M>::erase(const_iterator pos) -> iterator {
  */
 template <typename K, typename M>
 auto map<K, M>::erase(const_iterator first, const_iterator last) -> iterator {
-  iterator it = tree_.erase(first, last);
-  size_ = tree_.size();
-
-  return it;
+  return tree_.erase(first, last);
 }
 
 /**
@@ -496,10 +482,7 @@ auto map<K, M>::erase(const_iterator first, const_iterator last) -> iterator {
  */
 template <typename K, typename M>
 auto map<K, M>::erase(const key_type &key) -> size_type {
-  auto it = tree_.erase(key);
-  size_ = tree_.size();
-
-  return (it != tree_.end()) ? true : false;
+  return (tree_.erase(key) != tree_.end()) ? true : false;
 }
 
 /**
@@ -512,7 +495,6 @@ auto map<K, M>::erase(const key_type &key) -> size_type {
  */
 template <typename K, typename M>
 void map<K, M>::swap(map &other) {
-  std::swap(size_, other.size_);
   std::swap(tree_, other.tree_);
 }
 
@@ -528,8 +510,6 @@ void map<K, M>::swap(map &other) {
 template <typename K, typename M>
 void map<K, M>::merge(map &other) {
   tree_.merge(other.tree_);
-  size_ = tree_.size();
-  other.size_ = other.tree_.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

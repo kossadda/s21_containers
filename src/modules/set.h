@@ -52,7 +52,6 @@ class set {
 
  private:
   tree<const key_type, const key_type> tree_{};  ///< Tree of elements
-  size_type size_{};                             ///< Size of set
 
  public:
   // Constructors/assignment operators/destructor
@@ -169,8 +168,6 @@ set<K>::set(std::initializer_list<value_type> const &items) {
   for (auto i : items) {
     tree_.insert({i, i});
   }
-
-  size_ = tree_.size();
 }
 
 /**
@@ -183,7 +180,7 @@ set<K>::set(std::initializer_list<value_type> const &items) {
  * @param[in] s The set to copy from.
  */
 template <typename K>
-set<K>::set(const set &s) : tree_{s.tree_}, size_{tree_.size()} {}
+set<K>::set(const set &s) : tree_{s.tree_} {}
 
 /**
  * @brief Move constructor for the set.
@@ -196,8 +193,7 @@ set<K>::set(const set &s) : tree_{s.tree_}, size_{tree_.size()} {}
  * @param[in] s The set to move from.
  */
 template <typename K>
-set<K>::set(set &&s)
-    : tree_{std::move(s.tree_)}, size_{std::exchange(s.size_, 0)} {}
+set<K>::set(set &&s) : tree_{std::move(s.tree_)} {}
 
 /**
  * @brief Move assignment operator for the set.
@@ -314,7 +310,7 @@ auto set<K>::cend() const noexcept -> const_iterator {
  */
 template <typename K>
 bool set<K>::empty() const noexcept {
-  return (!size_) ? true : false;
+  return (!tree_.size()) ? true : false;
 }
 
 /**
@@ -327,7 +323,7 @@ bool set<K>::empty() const noexcept {
  */
 template <typename K>
 auto set<K>::size() const noexcept -> size_type {
-  return size_;
+  return tree_.size();
 }
 
 /**
@@ -337,10 +333,7 @@ auto set<K>::size() const noexcept -> size_type {
  */
 template <typename K>
 auto set<K>::max_size() const noexcept -> size_type {
-  size_type num_of_ptr = 4;
-  size_type ptr_size = 8;
-  size_type node_size = num_of_ptr * ptr_size + sizeof(size_type);
-  return std::numeric_limits<size_type>::max() / sizeof(node_size) / 10;
+  return tree_.max_size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,7 +349,6 @@ auto set<K>::max_size() const noexcept -> size_type {
 template <typename K>
 void set<K>::clear() {
   tree_.clear();
-  size_ = tree_.size();
 }
 
 /**
@@ -374,7 +366,6 @@ void set<K>::clear() {
 template <typename K>
 auto set<K>::insert(const_reference value) -> iterator_bool {
   iterator it = tree_.insert({value, value});
-  size_ = tree_.size();
 
   return (it != end()) ? iterator_bool{it, true}
                        : iterator_bool{tree_.find(value), false};
@@ -392,10 +383,7 @@ auto set<K>::insert(const_reference value) -> iterator_bool {
  */
 template <typename K>
 auto set<K>::erase(const_iterator pos) -> iterator {
-  iterator it = tree_.erase(*pos);
-  size_ = tree_.size();
-
-  return it;
+  return tree_.erase(*pos);
 }
 
 /**
@@ -412,10 +400,7 @@ auto set<K>::erase(const_iterator pos) -> iterator {
  */
 template <typename K>
 auto set<K>::erase(const_iterator first, const_iterator last) -> iterator {
-  iterator it = tree_.erase(first, last);
-  size_ = tree_.size();
-
-  return it;
+  return tree_.erase(first, last);
 }
 
 /**
@@ -429,7 +414,6 @@ auto set<K>::erase(const_iterator first, const_iterator last) -> iterator {
 template <typename K>
 void set<K>::swap(set &other) {
   std::swap(tree_, other.tree_);
-  std::swap(size_, other.size_);
 }
 
 /**
@@ -444,8 +428,6 @@ void set<K>::swap(set &other) {
 template <typename K>
 void set<K>::merge(set &other) {
   tree_.merge(other.tree_);
-  size_ = tree_.size();
-  other.size_ = other.tree_.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

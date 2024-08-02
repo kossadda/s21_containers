@@ -519,6 +519,10 @@ auto tree<K, M>::erase(const key_type &key) noexcept -> iterator {
 
   if (node) {
     delete extractNode(node);
+
+    if (!size_) {
+      root_ = nullptr;
+    }
   }
 
   return it;
@@ -599,6 +603,7 @@ auto tree<K, M>::erase(const_iterator first, const_iterator last) -> iterator {
 
     for (auto it = cbegin(); it != cend(); it++) {
       auto current = (*it).first;
+
       if (current >= first_key && current < last_key) {
         erase(current);
         it = cbegin();
@@ -646,25 +651,35 @@ auto tree<K, M>::max_size() const noexcept -> size_type {
  */
 template <typename K, typename M>
 void tree<K, M>::merge(tree &other) {
-  auto it = other.begin();
+  if (type_ == UNIQUE) {
+    auto it = other.begin();
 
-  while (it != other.end()) {
-    if (!findNode(root_, (*it).first)) {
-      Node *extracted = other.extractNode(findNode(other.root_, (*it).first));
+    while (it != other.end()) {
+      if (!findNode(root_, (*it).first)) {
+        Node *extracted = other.extractNode(findNode(other.root_, (*it).first));
 
-      if (extracted == other.root_) {
-        other.root_ = nullptr;
-        delete other.sentinel_;
-        other.sentinel_ = nullptr;
-        it = other.end();
+        if (extracted == other.root_) {
+          other.root_ = nullptr;
+          delete other.sentinel_;
+          other.sentinel_ = nullptr;
+          it = other.end();
+        } else {
+          it = other.begin();
+        }
+
+        insertNode(extracted, root_);
       } else {
-        it = other.begin();
+        ++it;
       }
-
-      insertNode(extracted, root_);
-    } else {
-      ++it;
     }
+  } else {
+    while (other.size_) {
+      insertNode(other.extractNode(findMin(other.root_)), root_);
+    }
+
+    other.root_ = nullptr;
+    delete other.sentinel_;
+    other.sentinel_ = nullptr;
   }
 }
 

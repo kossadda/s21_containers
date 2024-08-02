@@ -16,7 +16,7 @@ using pair = std::pair<const int, const int>;
 using str = std::string;
 using init_list = std::initializer_list<const int>;
 
-TEST(tree, initializer_list_constructor) {
+TEST(tree, initializerListConstructor) {
   std::initializer_list<pair> items = {{30, 3}, {40, 4}, {20, 2}, {10, 1}};
   int res[] = {1, 2, 3, 4};
   tree t{items};
@@ -28,7 +28,7 @@ TEST(tree, initializer_list_constructor) {
   }
 }
 
-TEST(tree, copy_constructor) {
+TEST(tree, copyConstructor) {
   tree t1;
   init_list list = {30, 40, 20, 10};
 
@@ -43,7 +43,7 @@ TEST(tree, copy_constructor) {
   }
 }
 
-TEST(tree, move_constructor) {
+TEST(tree, moveConstructor) {
   tree t1;
   init_list list = {30, 40, 20, 10};
   int res[] = {10, 20, 30, 40};
@@ -61,7 +61,7 @@ TEST(tree, move_constructor) {
   EXPECT_TRUE(t1.structure().empty());
 }
 
-TEST(tree, copy_assignment) {
+TEST(tree, copyAssignment) {
   tree t1;
   init_list list = {30, 40, 20, 10};
 
@@ -77,7 +77,7 @@ TEST(tree, copy_assignment) {
   }
 }
 
-TEST(tree, move_assignment) {
+TEST(tree, moveAssignment) {
   tree t1;
   init_list list = {30, 40, 20, 10};
   int res[] = {10, 20, 30, 40};
@@ -96,7 +96,7 @@ TEST(tree, move_assignment) {
   EXPECT_TRUE(t1.structure().empty());
 }
 
-TEST(tree, test_1) {
+TEST(tree, invariant_1) {
   str result = "R---{B:30}\n    L---{B:10}\n    R---{B:40}\n";
   init_list list = {30, 40, 20, 10};
   init_list erase = {20};
@@ -109,7 +109,7 @@ TEST(tree, test_1) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_2) {
+TEST(tree, invariant_2) {
   str result = "R---{B:40}\n    L---{B:30}\n    R---{B:50}\n";
   init_list list = {30, 10, 40, 50};
   init_list erase = {10};
@@ -122,7 +122,7 @@ TEST(tree, test_2) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_3) {
+TEST(tree, invariant_3) {
   str result =
       "R---{B:40}\n    L---{B:30}\n        R---{R:35}\n    R---{B:50}\n";
   init_list list = {30, 40, 20, 35, 50};
@@ -136,7 +136,7 @@ TEST(tree, test_3) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_4) {
+TEST(tree, invariant_4) {
   str result = "R---{B:35}\n    L---{B:30}\n    R---{B:40}\n";
   init_list list = {30, 40, 20, 35};
   init_list erase = {20};
@@ -149,7 +149,7 @@ TEST(tree, test_4) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_5) {
+TEST(tree, invariant_5) {
   str result = "R---{B:30}\n    L---{B:20}\n    R---{B:35}\n";
   init_list list = {30, 40, 20, 35};
   init_list erase = {40};
@@ -162,7 +162,7 @@ TEST(tree, test_5) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_6) {
+TEST(tree, invariant_6) {
   str result =
       "R---{B:100}\n    L---{R:10}\n        L---{B:5}\n        R---{B:20}\n    "
       "R---{B:120}\n        L---{R:110}\n        R---{R:130}\n";
@@ -177,7 +177,7 @@ TEST(tree, test_6) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_7) {
+TEST(tree, invariant_7) {
   str result =
       "R---{B:100}\n    L---{B:20}\n        L---{R:10}\n        R---{R:30}\n   "
       " R---{R:130}\n        L---{B:120}\n        R---{B:140}\n";
@@ -192,7 +192,7 @@ TEST(tree, test_7) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_8) {
+TEST(tree, invariant_8) {
   str result =
       "R---{B:100}\n    L---{R:10}\n        L---{B:5}\n        R---{B:20}\n    "
       "R---{R:130}\n        L---{B:120}\n        R---{B:140}\n";
@@ -207,7 +207,7 @@ TEST(tree, test_8) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_9) {
+TEST(tree, invariant_9) {
   str result =
       "R---{B:100}\n    L---{B:20}\n        L---{B:10}\n            "
       "L---{R:5}\n        R---{B:30}\n    R---{B:120}\n        L---{R:117}\n   "
@@ -226,7 +226,7 @@ TEST(tree, test_9) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_10) {
+TEST(tree, invariant_10) {
   str result =
       "R---{B:100}\n    L---{B:20}\n        L---{B:10}\n            "
       "L---{R:5}\n        R---{B:30}\n    R---{B:120}\n        L---{R:116}\n   "
@@ -244,7 +244,7 @@ TEST(tree, test_10) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_11) {
+TEST(tree, invariant_11) {
   str result =
       "R---{B:100}\n    L---{R:30}\n        L---{B:10}\n            "
       "L---{B:5}\n            R---{B:20}\n        R---{B:88}\n            "
@@ -264,7 +264,7 @@ TEST(tree, test_11) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_12) {
+TEST(tree, invariant_12) {
   str result =
       "R---{B:100}\n    L---{R:30}\n        L---{B:10}\n            "
       "L---{B:5}\n            R---{B:20}\n        R---{B:88}\n            "
@@ -284,7 +284,7 @@ TEST(tree, test_12) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_13) {
+TEST(tree, invariant_13) {
   str result =
       "R---{B:100}\n    L---{B:30}\n        L---{B:10}\n            "
       "R---{R:20}\n        R---{R:88}\n            L---{B:77}\n                "
@@ -303,7 +303,7 @@ TEST(tree, test_13) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_14) {
+TEST(tree, invariant_14) {
   str result =
       "R---{B:100}\n    L---{B:30}\n        L---{B:10}\n            "
       "R---{R:20}\n        R---{R:80}\n            L---{B:77}\n            "
@@ -321,7 +321,7 @@ TEST(tree, test_14) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_15) {
+TEST(tree, invariant_15) {
   str result =
       "R---{B:80}\n    L---{B:30}\n        L---{B:10}\n            "
       "R---{R:20}\n        R---{B:77}\n    R---{B:100}\n        L---{B:88}\n   "
@@ -339,7 +339,7 @@ TEST(tree, test_15) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_16) {
+TEST(tree, invariant_16) {
   str result =
       "R---{B:10}\n    L---{B:4}\n        L---{B:2}\n            R---{R:3}\n   "
       "     R---{B:5}\n    R---{R:16}\n        L---{B:14}\n            "
@@ -358,7 +358,7 @@ TEST(tree, test_16) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_17) {
+TEST(tree, invariant_17) {
   str result =
       "R---{B:10}\n    L---{B:4}\n        L---{B:2}\n            R---{R:3}\n   "
       "     R---{B:5}\n    R---{B:14}\n        L---{B:12}\n            "
@@ -376,7 +376,7 @@ TEST(tree, test_17) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_18) {
+TEST(tree, invariant_18) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:105}\n        "
@@ -398,7 +398,7 @@ TEST(tree, test_18) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_19) {
+TEST(tree, invariant_19) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:105}\n        "
@@ -419,7 +419,7 @@ TEST(tree, test_19) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_20) {
+TEST(tree, invariant_20) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:105}\n        "
@@ -440,7 +440,7 @@ TEST(tree, test_20) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_21) {
+TEST(tree, invariant_21) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:105}\n        "
@@ -461,7 +461,7 @@ TEST(tree, test_21) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_22) {
+TEST(tree, invariant_22) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:112}\n        "
@@ -481,7 +481,7 @@ TEST(tree, test_22) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_23) {
+TEST(tree, invariant_23) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{R:112}\n        "
@@ -501,7 +501,7 @@ TEST(tree, test_23) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_24) {
+TEST(tree, invariant_24) {
   str result =
       "R---{B:43}\n    L---{B:12}\n        L---{B:5}\n            L---{R:1}\n  "
       "      R---{B:33}\n            L---{R:22}\n    R---{B:105}\n        "
@@ -520,7 +520,7 @@ TEST(tree, test_24) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_25) {
+TEST(tree, invariant_25) {
   str result =
       "R---{B:43}\n    L---{B:22}\n        L---{B:12}\n        R---{B:33}\n    "
       "R---{B:105}\n        L---{B:91}\n            L---{R:54}\n        "
@@ -539,7 +539,7 @@ TEST(tree, test_25) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_26) {
+TEST(tree, invariant_26) {
   str result =
       "R---{B:105}\n    L---{B:43}\n        L---{B:22}\n            "
       "L---{R:12}\n        R---{B:91}\n            L---{R:54}\n    "
@@ -557,7 +557,7 @@ TEST(tree, test_26) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_27) {
+TEST(tree, invariant_27) {
   str result =
       "R---{B:54}\n    L---{B:22}\n        L---{B:12}\n        R---{B:43}\n    "
       "R---{B:211}\n        L---{B:202}\n            L---{R:199}\n            "
@@ -574,7 +574,7 @@ TEST(tree, test_27) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_28) {
+TEST(tree, invariant_28) {
   str result =
       "R---{B:43}\n    L---{B:12}\n    R---{R:211}\n        L---{B:202}\n      "
       "      L---{R:199}\n            R---{R:209}\n        R---{B:222}\n       "
@@ -591,7 +591,7 @@ TEST(tree, test_28) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_29) {
+TEST(tree, invariant_29) {
   str result =
       "R---{B:211}\n    L---{R:202}\n        L---{B:43}\n            "
       "R---{R:199}\n        R---{B:209}\n    R---{B:222}\n        "
@@ -609,7 +609,7 @@ TEST(tree, test_29) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree, test_30) {
+TEST(tree, invariant_30) {
   str result =
       "R---{B:199}\n    L---{B:43}\n    R---{B:211}\n        L---{R:202}\n";
   init_list list = {64, 44,  22,  112, 43, 33, 12,  5,   105, 211, 54,
@@ -625,317 +625,6 @@ TEST(tree, test_30) {
   EXPECT_TRUE(t.structure() == result) << t.structure();
 }
 
-TEST(tree_iterator, test_1) {
-  init_list list = {30, 40, 20, 10};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 4);
-  ++it;
-  EXPECT_EQ((*it).second, 3);
-  ++it;
-  EXPECT_EQ((*it).second, 1);
-  ++it;
-  EXPECT_EQ((*it).second, 2);
-  ++it;
-  EXPECT_EQ(it, t.end());
-}
-
-TEST(tree_iterator, test_2) {
-  init_list list = {30, 10, 40, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 2);
-  ++it;
-  EXPECT_EQ((*it).second, 1);
-  ++it;
-  EXPECT_EQ((*it).second, 3);
-  ++it;
-  EXPECT_EQ((*it).second, 4);
-  ++it;
-  EXPECT_EQ(it, t.end());
-}
-
-TEST(tree_iterator, test_3) {
-  init_list list = {30, 40, 20, 35, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 3);
-  ++it;
-  EXPECT_EQ((*it).second, 1);
-  ++it;
-  EXPECT_EQ((*it).second, 4);
-  ++it;
-  EXPECT_EQ((*it).second, 2);
-  ++it;
-  EXPECT_EQ((*it).second, 5);
-  ++it;
-  EXPECT_EQ(it, t.end());
-}
-
-TEST(tree_iterator, test_4) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 3);
-  ++it;
-  EXPECT_EQ((*it).second, 1);
-  ++it;
-  EXPECT_EQ((*it).second, 4);
-  ++it;
-  EXPECT_EQ((*it).second, 2);
-  ++it;
-  EXPECT_EQ(it, t.end());
-}
-
-TEST(tree_iterator, test_5) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.end();
-  --it;
-  EXPECT_EQ((*it).second, 2);
-  --it;
-  EXPECT_EQ((*it).second, 4);
-  --it;
-  EXPECT_EQ((*it).second, 1);
-  --it;
-  EXPECT_EQ((*it).second, 3);
-  --it;
-  EXPECT_EQ(it, t.begin());
-}
-
-TEST(tree_iterator, test_6) {
-  init_list list = {30, 10, 40, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.end();
-  --it;
-  EXPECT_EQ((*it).second, 4);
-  --it;
-  EXPECT_EQ((*it).second, 3);
-  --it;
-  EXPECT_EQ((*it).second, 1);
-  --it;
-  EXPECT_EQ((*it).second, 2);
-  --it;
-  EXPECT_EQ(it, t.begin());
-}
-
-TEST(tree_iterator, test_7) {
-  init_list list = {30, 40, 20, 35, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.end();
-  --it;
-  EXPECT_EQ((*it).second, 5);
-  --it;
-  EXPECT_EQ((*it).second, 2);
-  --it;
-  EXPECT_EQ((*it).second, 4);
-  --it;
-  EXPECT_EQ((*it).second, 1);
-  --it;
-  EXPECT_EQ((*it).second, 3);
-  --it;
-  EXPECT_EQ(it, t.begin());
-}
-
-TEST(tree_iterator, test_8) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 3);
-  it = it + 2;
-  EXPECT_EQ((*it).second, 4);
-  it = it - 1;
-  EXPECT_EQ((*it).second, 1);
-}
-
-TEST(tree_iterator, test_9) {
-  init_list list = {30, 10, 40, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 2);
-  it = it + 3;
-  EXPECT_EQ((*it).second, 4);
-  it = it - 2;
-  EXPECT_EQ((*it).second, 1);
-}
-
-TEST(tree_iterator, test_10) {
-  init_list list = {30, 40, 20, 35, 50};
-  tree t;
-
-  int i = 0;
-  for (auto key : list) t.insert({key, ++i});
-
-  auto it = t.begin();
-  EXPECT_EQ((*it).second, 3);
-  it = it + 4;
-  EXPECT_EQ((*it).second, 5);
-  it = it - 3;
-  EXPECT_EQ((*it).second, 1);
-}
-
-TEST(tree_iterator, test_11) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  ++it2;
-  EXPECT_NE(it1, it2);
-  ++it1;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_12) {
-  init_list list = {30, 10, 40, 50};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  ++it2;
-  EXPECT_NE(it1, it2);
-  ++it1;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_13) {
-  init_list list = {30, 40, 20, 35, 50};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  ++it2;
-  EXPECT_NE(it1, it2);
-  ++it1;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_14) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  ++it2;
-  EXPECT_NE(it1, it2);
-  ++it1;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_15) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  it2 = it2 + 2;
-  EXPECT_NE(it1, it2);
-  it1 = it1 + 2;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_16) {
-  init_list list = {30, 10, 40, 50};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  it2 = it2 + 2;
-  EXPECT_NE(it1, it2);
-  it1 = it1 + 2;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_17) {
-  init_list list = {30, 40, 20, 35, 50};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  it2 = it2 + 3;
-  EXPECT_NE(it1, it2);
-  it1 = it1 + 3;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_18) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.begin();
-  auto it2 = t.begin();
-  it2 = it2 + 2;
-  EXPECT_NE(it1, it2);
-  it1 = it1 + 2;
-  EXPECT_EQ(it1, it2);
-}
-
-TEST(tree_iterator, test_19) {
-  init_list list = {30, 40, 20, 35};
-  tree t;
-
-  for (auto key : list) t.insert({key, 1});
-
-  auto it1 = t.end();
-  auto it2 = t.end();
-  it2 = it2 - 1;
-  EXPECT_NE(it1, it2);
-  it1 = it1 - 1;
-  EXPECT_EQ(it1, it2);
-}
-
 TEST(tree, insert) {
   tree t1;
 
@@ -944,7 +633,7 @@ TEST(tree, insert) {
   EXPECT_EQ((*it).first, 12);
 }
 
-TEST(tree, insert_nonunique) {
+TEST(tree, insertNonunique) {
   tree t1;
 
   t1.insert({12, 12});
@@ -964,7 +653,7 @@ TEST(tree, find) {
   EXPECT_EQ((*(it + 1)).first, 100);
 }
 
-TEST(tree, erase_by_key) {
+TEST(tree, eraseByKey) {
   tree t1{{15, 15}, {9, 9},   {13, 13}, {1, 1}, {7, 7}, {42, 42},  {21, 21},
           {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
@@ -976,7 +665,7 @@ TEST(tree, erase_by_key) {
   EXPECT_EQ((*next_it).first, 100);
 }
 
-TEST(tree, erase_by_iterator) {
+TEST(tree, eraseByIterator) {
   tree t1{{15, 15}, {9, 9},   {13, 13}, {1, 1}, {7, 7}, {42, 42},  {21, 21},
           {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
 
@@ -985,6 +674,17 @@ TEST(tree, erase_by_iterator) {
 
   EXPECT_EQ((*it).first, 42);
   EXPECT_EQ((*(it + 1)).first, 100);
+}
+
+TEST(tree, eraseAll) {
+  tree t1{{15, 15}, {9, 9},   {13, 13}, {1, 1}, {7, 7}, {42, 42},  {21, 21},
+          {31, 31}, {22, 22}, {45, 45}, {3, 3}, {4, 4}, {100, 100}};
+
+  while (t1.size()) {
+    t1.erase(t1.begin());
+  }
+
+  EXPECT_EQ(t1.size(), 0);
 }
 
 TEST(tree, merge) {
@@ -1017,4 +717,315 @@ TEST(tree, clear) {
 
   EXPECT_EQ(it++, t1.begin());
   EXPECT_EQ(it, t1.end());
+}
+
+TEST(treeIterator, treeIterateCheck_1) {
+  init_list list = {30, 40, 20, 10};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 4);
+  ++it;
+  EXPECT_EQ((*it).second, 3);
+  ++it;
+  EXPECT_EQ((*it).second, 1);
+  ++it;
+  EXPECT_EQ((*it).second, 2);
+  ++it;
+  EXPECT_EQ(it, t.end());
+}
+
+TEST(treeIterator, treeIterateCheck_2) {
+  init_list list = {30, 10, 40, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 2);
+  ++it;
+  EXPECT_EQ((*it).second, 1);
+  ++it;
+  EXPECT_EQ((*it).second, 3);
+  ++it;
+  EXPECT_EQ((*it).second, 4);
+  ++it;
+  EXPECT_EQ(it, t.end());
+}
+
+TEST(treeIterator, treeIterateCheck_3) {
+  init_list list = {30, 40, 20, 35, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 3);
+  ++it;
+  EXPECT_EQ((*it).second, 1);
+  ++it;
+  EXPECT_EQ((*it).second, 4);
+  ++it;
+  EXPECT_EQ((*it).second, 2);
+  ++it;
+  EXPECT_EQ((*it).second, 5);
+  ++it;
+  EXPECT_EQ(it, t.end());
+}
+
+TEST(treeIterator, treeIterateCheck_4) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 3);
+  ++it;
+  EXPECT_EQ((*it).second, 1);
+  ++it;
+  EXPECT_EQ((*it).second, 4);
+  ++it;
+  EXPECT_EQ((*it).second, 2);
+  ++it;
+  EXPECT_EQ(it, t.end());
+}
+
+TEST(treeIterator, treeIterateCheck_5) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.end();
+  --it;
+  EXPECT_EQ((*it).second, 2);
+  --it;
+  EXPECT_EQ((*it).second, 4);
+  --it;
+  EXPECT_EQ((*it).second, 1);
+  --it;
+  EXPECT_EQ((*it).second, 3);
+  --it;
+  EXPECT_EQ(it, t.begin());
+}
+
+TEST(treeIterator, treeIterateCheck_6) {
+  init_list list = {30, 10, 40, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.end();
+  --it;
+  EXPECT_EQ((*it).second, 4);
+  --it;
+  EXPECT_EQ((*it).second, 3);
+  --it;
+  EXPECT_EQ((*it).second, 1);
+  --it;
+  EXPECT_EQ((*it).second, 2);
+  --it;
+  EXPECT_EQ(it, t.begin());
+}
+
+TEST(treeIterator, treeIterateCheck_7) {
+  init_list list = {30, 40, 20, 35, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.end();
+  --it;
+  EXPECT_EQ((*it).second, 5);
+  --it;
+  EXPECT_EQ((*it).second, 2);
+  --it;
+  EXPECT_EQ((*it).second, 4);
+  --it;
+  EXPECT_EQ((*it).second, 1);
+  --it;
+  EXPECT_EQ((*it).second, 3);
+  --it;
+  EXPECT_EQ(it, t.begin());
+}
+
+TEST(treeIterator, treeIterateCheck_8) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 3);
+  it = it + 2;
+  EXPECT_EQ((*it).second, 4);
+  it = it - 1;
+  EXPECT_EQ((*it).second, 1);
+}
+
+TEST(treeIterator, treeIterateCheck_9) {
+  init_list list = {30, 10, 40, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 2);
+  it = it + 3;
+  EXPECT_EQ((*it).second, 4);
+  it = it - 2;
+  EXPECT_EQ((*it).second, 1);
+}
+
+TEST(treeIterator, treeIterateCheck_10) {
+  init_list list = {30, 40, 20, 35, 50};
+  tree t;
+
+  int i = 0;
+  for (auto key : list) t.insert({key, ++i});
+
+  auto it = t.begin();
+  EXPECT_EQ((*it).second, 3);
+  it = it + 4;
+  EXPECT_EQ((*it).second, 5);
+  it = it - 3;
+  EXPECT_EQ((*it).second, 1);
+}
+
+TEST(treeIterator, treeIterateCheck_11) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  ++it2;
+  EXPECT_NE(it1, it2);
+  ++it1;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_12) {
+  init_list list = {30, 10, 40, 50};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  ++it2;
+  EXPECT_NE(it1, it2);
+  ++it1;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_13) {
+  init_list list = {30, 40, 20, 35, 50};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  ++it2;
+  EXPECT_NE(it1, it2);
+  ++it1;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_14) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  ++it2;
+  EXPECT_NE(it1, it2);
+  ++it1;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_15) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  it2 = it2 + 2;
+  EXPECT_NE(it1, it2);
+  it1 = it1 + 2;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_16) {
+  init_list list = {30, 10, 40, 50};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  it2 = it2 + 2;
+  EXPECT_NE(it1, it2);
+  it1 = it1 + 2;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_17) {
+  init_list list = {30, 40, 20, 35, 50};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  it2 = it2 + 3;
+  EXPECT_NE(it1, it2);
+  it1 = it1 + 3;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_18) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.begin();
+  auto it2 = t.begin();
+  it2 = it2 + 2;
+  EXPECT_NE(it1, it2);
+  it1 = it1 + 2;
+  EXPECT_EQ(it1, it2);
+}
+
+TEST(treeIterator, treeIterateCheck_19) {
+  init_list list = {30, 40, 20, 35};
+  tree t;
+
+  for (auto key : list) t.insert({key, 1});
+
+  auto it1 = t.end();
+  auto it2 = t.end();
+  it2 = it2 - 1;
+  EXPECT_NE(it1, it2);
+  it1 = it1 - 1;
+  EXPECT_EQ(it1, it2);
 }

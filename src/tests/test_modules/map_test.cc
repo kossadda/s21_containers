@@ -31,21 +31,21 @@ void compare(s21_map m1, std_map m2) {
   EXPECT_EQ(m1.empty(), m2.empty());
 }
 
-TEST(MapTest, DefaultConstructor) {
+TEST(map, defaultConstructor) {
   s21_map s21_m;
   std_map std_m;
 
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, InitializerListConstructor) {
+TEST(map, initializerListConstructor) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, CopyConstructor) {
+TEST(map, copyConstructor) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   s21_map s21_m2 = s21_m1;
   std_map std_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
@@ -54,7 +54,7 @@ TEST(MapTest, CopyConstructor) {
   compare(s21_m2, std_m2);
 }
 
-TEST(MapTest, MoveConstructor) {
+TEST(map, moveConstructor) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   s21_map s21_m2 = std::move(s21_m1);
   std_map std_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
@@ -66,7 +66,7 @@ TEST(MapTest, MoveConstructor) {
   EXPECT_TRUE(std_m1.empty());
 }
 
-TEST(MapTest, CopyAssignmentOperator) {
+TEST(map, copyAssignmentOperator) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   s21_map s21_m2;
   s21_m2 = s21_m1;
@@ -80,7 +80,7 @@ TEST(MapTest, CopyAssignmentOperator) {
   compare(s21_m2, std_m2);
 }
 
-TEST(MapTest, MoveAssignmentOperator) {
+TEST(map, moveAssignmentOperator) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   s21_map s21_m2;
   s21_m2 = std::move(s21_m1);
@@ -94,7 +94,7 @@ TEST(MapTest, MoveAssignmentOperator) {
   EXPECT_TRUE(std_m1.empty());
 }
 
-TEST(MapTest, Insert) {
+TEST(map, insert) {
   s21_map s21_m;
   std_map std_m;
 
@@ -111,7 +111,7 @@ TEST(MapTest, Insert) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, InsertOrAssign) {
+TEST(map, insertOrAssign) {
   s21_map s21_m;
   std_map std_m;
 
@@ -132,7 +132,7 @@ TEST(MapTest, InsertOrAssign) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, Erase) {
+TEST(map, erase) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
@@ -157,7 +157,19 @@ TEST(MapTest, Erase) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, EraseRange_1) {
+TEST(map, eraseAll) {
+  s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+  std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+
+  while (s21_m.size()) {
+    s21_m.erase(s21_m.begin());
+    std_m.erase(std_m.begin());
+  }
+
+  EXPECT_EQ(s21_m.size(), std_m.size());
+}
+
+TEST(map, eraseRange_1) {
   s21_map s21_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
                    {1, 1},   {7, 7},     {111, 111}, {22, 22}, {222, 222}};
   std_map std_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
@@ -185,7 +197,7 @@ TEST(MapTest, EraseRange_1) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, EraseRange_2) {
+TEST(map, eraseRange_2) {
   s21_map s21_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
                    {1, 1},   {7, 7},     {111, 111}, {22, 22}, {222, 222}};
   std_map std_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
@@ -207,7 +219,7 @@ TEST(MapTest, EraseRange_2) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, EraseRange_3) {
+TEST(map, eraseRange_3) {
   s21_map s21_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
                    {1, 1},   {7, 7},     {111, 111}, {22, 22}, {222, 222}};
   std_map std_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
@@ -227,7 +239,7 @@ TEST(MapTest, EraseRange_3) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, EraseRange_4) {
+TEST(map, eraseRange_4) {
   s21_map s21_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
                    {1, 1},   {7, 7},     {111, 111}, {22, 22}, {222, 222}};
   std_map std_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
@@ -245,7 +257,7 @@ TEST(MapTest, EraseRange_4) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, EraseRange_5) {
+TEST(map, eraseRange_5) {
   s21_map s21_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
                    {1, 1},   {7, 7},     {111, 111}, {22, 22}, {222, 222}};
   std_map std_m = {{11, 11}, {256, 256}, {31, 31},   {44, 44}, {15, 15},
@@ -261,7 +273,7 @@ TEST(MapTest, EraseRange_5) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, Clear) {
+TEST(map, clear) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
@@ -270,7 +282,7 @@ TEST(MapTest, Clear) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, Contains) {
+TEST(map, contains) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
@@ -278,7 +290,7 @@ TEST(MapTest, Contains) {
   EXPECT_FALSE(s21_m.conatains(6));
 }
 
-TEST(MapTest, At) {
+TEST(map, at) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
@@ -287,7 +299,7 @@ TEST(MapTest, At) {
   EXPECT_THROW(std_m.at(6), std::out_of_range);
 }
 
-TEST(MapTest, OperatorBracket) {
+TEST(map, operatorBracket) {
   s21_map s21_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
   std_map std_m = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
@@ -300,7 +312,7 @@ TEST(MapTest, OperatorBracket) {
   compare(s21_m, std_m);
 }
 
-TEST(MapTest, Swap) {
+TEST(map, swap) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}};
   s21_map s21_m2 = {{4, 4}, {5, 5}, {6, 6}};
   std_map std_m1 = {{1, 1}, {2, 2}, {3, 3}};
@@ -312,7 +324,7 @@ TEST(MapTest, Swap) {
   compare(s21_m2, std_m2);
 }
 
-TEST(MapTest, Merge_1) {
+TEST(map, merge_1) {
   s21_map s21_m1 = {{1, 1}, {2, 2}, {3, 3}};
   s21_map s21_m2 = {{4, 4}, {5, 5}, {6, 6}};
   std_map std_m1 = {{1, 1}, {2, 2}, {3, 3}};
@@ -325,7 +337,7 @@ TEST(MapTest, Merge_1) {
   compare(s21_m2, std_m2);
 }
 
-TEST(MapTest, Merge_2) {
+TEST(map, merge_2) {
   s21_map s21_m1 = {{1, 1},   {2, 2},   {3, 3},   {10, 10},
                     {20, 20}, {30, 30}, {40, 40}, {50, 50}};
   s21_map s21_m2 = {{4, 4},    {5, 5},    {6, 6},   {10, 100},
