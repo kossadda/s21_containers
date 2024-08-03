@@ -102,7 +102,7 @@ class vector {
   void clear() noexcept;
   iterator insert(const_iterator pos, const_reference value,
                   size_type count = 1);
-  void erase(const_iterator pos, const_iterator last_pos = const_iterator{});
+  iterator erase(const_iterator pos, const_iterator last_pos = const_iterator{});
   void push_back(const_reference value);
   void pop_back() noexcept;
   void swap(vector &other) noexcept;
@@ -573,7 +573,7 @@ auto vector<V>::insert(const_iterator pos, const_reference value,
  * vector or if last_pos is before pos.
  */
 template <typename V>
-void vector<V>::erase(const_iterator pos, const_iterator last_pos) {
+auto vector<V>::erase(const_iterator pos, const_iterator last_pos) -> iterator {
   if (last_pos.base() == nullptr) {
     last_pos = pos + 1;
   }
@@ -588,6 +588,8 @@ void vector<V>::erase(const_iterator pos, const_iterator last_pos) {
     std::copy(pos.base() + range, arr_ + size_, pos.base());
     size_ -= range;
   }
+
+  return iterator{pos.base()};
 }
 
 /**

@@ -25,8 +25,10 @@ int main() {
   vector v{1, 2, 3, 4, 5};
   vector::iterator it{v.end()};
   
-  vector::iterator itt = v.insert(it, 7);
-  *itt = 6;
+  v.insert(it, 7);
+  vector::const_iterator itt = v.erase(v.begin() + 2, v.end());
+
+  std::cout << *itt << "\n\n";
 
   for(auto i : v) {
     std::cout << i << " ";
