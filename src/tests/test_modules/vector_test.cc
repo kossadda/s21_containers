@@ -397,20 +397,9 @@ TEST(vector, assignVectors) {
   }
 }
 
-TEST(vectorIterator, pointerConstruct) {
-  int arr[] = {1, 2, 3, 4, 5};
-  std_vector vec{1, 2, 3, 4, 5};
-  s21_iterator s21_it{arr};
-  std_iterator std_it{vec.cbegin()};
-
-  for (int i = 0; i < 5; i++) {
-    EXPECT_TRUE(*(s21_it + i) == *(std_it + i));
-  }
-}
-
 TEST(vectorIterator, referenceConstruct) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector s21_v1{1, 2, 3, 4, 5};
+  s21_iterator it{s21_v1.begin()};
   s21_iterator it_ref{it};
 
   for (int i = 0; i < 5; i++) {
@@ -418,19 +407,9 @@ TEST(vectorIterator, referenceConstruct) {
   }
 }
 
-TEST(vectorIterator, pointerAssignment) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it;
-  it = arr;
-
-  for (int i = 0; i < 5; i++) {
-    EXPECT_TRUE(*(it + i) == *(arr + i));
-  }
-}
-
 TEST(vectorIterator, iteratorAssignment) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector s21_v1{1, 2, 3, 4, 5};
+  s21_iterator it{s21_v1.begin()};
   s21_iterator it_assign = it;
 
   for (int i = 0; i < 5; i++) {
@@ -439,8 +418,8 @@ TEST(vectorIterator, iteratorAssignment) {
 }
 
 TEST(vectorIterator, dereferenceIterator) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_vector::iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_vector::iterator it{v.begin()};
 
   int new_value = 11;
   *it = new_value;
@@ -456,7 +435,8 @@ TEST(vectorIterator, exceptDereferenceIterator) {
 
 TEST(vectorIterator, constDereferenceIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin()};
 
   EXPECT_TRUE(*it == *arr);
 }
@@ -469,7 +449,8 @@ TEST(vectorIterator, exceptConstDereferenceIterator) {
 
 TEST(vectorIterator, prefixIncrement) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin()};
   int check = *(++it);
 
   EXPECT_TRUE(check == *(arr + 1));
@@ -477,7 +458,8 @@ TEST(vectorIterator, prefixIncrement) {
 
 TEST(vectorIterator, postfixIncrement) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin()};
   int check = *(it++);
 
   EXPECT_TRUE(check == *arr);
@@ -485,7 +467,8 @@ TEST(vectorIterator, postfixIncrement) {
 
 TEST(vectorIterator, prefixDecrement) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
   int check = *(--it);
 
   EXPECT_TRUE(check == *arr);
@@ -493,7 +476,8 @@ TEST(vectorIterator, prefixDecrement) {
 
 TEST(vectorIterator, postfixDecrement) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
   int check = *(it--);
 
   EXPECT_TRUE(check == *(arr + 1));
@@ -501,14 +485,16 @@ TEST(vectorIterator, postfixDecrement) {
 
 TEST(vectorIterator, sumShiftIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin()};
 
   EXPECT_TRUE(*(it + 1) == *(arr + 1));
 }
 
 TEST(vectorIterator, shortSumShiftIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin()};
 
   it += 1;
 
@@ -517,14 +503,16 @@ TEST(vectorIterator, shortSumShiftIterator) {
 
 TEST(vectorIterator, subShiftIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
 
   EXPECT_TRUE(*(it - 1) == *arr);
 }
 
 TEST(vectorIterator, shortSubShiftIterator) {
   int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
 
   it -= 1;
 
@@ -532,25 +520,25 @@ TEST(vectorIterator, shortSubShiftIterator) {
 }
 
 TEST(vectorIterator, subDifferenceIterator) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator begin{arr};
-  s21_iterator end{arr + 5};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator begin{v.begin()};
+  s21_iterator end{v.begin() + 5};
 
   EXPECT_TRUE(end - begin == 5);
   EXPECT_TRUE(begin - end == 5);
 }
 
 TEST(vectorIterator, iteratorEqual) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
   s21_iterator copy{it};
 
   EXPECT_TRUE(it == copy);
 }
 
 TEST(vectorIterator, iteratorNotEqual) {
-  int arr[] = {1, 2, 3, 4, 5};
-  s21_iterator it{arr + 1};
+  s21_vector v{1, 2, 3, 4, 5};
+  s21_iterator it{v.begin() + 1};
   s21_iterator copy{it};
 
   EXPECT_FALSE(it != copy);

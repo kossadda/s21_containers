@@ -19,22 +19,33 @@ using st = s21::multiset<const int>;
 using sd = std::multiset<int>;
 using smap = std::map<const int, int>;
 using tree = s21::tree<int, int>;
-using vector = s21::vector<int>;
+using vector = std::vector<int>;
 
 int main() {
-  st s1{2, 4, 7, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 12, 13, 14, 13,13, 13, 13, 13, 13, 13, 18, 20, 22, 88, 88, 13, 12,11, 22, 7, 1};
-  sd s2{2, 4, 7, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 12, 13, 14, 13,13, 13, 13, 13, 13, 13, 18, 20, 22, 88, 88, 13, 12,11, 22, 7, 1};
+  vector v{1, 2, 3, 4, 5};
+  vector::iterator it{v.end()};
+  
+  vector::iterator itt = v.insert(it, 7);
+  *itt = 6;
 
-  int i = 2;
+  for(auto i : v) {
+    std::cout << i << " ";
+  }
 
-  auto s1_range = s1.equal_range(i);
-  auto s2_range = s2.equal_range(i);
+  std::cout << "\n";
+  // st s1{2, 4, 7, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 12, 13, 14, 13,13, 13, 13, 13, 13, 13, 18, 20, 22, 88, 88, 13, 12,11, 22, 7, 1};
+  // sd s2{2, 4, 7, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 12, 13, 14, 13,13, 13, 13, 13, 13, 13, 18, 20, 22, 88, 88, 13, 12,11, 22, 7, 1};
 
-  std::cout << "s21 range: " << *s1_range.first << " - " << *s1_range.second << "\n";
-  std::cout << "std range: " << *s2_range.first << " - " << *s2_range.second << "\n";
+  // int i = 2;
 
-  std::cout << "s21 up-low: " << *s1.lower_bound(i) << " - " << *s1.upper_bound(i) << "\n";
-  std::cout << "std up-low: " << *s2.lower_bound(i) << " - " << *s2.upper_bound(i) << "\n";
+  // auto s1_range = s1.equal_range(i);
+  // auto s2_range = s2.equal_range(i);
+
+  // std::cout << "s21 range: " << *s1_range.first << " - " << *s1_range.second << "\n";
+  // std::cout << "std range: " << *s2_range.first << " - " << *s2_range.second << "\n";
+
+  // std::cout << "s21 up-low: " << *s1.lower_bound(i) << " - " << *s1.upper_bound(i) << "\n";
+  // std::cout << "std up-low: " << *s2.lower_bound(i) << " - " << *s2.upper_bound(i) << "\n";
 
 
   return 0;

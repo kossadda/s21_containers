@@ -123,6 +123,7 @@ class vector<V>::VectorConstIterator {
  private:
   pointer ptr_{};  ///< Pointer to the current element
 
+
  public:
   // Constructors
 
@@ -132,7 +133,7 @@ class vector<V>::VectorConstIterator {
 
   // Operators
 
-  operator pointer() const noexcept;
+  pointer base() const noexcept;
   const_iterator &operator=(const const_iterator &other) noexcept;
   const_iterator &operator=(const pointer ptr) noexcept;
   const_iterator &operator--() noexcept;
@@ -173,7 +174,7 @@ class vector<V>::VectorIterator {
 
   // Operators
 
-  operator pointer() const noexcept;
+  pointer base() const noexcept;
   iterator &operator=(const iterator &other) noexcept;
   iterator &operator=(const pointer ptr) noexcept;
   iterator &operator--() noexcept;
@@ -188,6 +189,22 @@ class vector<V>::VectorIterator {
   bool operator==(iterator other) const noexcept;
   bool operator!=(iterator other) const noexcept;
   reference operator*();
+
+/**
+ * @brief Converts the iterator to a const_iterator.
+ *
+ * @details
+ * This operator allows for the conversion of an iterator to a const_iterator.
+ * This is useful when you need to pass an iterator to a function that expects
+ * a const_iterator, ensuring that the elements cannot be modified through the
+ * iterator.
+ *
+ * @return const_iterator - a const_iterator initialized with the current
+ * iterator's pointer.
+ */
+  operator const_iterator() const noexcept {
+    return const_iterator{ptr_};
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -522,7 +539,7 @@ void vector<V>::clear() noexcept {
 template <typename V>
 auto vector<V>::insert(const_iterator pos, const_reference value,
                        size_type count) -> iterator {
-  if (pos < arr_ || pos > arr_ + size_) {
+  if (pos.base() < arr_ || pos.base() > arr_ + size_) {
     throw std::out_of_range("vector::insert() - pos is not at vectors range");
   }
 
@@ -557,20 +574,18 @@ auto vector<V>::insert(const_iterator pos, const_reference value,
  */
 template <typename V>
 void vector<V>::erase(const_iterator pos, const_iterator last_pos) {
-  if (last_pos == nullptr) {
+  if (last_pos.base() == nullptr) {
     last_pos = pos + 1;
   }
 
-  if (pos < arr_ || pos > arr_ + capacity_ || last_pos < arr_ ||
-      last_pos > arr_ + capacity_ || last_pos < pos) {
+  if (pos.base() < arr_ || pos.base() > arr_ + capacity_ || last_pos.base() < arr_ || last_pos.base() > arr_ + capacity_ || last_pos.base() < pos.base()) {
     throw std::range_error("vector::erase() - invalid vector range");
   }
 
   size_type range = last_pos - pos;
 
   if (range) {
-    std::copy(static_cast<pointer>(pos + range), arr_ + size_,
-              static_cast<pointer>(pos));
+    std::copy(pos.base() + range, arr_ + size_, pos.base());
     size_ -= range;
   }
 }
@@ -703,7 +718,7 @@ vector<V>::const_iterator::VectorConstIterator(const const_iterator &other)
  * that the const_iterator points to.
  */
 template <typename V>
-vector<V>::const_iterator::operator V *() const noexcept {
+auto vector<V>::const_iterator::base() const noexcept -> pointer {
   return ptr_;
 }
 
@@ -935,10 +950,10 @@ vector<V>::iterator::VectorIterator(const iterator &other) : ptr_{other.ptr_} {}
  * @return pointer - a raw pointer to the underlying element of type value_type
  * that the iterator points to.
  */
-// template <typename V>
-// vector<V>::iterator::operator V *() const noexcept {
-//   return ptr_;
-// }
+template <typename V>
+auto vector<V>::iterator::base() const noexcept -> pointer {
+  return ptr_;
+}
 
 /**
  * @brief Assignment operator from other iterator.
