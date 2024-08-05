@@ -12,7 +12,9 @@
 #ifndef SRC_MODULES_MAP_H_
 #define SRC_MODULES_MAP_H_
 
-#include <limits>
+#include <initializer_list>  // for init_list type
+#include <limits>            // for max()
+#include <string>            // for string type
 
 #include "./tree.h"
 
@@ -95,6 +97,9 @@ class map {
   size_type erase(const key_type &key);
   void swap(map &other);
   void merge(map &other);
+
+  template <typename... Args>
+  std::pair<iterator, bool> emplace(Args &&...args);
 
   // Map Lookup
 
@@ -342,7 +347,7 @@ auto map<K, M>::size() const noexcept -> size_type {
 }
 
 /**
- * @brief Returns the maximum number of elements the vector can hold.
+ * @brief Returns the maximum number of elements the map can hold.
  *
  * @return size_type - the maximum number of elements.
  */
@@ -510,6 +515,29 @@ void map<K, M>::swap(map &other) {
 template <typename K, typename M>
 void map<K, M>::merge(map &other) {
   tree_.merge(other.tree_);
+}
+
+/**
+ * @brief Inserts a new element into the map, constructed in place.
+ *
+ * @details
+ * This method constructs a new element directly in the map using the provided
+ * arguments, and inserts it into the map. This can be more efficient than
+ * inserting an already constructed element, as it avoids unnecessary copying or
+ * moving. The method ensures that the map properties are maintained after the
+ * insertion.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param args The arguments to forward to the constructor of the element.
+ * @return A pair consisting of an iterator to the inserted element (or to the
+ * element that prevented the insertion) and a bool denoting whether the
+ * insertion took place.
+ */
+template <typename K, typename M>
+template <typename... Args>
+auto map<K, M>::emplace(Args &&...args) -> std::pair<iterator, bool> {
+  return tree_.emplace(std::forward<Args>(args)...);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

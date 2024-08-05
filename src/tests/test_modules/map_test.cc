@@ -111,6 +111,51 @@ TEST(map, insert) {
   compare(s21_m, std_m);
 }
 
+TEST(map, emplace) {
+  s21_map s21_m;
+  std_map std_m;
+
+  auto s21_result = s21_m.emplace(1, 1);
+  auto std_result = std_m.emplace(1, 1);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ((*s21_result.first).first, (*std_result.first).first);
+  EXPECT_EQ((*s21_result.first).second, (*std_result.first).second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(1, 2);
+  std_result = std_m.emplace(1, 2);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(2, 2);
+  std_result = std_m.emplace(2, 2);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ((*s21_result.first).first, (*std_result.first).first);
+  EXPECT_EQ((*s21_result.first).second, (*std_result.first).second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(3, 3);
+  std_result = std_m.emplace(3, 3);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ((*s21_result.first).first, (*std_result.first).first);
+  EXPECT_EQ((*s21_result.first).second, (*std_result.first).second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(4, 4);
+  std_result = std_m.emplace(4, 4);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ((*s21_result.first).first, (*std_result.first).first);
+  EXPECT_EQ((*s21_result.first).second, (*std_result.first).second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(5, 5);
+  std_result = std_m.emplace(5, 5);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ((*s21_result.first).first, (*std_result.first).first);
+  EXPECT_EQ((*s21_result.first).second, (*std_result.first).second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+}
+
 TEST(map, insertOrAssign) {
   s21_map s21_m;
   std_map std_m;

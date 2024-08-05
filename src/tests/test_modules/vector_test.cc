@@ -194,6 +194,73 @@ TEST(vector, insertMoreElements) {
   }
 }
 
+TEST(vector, emplace) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  EXPECT_EQ(*s21_v.emplace(s21_v.cbegin() + 2, 12),
+            *std_v.emplace(std_v.cbegin() + 2, 12));
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, emplaceEmpty) {
+  s21_vector s21_v;
+  std_vector std_v;
+
+  EXPECT_EQ(*s21_v.emplace(s21_v.cbegin(), 12),
+            *std_v.emplace(std_v.cbegin(), 12));
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, emplaceEnd) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  EXPECT_EQ(*s21_v.emplace(s21_v.cend(), 12), *std_v.emplace(std_v.cend(), 12));
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, emplaceBack) {
+  s21_vector s21_v{11, 22, 33, 44, 55};
+  std_vector std_v{11, 22, 33, 44, 55};
+
+  EXPECT_EQ(s21_v.emplace_back(100), std_v.emplace_back(100));
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
+TEST(vector, emplaceBackEmpty) {
+  s21_vector s21_v;
+  std_vector std_v;
+
+  EXPECT_EQ(s21_v.emplace_back(100), std_v.emplace_back(100));
+  EXPECT_TRUE(s21_v.size() == std_v.size());
+  EXPECT_TRUE(s21_v.capacity() == std_v.capacity());
+
+  for (s21_vector::size_type count{}; count < s21_v.size(); count++) {
+    EXPECT_TRUE(s21_v[count] == std_v[count]);
+  }
+}
+
 TEST(vector, insertThrows) {
   s21_vector s21_v{11, 22, 33, 44, 55};
 

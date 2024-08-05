@@ -12,11 +12,8 @@
 #ifndef SRC_MODULES_VECTOR_H_
 #define SRC_MODULES_VECTOR_H_
 
-#include <algorithm>
-#include <initializer_list>
-#include <iostream>
-#include <limits>
-#include <utility>
+#include <initializer_list>  // for init_list type
+#include <limits>            // for max()
 
 /// @brief Namespace for working with containers
 namespace s21 {
@@ -102,10 +99,16 @@ class vector {
   void clear() noexcept;
   iterator insert(const_iterator pos, const_reference value,
                   size_type count = 1);
-  iterator erase(const_iterator pos, const_iterator last_pos = const_iterator{});
+  iterator erase(const_iterator pos,
+                 const_iterator last_pos = const_iterator{});
   void push_back(const_reference value);
   void pop_back() noexcept;
   void swap(vector &other) noexcept;
+
+  template <typename... Args>
+  reference emplace_back(Args &&...args);
+  template <typename... Args>
+  iterator emplace(const_iterator pos, Args &&...args);
 };
 
 /**
@@ -122,7 +125,6 @@ template <typename V>
 class vector<V>::VectorConstIterator {
  private:
   pointer ptr_{};  ///< Pointer to the current element
-
 
  public:
   // Constructors
@@ -190,21 +192,19 @@ class vector<V>::VectorIterator {
   bool operator!=(iterator other) const noexcept;
   reference operator*();
 
-/**
- * @brief Converts the iterator to a const_iterator.
- *
- * @details
- * This operator allows for the conversion of an iterator to a const_iterator.
- * This is useful when you need to pass an iterator to a function that expects
- * a const_iterator, ensuring that the elements cannot be modified through the
- * iterator.
- *
- * @return const_iterator - a const_iterator initialized with the current
- * iterator's pointer.
- */
-  operator const_iterator() const noexcept {
-    return const_iterator{ptr_};
-  }
+  /**
+   * @brief Converts the iterator to a const_iterator.
+   *
+   * @details
+   * This operator allows for the conversion of an iterator to a const_iterator.
+   * This is useful when you need to pass an iterator to a function that expects
+   * a const_iterator, ensuring that the elements cannot be modified through the
+   * iterator.
+   *
+   * @return const_iterator - a const_iterator initialized with the current
+   * iterator's pointer.
+   */
+  operator const_iterator() const noexcept { return const_iterator{ptr_}; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -578,7 +578,9 @@ auto vector<V>::erase(const_iterator pos, const_iterator last_pos) -> iterator {
     last_pos = pos + 1;
   }
 
-  if (pos.base() < arr_ || pos.base() > arr_ + capacity_ || last_pos.base() < arr_ || last_pos.base() > arr_ + capacity_ || last_pos.base() < pos.base()) {
+  if (pos.base() < arr_ || pos.base() > arr_ + capacity_ ||
+      last_pos.base() < arr_ || last_pos.base() > arr_ + capacity_ ||
+      last_pos.base() < pos.base()) {
     throw std::range_error("vector::erase() - invalid vector range");
   }
 
@@ -644,6 +646,70 @@ void vector<V>::swap(vector &other) noexcept {
   std::swap(other.size_, size_);
   std::swap(other.capacity_, capacity_);
   std::swap(other.arr_, arr_);
+}
+
+/**
+ * @brief Adds a new element to the end of the vector.
+ *
+ * @details
+ * This method constructs a new element in place at the end of the vector using
+ * the provided arguments. If the current size of the vector equals its
+ * capacity, the method will first reserve additional space to accommodate the
+ * new element. The new element is constructed in place using placement new,
+ * avoiding the use of the assignment operator.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param args The arguments to forward to the constructor of the new element.
+ * @return reference - a reference to the newly inserted element.
+ */
+template <typename V>
+template <typename... Args>
+auto vector<V>::emplace_back(Args &&...args) -> reference {
+  if (size_ == capacity_) {
+    reserve((capacity_) ? capacity_ * 2 : 1);
+  }
+
+  new (arr_ + size_) value_type{std::forward<Args>(args)...};
+  ++size_;
+
+  return *(arr_ + size_ - 1);
+}
+
+/**
+ * @brief Inserts a new element at the specified position in the vector.
+ *
+ * @details
+ * This method constructs a new element in place at the specified position
+ * using the provided arguments. If the current capacity of the vector is not
+ * sufficient to hold the new element, the vector will be resized to twice its
+ * current capacity or the new size, whichever is larger. Existing elements are
+ * moved to make space for the new element, and the size of the vector is
+ * updated accordingly.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param pos An iterator pointing to the position where the new element will be
+ * inserted.
+ * @param args The arguments to forward to the constructor of the new element.
+ * @return iterator - an iterator pointing to the newly inserted element.
+ * @throw std::length_error - if the reserve size greater than max_size().
+ */
+template <typename V>
+template <typename... Args>
+auto vector<V>::emplace(const_iterator pos, Args &&...args) -> iterator {
+  size_type ins_pos = pos - cbegin();
+
+  if (size_ == capacity_) {
+    reserve((capacity_) ? capacity_ * 2 : 1);
+  }
+
+  std::move_backward(arr_ + ins_pos, arr_ + size_, arr_ + size_ + 1);
+
+  new (arr_ + ins_pos) value_type(std::forward<Args>(args)...);
+  ++size_;
+
+  return iterator{arr_ + ins_pos};
 }
 
 ////////////////////////////////////////////////////////////////////////////////

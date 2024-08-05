@@ -12,7 +12,9 @@
 #ifndef SRC_MODULES_SET_H_
 #define SRC_MODULES_SET_H_
 
-#include <limits>
+#include <initializer_list>  // for init_list type
+#include <limits>            // for max()
+#include <string>            // for string type
 
 #include "./tree.h"
 
@@ -84,6 +86,9 @@ class set {
   iterator erase(const_iterator first, const_iterator last);
   void swap(set &other);
   void merge(set &other);
+
+  template <typename... Args>
+  std::pair<iterator, bool> emplace(Args &&...args);
 
   // Set Lookup
 
@@ -428,6 +433,30 @@ void set<K>::swap(set &other) {
 template <typename K>
 void set<K>::merge(set &other) {
   tree_.merge(other.tree_);
+}
+
+/**
+ * @brief Inserts a new element into the set, constructed in place.
+ *
+ * @details
+ * This method constructs a new element directly in the set using the provided
+ * arguments, and inserts it into the set. This can be more efficient than
+ * inserting an already constructed element, as it avoids unnecessary copying or
+ * moving. The method ensures that the set properties are maintained after the
+ * insertion.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param args The arguments to forward to the constructor of the element.
+ * @return A pair consisting of an iterator to the inserted element (or to the
+ * element that prevented the insertion) and a bool indicating whether the
+ * insertion took place.
+ */
+template <typename K>
+template <typename... Args>
+auto set<K>::emplace(Args &&...args) -> std::pair<iterator, bool> {
+  return tree_.emplace(std::forward<Args>(args)...,
+                       std::forward<Args>(args)...);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

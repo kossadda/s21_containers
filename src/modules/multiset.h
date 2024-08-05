@@ -1,7 +1,7 @@
 /**
  * @file multiset.h
  * @author kossadda (https://github.com/kossadda)
- * @brief
+ * @brief Header for the multiset container.
  * @version 1.0
  * @date 2024-07-31
  *
@@ -11,6 +11,10 @@
 
 #ifndef SRC_MODULES_MULTISET_H_
 #define SRC_MODULES_MULTISET_H_
+
+#include <initializer_list>  // for init_list type
+#include <limits>            // for max()
+#include <string>            // for string type
 
 #include "./set.h"
 
@@ -83,6 +87,9 @@ class multiset {
   void swap(multiset &other);
   void merge(multiset &other);
 
+  template <typename... Args>
+  iterator emplace(Args &&...args);
+
   // Multiset Lookup
 
   size_type count(const key_type &key) const noexcept;
@@ -92,6 +99,10 @@ class multiset {
   iterator lower_bound(const key_type &key);
   iterator upper_bound(const key_type &key);
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//                           MULTISET CONSTRUCTORS                            //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Constructs a multiset with elements from an initializer list.
@@ -177,42 +188,9 @@ auto multiset<K>::operator=(const multiset &ms) -> multiset & {
   return *this;
 }
 
-/**
- * @brief Checks if the multiset is empty.
- *
- * @details
- * This method returns true if the multiset contains no elements, and false
- * otherwise.
- *
- * @return bool - true if the multiset is empty, false otherwise.
- */
-template <typename K>
-bool multiset<K>::empty() const noexcept {
-  return (!tree_.size()) ? true : false;
-}
-
-/**
- * @brief Returns the number of elements in the multiset.
- *
- * @details
- * This method returns the number of elements currently stored in the multiset.
- *
- * @return size_type - the number of elements in the multiset.
- */
-template <typename K>
-auto multiset<K>::size() const noexcept -> size_type {
-  return tree_.size();
-}
-
-/**
- * @brief Returns the maximum number of elements the multiset can hold.
- *
- * @return size_type - the maximum number of elements.
- */
-template <typename K>
-auto multiset<K>::max_size() const noexcept -> size_type {
-  return tree_.max_size();
-}
+////////////////////////////////////////////////////////////////////////////////
+//                             MULTISET ITERATORS                             //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Returns an iterator to the beginning of the multiset.
@@ -267,6 +245,51 @@ template <typename K>
 auto multiset<K>::cend() const noexcept -> const_iterator {
   return tree_.cend();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//                             MULTISET CAPACITY                              //
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Checks if the multiset is empty.
+ *
+ * @details
+ * This method returns true if the multiset contains no elements, and false
+ * otherwise.
+ *
+ * @return bool - true if the multiset is empty, false otherwise.
+ */
+template <typename K>
+bool multiset<K>::empty() const noexcept {
+  return (!tree_.size()) ? true : false;
+}
+
+/**
+ * @brief Returns the number of elements in the multiset.
+ *
+ * @details
+ * This method returns the number of elements currently stored in the multiset.
+ *
+ * @return size_type - the number of elements in the multiset.
+ */
+template <typename K>
+auto multiset<K>::size() const noexcept -> size_type {
+  return tree_.size();
+}
+
+/**
+ * @brief Returns the maximum number of elements the multiset can hold.
+ *
+ * @return size_type - the maximum number of elements.
+ */
+template <typename K>
+auto multiset<K>::max_size() const noexcept -> size_type {
+  return tree_.max_size();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                             MULTISET MODIFIERS                             //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Clears the contents of the multiset.
@@ -338,6 +361,33 @@ template <typename K>
 void multiset<K>::merge(multiset &other) {
   tree_.merge(other.tree_);
 }
+
+/**
+ * @brief Inserts a new element into the multiset, constructed in place.
+ *
+ * @details
+ * This method constructs a new element directly in the multiset using the
+ * provided arguments, and inserts it into the set. This can be more efficient
+ * than inserting an already constructed element, as it avoids unnecessary
+ * copying or moving. The method ensures that the set properties are maintained
+ * after the insertion.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param args The arguments to forward to the constructor of the element.
+ * @return An iterator to the inserted element.
+ */
+template <typename K>
+template <typename... Args>
+auto multiset<K>::emplace(Args &&...args) -> iterator {
+  return (tree_.emplace(std::forward<Args>(args)...,
+                        std::forward<Args>(args)...))
+      .first;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                              MULTISET LOOKUP                               //
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Counts the number of elements with the specified key.

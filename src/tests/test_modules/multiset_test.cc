@@ -109,6 +109,38 @@ TEST(multiset, insert) {
   compare(ms1, ms_std);
 }
 
+TEST(multiset, emplace) {
+  s21_multiset s21_m;
+  std_multiset std_m;
+
+  auto s21_result = s21_m.emplace(1);
+  auto std_result = std_m.emplace(1);
+  EXPECT_EQ(*s21_result, *std_result);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(1);
+  std_result = std_m.emplace(1);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(2);
+  std_result = std_m.emplace(2);
+  EXPECT_EQ(*s21_result, *std_result);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(2);
+  std_result = std_m.emplace(2);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(4);
+  std_result = std_m.emplace(4);
+  EXPECT_EQ(*s21_result, *std_result);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(4);
+  std_result = std_m.emplace(4);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+}
+
 TEST(multiset, erase) {
   s21_multiset ms1 = {1, 2, 3, 4, 5, 1, 2, 3};
   std_multiset ms_std = {1, 2, 3, 4, 5, 1, 2, 3};

@@ -12,12 +12,9 @@
 #ifndef SRC_MODULES_TREE_H_
 #define SRC_MODULES_TREE_H_
 
-#include <algorithm>
-#include <initializer_list>
-#include <iostream>
-#include <limits>
-#include <string>
-#include <utility>
+#include <initializer_list>  // for init_list type
+#include <limits>            // for max()
+#include <string>            // for string type
 
 /// @brief Namespace for working with containers
 namespace s21 {
@@ -93,6 +90,9 @@ class tree {
   void merge(tree &other);
   void clear() noexcept;
   std::string structure() const noexcept;
+
+  template <typename... Args>
+  std::pair<iterator, bool> emplace(Args &&...args);
 
  private:
   // Add/remove nodes
@@ -706,6 +706,42 @@ void tree<K, M>::clear() noexcept {
 template <typename K, typename M>
 std::string tree<K, M>::structure() const noexcept {
   return printNodes(root_);
+}
+
+/**
+ * @brief Inserts a new element into the tree, constructed in place.
+ *
+ * @details
+ * This method constructs a new element directly in the tree using the provided
+ * arguments, and inserts it into the tree. This can be more efficient than
+ * inserting an already constructed element, as it avoids unnecessary copying or
+ * moving. The method ensures that the tree properties are maintained after the
+ * insertion.
+ *
+ * @tparam Args The types of the arguments to forward to the constructor of the
+ * element.
+ * @param args The arguments to forward to the constructor of the element.
+ * @return A pair consisting of an iterator to the inserted element (or to the
+ * element that prevented the insertion) and a bool denoting whether the
+ * insertion took place.
+ */
+template <typename K, typename M>
+template <typename... Args>
+auto tree<K, M>::emplace(Args &&...args) -> std::pair<iterator, bool> {
+  Node *new_node = new Node{value_type{std::forward<Args>(args)...}};
+
+  if (type_ == UNIQUE && findNode(root_, new_node->pair->first)) {
+    delete new_node;
+    return {end(), false};
+  }
+
+  if (!sentinel_) {
+    sentinel_ = new Node{value_type{}};
+  }
+
+  insertNode(new_node, root_);
+
+  return {iterator{new_node, root_, sentinel_}, true};
 }
 
 ////////////////////////////////////////////////////////////////////////////////

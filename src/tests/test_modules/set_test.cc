@@ -109,6 +109,46 @@ TEST(set, insert) {
   compare(s21_s, std_s);
 }
 
+TEST(set, emplace) {
+  s21_set s21_m;
+  std_set std_m;
+
+  auto s21_result = s21_m.emplace(1);
+  auto std_result = std_m.emplace(1);
+  EXPECT_EQ(*s21_result.first, *std_result.first);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(1);
+  std_result = std_m.emplace(1);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(2);
+  std_result = std_m.emplace(2);
+  EXPECT_EQ(*s21_result.first, *std_result.first);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(3);
+  std_result = std_m.emplace(3);
+  EXPECT_EQ(*s21_result.first, *std_result.first);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(4);
+  std_result = std_m.emplace(4);
+  EXPECT_EQ(*s21_result.first, *std_result.first);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+
+  s21_result = s21_m.emplace(5);
+  std_result = std_m.emplace(5);
+  EXPECT_EQ(*s21_result.first, *std_result.first);
+  EXPECT_EQ(s21_result.second, std_result.second);
+  EXPECT_EQ(s21_m.size(), std_m.size());
+}
+
 TEST(set, erase) {
   s21_set s21_s = {1, 2, 3, 4, 5};
   std_set std_s = {1, 2, 3, 4, 5};
