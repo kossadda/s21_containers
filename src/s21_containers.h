@@ -12,10 +12,14 @@
 #ifndef _S21_CONTAINERS_H_
 #define _S21_CONTAINERS_H_
 
+#include "./modules/list.h"
 #include "./modules/map.h"
-#include "./modules/multiset.h"
+#include "./modules/queue.h"
 #include "./modules/set.h"
+#include "./modules/stack.h"
 #include "./modules/tree.h"
 #include "./modules/vector.h"
+#include "./modules/array.h"
+#include "./modules/multiset.h"
 
 #endif  // _S21_CONTAINERS_H_

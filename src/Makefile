@@ -48,7 +48,6 @@ CPPCHECK = --enable=all --suppress=missingIncludeSystem
 
 
 #================================ TARGET NAMES ================================#
-LIBRARY = $(PROJECT_NAME).a
 TARGET = test
 GCOV = gcov_report
 #==============================================================================#
@@ -104,23 +103,13 @@ vpath %.o $(OBJ_DIR)
 
 
 #================================= MAIN TARGETS ===============================#
-.PHONY: $(LIBRARY) $(TARGET) $(GCOV)
+.PHONY: $(TARGET)
 
-all: $(LIBRARY) dvi
+all: dvi $(TARGET)
 
-$(LIBRARY): $(OBJ_DIR) $(MODULES_O) $(MODULES_H) $(MAIN_H)
-	@ar rcs $@ $(MODULES_OBJ_PATH)
-	@ranlib $@
-
-$(TARGET): clean $(LIBRARY) $(OBJ_DIR) $(TEST_O)
-	@$(CXX) $(TEST_OBJ_PATH) $(LIBRARY) $(LDFLAGS) -o $@
+$(TARGET): clean $(OBJ_DIR) $(TEST_O)
+	@$(CXX) $(TEST_OBJ_PATH) $(LDFLAGS) -o $@
 	@-./$@
-
-$(GCOV): $(OBJ_DIR) $(REPORT_DIR) $(TEST_O)
-	$(CXX) $(TEST_OBJ_PATH) $(EXCLUDE) $(LDFLAGS) $(GCOV_FLAGS) -o $(addprefix $(OBJ_DIR)/, $(TARGET))
-	./$(addprefix $(OBJ_DIR)/, $(TARGET))
-	gcovr -r . --html --html-details -o $(REPORT_DIR)/coverage.html
-	xdg-open $(REPORT_DIR)/coverage.html
 
 dvi:
 	rm -rf $(DVI_DIR)
@@ -180,7 +169,6 @@ clang_fix:
 	clang-format -style=Google -i $(ALL_FILES)
 
 dependencies:
-	sudo apt install clang-format
 	sudo apt-get install libgtest-dev
 	sudo apt install doxygen
 	sudo apt-get install graphviz
