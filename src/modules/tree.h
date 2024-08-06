@@ -9,9 +9,10 @@
  *
  */
 
-#ifndef SRC_MODULES_TREE_H_
-#define SRC_MODULES_TREE_H_
+#ifndef SRC_CONTAINERS_TREE_H_
+#define SRC_CONTAINERS_TREE_H_
 
+#include <algorithm>         // for exchange()
 #include <initializer_list>  // for init_list type
 #include <limits>            // for max()
 #include <string>            // for string type
@@ -33,16 +34,12 @@ namespace s21 {
  */
 template <typename K, typename M>
 class tree {
- private:
+ public:
   // Container types
 
-  struct Node;
-  enum Colors { RED, BLACK };
-
- public:
   class TreeIterator;
   class TreeConstIterator;
-  enum Uniq { UNIQUE, NON_UNIQUE };
+  enum Uniq { kUNIQUE, kNON_UNIQUE };
 
   // Type aliases
 
@@ -53,18 +50,11 @@ class tree {
   using value_type = std::pair<K, M>;        ///< Key-map pair
   using size_type = std::size_t;
 
- private:
-  Node *root_{};      ///< Root of tree
-  Node *sentinel_{};  ///< Dummy element
-  size_type size_{};  ///< Size of tree
-  Uniq type_{};       ///< Determines whether to allow duplicates
-
- public:
   // Constructors/destructor
 
-  explicit tree(Uniq type = UNIQUE) noexcept;
-  explicit tree(const value_type &pair, Uniq type = UNIQUE);
-  tree(std::initializer_list<value_type> const &items, Uniq type = UNIQUE);
+  explicit tree(Uniq type = kUNIQUE) noexcept;
+  explicit tree(const value_type &pair, Uniq type = kUNIQUE);
+  tree(std::initializer_list<value_type> const &items, Uniq type = kUNIQUE);
   tree(const tree &t);
   tree(tree &&t);
   tree &operator=(tree &&t);
@@ -95,6 +85,18 @@ class tree {
   std::pair<iterator, bool> emplace(Args &&...args);
 
  private:
+  // Container types
+
+  struct Node;
+  enum Colors { kRED, kBLACK };
+
+  // Fields
+
+  Node *root_{};      ///< Root of tree
+  Node *sentinel_{};  ///< Dummy element
+  size_type size_{};  ///< Size of tree
+  Uniq type_{};       ///< Determines whether to allow duplicates
+
   // Add/remove nodes
 
   Node *createNode(const value_type &pair, Node *&node, Node *parent = nullptr);
@@ -152,11 +154,6 @@ class tree {
  */
 template <typename K, typename M>
 class tree<K, M>::TreeIterator {
- protected:
-  Node *ptr_{};    ///< Pointer to the current node
-  Node *first_{};  ///< Pointer to the lowest node
-  Node *last_{};   ///< Pointer to a dummy node
-
  public:
   // Constructors
 
@@ -194,6 +191,13 @@ class tree<K, M>::TreeIterator {
   operator const_iterator() const noexcept {
     return const_iterator{ptr_, first_, last_};
   }
+
+ protected:
+  // Fields
+
+  Node *ptr_{};    ///< Pointer to the current node
+  Node *first_{};  ///< Pointer to the lowest node
+  Node *last_{};   ///< Pointer to a dummy node
 };
 
 /**
@@ -211,11 +215,6 @@ class tree<K, M>::TreeIterator {
  */
 template <typename K, typename M>
 class tree<K, M>::TreeConstIterator {
- protected:
-  Node *ptr_{};    ///< Pointer to the current node
-  Node *first_{};  ///< Pointer to the lowest node
-  Node *last_{};   ///< Pointer to a dummy node
-
  public:
   // Constructors
 
@@ -238,6 +237,13 @@ class tree<K, M>::TreeConstIterator {
   bool operator!=(const_iterator other) const noexcept;
   const value_type operator*() const noexcept;
   iterator toIterator() const noexcept;
+
+ protected:
+  // Fields
+
+  Node *ptr_{};    ///< Pointer to the current node
+  Node *first_{};  ///< Pointer to the lowest node
+  Node *last_{};   ///< Pointer to a dummy node
 };
 
 /**
@@ -251,7 +257,7 @@ class tree<K, M>::TreeConstIterator {
  * @tparam M The type of values stored in the tree.
  */
 template <typename K, typename M>
-class tree<K, M>::Node {
+struct tree<K, M>::Node {
  public:
   value_type *pair;  ///< Node key
   Colors color;      ///< Color of node (red/black)
@@ -267,7 +273,7 @@ class tree<K, M>::Node {
    * @param[in] c The color of the node.
    * @param[in] p The parent of the node.
    */
-  Node(const value_type &pair_, Colors color_ = RED, Node *parent_ = 0)
+  Node(const value_type &pair_, Colors color_ = kRED, Node *parent_ = 0)
       : pair{new value_type{pair_}}, color{color_}, parent{parent_} {}
 
   /**
@@ -494,7 +500,7 @@ auto tree<K, M>::find(const key_type &key) const -> iterator {
  */
 template <typename K, typename M>
 auto tree<K, M>::insert(const value_type &pair) -> iterator {
-  if (type_ == UNIQUE && findNode(root_, pair.first)) {
+  if (type_ == kUNIQUE && findNode(root_, pair.first)) {
     return end();
   }
 
@@ -651,7 +657,7 @@ auto tree<K, M>::max_size() const noexcept -> size_type {
  */
 template <typename K, typename M>
 void tree<K, M>::merge(tree &other) {
-  if (type_ == UNIQUE) {
+  if (type_ == kUNIQUE) {
     auto it = other.begin();
 
     while (it != other.end()) {
@@ -730,7 +736,7 @@ template <typename... Args>
 auto tree<K, M>::emplace(Args &&...args) -> std::pair<iterator, bool> {
   Node *new_node = new Node{value_type{std::forward<Args>(args)...}};
 
-  if (type_ == UNIQUE && findNode(root_, new_node->pair->first)) {
+  if (type_ == kUNIQUE && findNode(root_, new_node->pair->first)) {
     delete new_node;
     return {end(), false};
   }
@@ -763,11 +769,11 @@ auto tree<K, M>::createNode(const value_type &pair, Node *&node, Node *parent)
   Node *ret_node{root_};
 
   if (!node) {
-    node = new Node{pair, RED, parent};
+    node = new Node{pair, kRED, parent};
     ret_node = node;
     ++size_;
 
-    if (node->parent && node->parent->color == RED) {
+    if (node->parent && node->parent->color == kRED) {
       balancingTree(node);
     }
   } else {
@@ -779,7 +785,7 @@ auto tree<K, M>::createNode(const value_type &pair, Node *&node, Node *parent)
   }
 
   if (root_) {
-    root_->color = BLACK;
+    root_->color = kBLACK;
   }
 
   return ret_node;
@@ -801,14 +807,14 @@ auto tree<K, M>::createNode(const value_type &pair, Node *&node, Node *parent)
 template <typename K, typename M>
 void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
   if (!node) {
-    insert->color = RED;
+    insert->color = kRED;
     insert->parent = parent;
     insert->left = insert->right = nullptr;
 
     ++size_;
     node = insert;
 
-    if (node->parent && node->parent->color == RED) {
+    if (node->parent && node->parent->color == kRED) {
       balancingTree(node);
     }
   } else {
@@ -820,7 +826,7 @@ void tree<K, M>::insertNode(Node *insert, Node *&node, Node *parent) {
   }
 
   if (root_) {
-    root_->color = BLACK;
+    root_->color = kBLACK;
   }
 }
 
@@ -843,7 +849,7 @@ auto tree<K, M>::extractNode(Node *node) noexcept -> Node * {
 
   Node *to_del{node};
 
-  if (node->color == RED) {
+  if (node->color == kRED) {
     if (!node->left && !node->right) {
       removeConnect(node);
     } else if (node->left && node->right) {
@@ -930,15 +936,15 @@ void tree<K, M>::copyTree(Node *node) {
  */
 template <typename K, typename M>
 void tree<K, M>::balancingTree(Node *node) noexcept {
-  while (node->parent && node->parent->color == RED) {
+  while (node->parent && node->parent->color == kRED) {
     Node *parent = node->parent;
     Node *grandpar = parent->parent;
     Node *uncle = (parent == grandpar->left) ? grandpar->right : grandpar->left;
 
-    if (uncle && uncle->color == RED) {
-      parent->color = BLACK;
-      uncle->color = BLACK;
-      grandpar->color = RED;
+    if (uncle && uncle->color == kRED) {
+      parent->color = kBLACK;
+      uncle->color = kBLACK;
+      grandpar->color = kRED;
       node = grandpar;
     } else {
       if (node == parent->right && parent == grandpar->left) {
@@ -951,8 +957,8 @@ void tree<K, M>::balancingTree(Node *node) noexcept {
         parent = node->parent;
       }
 
-      parent->color = BLACK;
-      grandpar->color = RED;
+      parent->color = kBLACK;
+      grandpar->color = kRED;
 
       if (parent == grandpar->left) {
         rotateRight(grandpar);
@@ -977,46 +983,46 @@ void tree<K, M>::fixDoubleBlack(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
-  if (brother->color == RED) {
-    parent->color = RED;
-    brother->color = BLACK;
+  if (brother->color == kRED) {
+    parent->color = kRED;
+    brother->color = kBLACK;
 
     (brother == parent->left) ? rotateRight(parent) : rotateLeft(parent);
     fixDoubleBlack(node);
   } else {
-    if ((brother->left && brother->left->color == BLACK) &&
-        (brother->right && brother->right->color == BLACK)) {
-      brother->color = RED;
-      if (parent->color == BLACK) {
+    if ((brother->left && brother->left->color == kBLACK) &&
+        (brother->right && brother->right->color == kBLACK)) {
+      brother->color = kRED;
+      if (parent->color == kBLACK) {
         fixDoubleBlack(parent);
       } else {
-        parent->color = BLACK;
+        parent->color = kBLACK;
       }
     } else {
       if (brother == parent->left) {
-        if (brother->left && brother->left->color == RED) {
+        if (brother->left && brother->left->color == kRED) {
           brother->left->color = std::exchange(brother->color, parent->color);
           rotateRight(parent);
         } else {
-          if (brother->right && brother->right->color == RED) {
+          if (brother->right && brother->right->color == kRED) {
             brother->right->color = parent->color;
             rotateLeft(brother);
             rotateRight(parent);
           }
         }
       } else {
-        if (brother->right && brother->right->color == RED) {
+        if (brother->right && brother->right->color == kRED) {
           brother->right->color = std::exchange(brother->color, parent->color);
           rotateLeft(parent);
         } else {
-          if (brother->left && brother->left->color == RED) {
+          if (brother->left && brother->left->color == kRED) {
             brother->left->color = parent->color;
             rotateRight(brother);
             rotateLeft(parent);
           }
         }
       }
-      parent->color = BLACK;
+      parent->color = kBLACK;
     }
   }
 }
@@ -1086,9 +1092,9 @@ void tree<K, M>::swapColors(Node *node) noexcept {
     return;
   }
 
-  if (node->left->color == RED && node->right->color == RED) {
-    node->left->color = node->right->color = BLACK;
-    node->color = RED;
+  if (node->left->color == kRED && node->right->color == kRED) {
+    node->left->color = node->right->color = kBLACK;
+    node->color = kRED;
 
     if (node->parent && node->parent != root_) {
       swapColors(node->parent);
@@ -1096,7 +1102,7 @@ void tree<K, M>::swapColors(Node *node) noexcept {
   }
 
   if (root_) {
-    root_->color = BLACK;
+    root_->color = kBLACK;
   }
 }
 
@@ -1192,7 +1198,7 @@ auto tree<K, M>::deleteTwoChild(Node *&node) noexcept -> Node * {
   node->pair = new value_type{swap_copy};
 
   if (!swap->left && !swap->right) {
-    if (swap->color == RED) {
+    if (swap->color == kRED) {
       removeConnect(swap);
     } else {
       deleteBlackNoChild(swap);
@@ -1249,18 +1255,18 @@ void tree<K, M>::deleteBlackNoChild(Node *&node) noexcept {
   Node *brother = (parent->left == node) ? parent->right : parent->left;
   bool is_left = (parent->left == node) ? true : false;
 
-  if (brother && parent->color == RED && brother->color == BLACK) {
+  if (brother && parent->color == kRED && brother->color == kBLACK) {
     if (!brother->left && !brother->right) {
       std::swap(brother->color, parent->color);
       removeConnect(node);
-    } else if ((is_left && brother->right && brother->right->color == RED) ||
-               (!is_left && brother->left && brother->left->color == RED)) {
+    } else if ((is_left && brother->right && brother->right->color == kRED) ||
+               (!is_left && brother->left && brother->left->color == kRED)) {
       redParBlackSonRedLeft(node);
-    } else if ((is_left && brother->left && brother->left->color == RED) ||
-               (!is_left && brother->right && brother->right->color == RED)) {
+    } else if ((is_left && brother->left && brother->left->color == kRED) ||
+               (!is_left && brother->right && brother->right->color == kRED)) {
       redParBlackSonRedRight(node);
     }
-  } else if (brother && parent->color == BLACK && brother->color == BLACK) {
+  } else if (brother && parent->color == kBLACK && brother->color == kBLACK) {
     if (!brother->left && !brother->right) {
       blackParBlackBrosBlackAll(node);
     } else if ((is_left && !brother->right && brother->left) ||
@@ -1269,11 +1275,12 @@ void tree<K, M>::deleteBlackNoChild(Node *&node) noexcept {
     } else {
       blackParBlackBrosRedLeftOrAllGran(node);
     }
-  } else if (brother && node->parent->color == BLACK && brother->color == RED) {
-    if ((is_left && brother->left && brother->left->color == BLACK) ||
-        (!is_left && brother->right && brother->right->color == BLACK)) {
+  } else if (brother && node->parent->color == kBLACK &&
+             brother->color == kRED) {
+    if ((is_left && brother->left && brother->left->color == kBLACK) ||
+        (!is_left && brother->right && brother->right->color == kBLACK)) {
       Node *grgrson = (is_left) ? brother->left->right : brother->right->left;
-      if (grgrson && grgrson->color == RED) {
+      if (grgrson && grgrson->color == kRED) {
         blackParRedBrosBlackRightRedLeft(node);
       } else {
         blackParRedSonBlackRight(node);
@@ -1283,7 +1290,7 @@ void tree<K, M>::deleteBlackNoChild(Node *&node) noexcept {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//                     BLACK NO CHILD NODE REMOVAL CASES                      //
+//                     kBLACK NO CHILD NODE REMOVAL CASES //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -1369,13 +1376,13 @@ void tree<K, M>::blackParBlackBrosBlackAll(Node *&node) noexcept {
   Node *parent = node->parent;
   Node *brother = (parent->left == node) ? parent->right : parent->left;
 
-  brother->color = RED;
+  brother->color = kRED;
   removeConnect(node);
 
-  if (parent->color == BLACK) {
+  if (parent->color == kBLACK) {
     fixDoubleBlack(parent);
   } else {
-    parent->color = BLACK;
+    parent->color = kBLACK;
   }
 }
 
@@ -1395,7 +1402,7 @@ void tree<K, M>::blackParBlackBrosRedRightGran(Node *&node) noexcept {
   (is_left) ? rotateRight(brother) : rotateLeft(brother);
   std::swap(brother->color, brother->parent->color);
   (is_left) ? rotateLeft(parent) : rotateRight(parent);
-  brother->color = BLACK;
+  brother->color = kBLACK;
 }
 
 /**
@@ -1413,16 +1420,16 @@ void tree<K, M>::blackParBlackBrosRedLeftOrAllGran(Node *&node) noexcept {
   if (is_left) {
     rotateLeft(parent);
     if (parent->parent && parent->parent->right) {
-      parent->parent->right->color = BLACK;
+      parent->parent->right->color = kBLACK;
     } else if (root_ == parent) {
-      root_->right->color = BLACK;
+      root_->right->color = kBLACK;
     }
   } else {
     rotateRight(parent);
     if (parent->parent && parent->parent->left) {
-      parent->parent->left->color = BLACK;
+      parent->parent->left->color = kBLACK;
     } else if (root_ == parent) {
-      root_->left->color = BLACK;
+      root_->left->color = kBLACK;
     }
   }
 }
@@ -1451,7 +1458,7 @@ std::string tree<K, M>::printNodes(const Node *node, int indent,
     } else {
       str += "L---";
     }
-    str += (node->color == RED ? "{R:" : "{B:");
+    str += (node->color == kRED ? "{R:" : "{B:");
 
     int reserve = 50;
     char *char_str = new char[reserve]{};
@@ -1955,4 +1962,4 @@ auto tree<K, M>::const_iterator::operator*() const noexcept
 
 }  // namespace s21
 
-#endif  // SRC_MODULES_TREE_H_
+#endif  // SRC_CONTAINERS_TREE_H_
